@@ -98,7 +98,7 @@
     };
 
     function cleanPhone(raw) {
-      let d = raw.replace(/\D/g, "");
+      let d = (raw || "").toString().replace(/\D/g, "");
       if (d.startsWith("0") && d.length === 11) return "234" + d.slice(1);
       if (d.length === 10) return "234" + d;
       return d || "2347045750528";
@@ -123,9 +123,9 @@
           body: JSON.stringify({})
         });
 
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-
         const data = await res.json();
+        if (!res.ok) throw new Error(data.message || `Status ${res.status}`);
+
         let orders = (data.results || []).map(page => {
           const props = page.properties;
           const merchant = props["Merchant Name"]?.title?.[0]?.plain_text || "Merchant";
@@ -137,7 +137,7 @@
           let phone = "";
           if (props["Customer Phone"]?.type === "phone_number") {
             phone = props["Customer Phone"]?.phone_number || "";
-          } else {
+          } else if (props["Customer Phone"]?.type === "rich_text") {
             phone = props["Customer Phone"]?.rich_text?.[0]?.plain_text || "";
           }
 
@@ -213,23 +213,35 @@
       btn.innerText = "Saving to Notion...";
       btn.disabled = true;
 
+      const phoneVal = document.getElementById("customerPhone").value.trim();
+      const merchantVal = document.getElementById("merchantName").value.trim();
+      const addressVal = document.getElementById("deliveryAddress").value.trim();
+      const catVal = document.getElementById("itemCategory").value;
+      const proofVal = document.getElementById("proofUrl").value.trim();
+
       const payload = {
         parent: { database_id: DATABASE_ID },
         properties: {
-          "Merchant Name": { title: [{ text: { content: document.getElementById("merchantName").value } }] },
-          "Delivery Address": { rich_text: [{ text: { content: document.getElementById("deliveryAddress").value } }] },
-          "Customer Phone": { phone_number: document.getElementById("customerPhone").value },
-          "Item Category": { select: { name: document.getElementById("itemCategory").value } },
-          "Status": { status: { name: "Pending" } }
+          "Merchant Name": { 
+            title: [{ text: { content: merchantVal } }] 
+          },
+          "Delivery Address": { 
+            rich_text: [{ text: { content: addressVal } }] 
+          },
+          "Customer Phone": { 
+            phone_number: phoneVal 
+          },
+          "Item Category": { 
+            select: { name: catVal } 
+          },
+          "Status": { 
+            status: { name: "Pending" } 
+          }
         }
       };
 
-      const proof = document.getElementById("proofUrl").value;
-      if (proof) {
-        let validProof = proof;
-        if (!validProof.startsWith("http://") && !validProof.startsWith("https://")) {
-          validProof = "https://" + validProof;
-        }
+      if (proofVal) {
+        let validProof = proofVal.startsWith("http") ? proofVal : "https://" + proofVal;
         payload.properties["Photo Proof of Delivery URL"] = { url: validProof };
       }
 
@@ -240,12 +252,16 @@
           body: JSON.stringify(payload)
         });
 
-        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const responseData = await res.json();
+
+        if (!res.ok) {
+          throw new Error(responseData.message || `Error ${res.status}`);
+        }
 
         document.getElementById("orderForm").reset();
         await fetchOrders();
       } catch (err) {
-        alert("Error saving: " + err.message);
+        alert("Notion Error: " + err.message);
       } finally {
         btn.innerText = "+ Log to Notion Database";
         btn.disabled = false;
