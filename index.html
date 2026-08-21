@@ -50,6 +50,17 @@
       background-color: #061810;
       color: #f1f5f9;
       overflow-x: hidden;
+      padding-top: max(16px, env(safe-area-inset-top));
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
+    }
+
+    header, .app-header {
+      padding-top: max(16px, env(safe-area-inset-top));
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
     }
 
     /* Animated Ambient Fluid Orbs */
@@ -393,14 +404,14 @@
         </div>
         
         <div class="flex items-center gap-2">
-          <button onclick="fetchOrders(false)" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 px-3 py-1.5 rounded-full font-semibold border border-white/10 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-arrows-rotate text-[11px]" id="riderRefreshIcon"></i>
-            <span class="text-[11px]">Sync</span>
+          <button onclick="fetchOrders(false)" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 min-h-[44px] min-w-[44px] px-3.5 py-2.5 rounded-full font-semibold border border-white/10 transition flex items-center justify-center gap-1.5 cursor-pointer select-none">
+            <i class="fa-solid fa-arrows-rotate text-xs" id="riderRefreshIcon"></i>
+            <span class="text-xs">Sync</span>
           </button>
 
-          <!-- Discreet CEO Passcode Gate Lock Icon (🔒) -->
-          <button onclick="openCeoModal()" title="CEO Console Login" class="w-8 h-8 rounded-full bg-white/[0.06] hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 border border-white/10 flex items-center justify-center text-xs transition active:scale-90 shadow-sm">
-            <i class="fa-solid fa-lock text-[11px]"></i>
+          <!-- Discreet CEO Passcode Gate Lock Icon (🔒) with 44x44px touch target -->
+          <button onclick="openCeoModal()" title="CEO Console Login" class="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-white/[0.06] hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 border border-white/10 flex items-center justify-center text-sm transition active:scale-90 shadow-sm cursor-pointer select-none">
+            <i class="fa-solid fa-lock text-xs"></i>
           </button>
         </div>
       </div>
@@ -475,15 +486,15 @@
           </div>
           
           <div class="flex items-center gap-2">
-            <button onclick="fetchOrders(false)" title="Sync Notion" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 px-3 py-1.5 rounded-full font-semibold border border-white/10 transition flex items-center gap-1.5">
-              <i class="fa-solid fa-arrows-rotate text-[11px]" id="ceoRefreshIcon"></i>
-              <span class="text-[11px]">Sync</span>
+            <button onclick="fetchOrders(false)" title="Sync Notion" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 min-h-[44px] min-w-[44px] px-3.5 py-2.5 rounded-full font-semibold border border-white/10 transition flex items-center justify-center gap-1.5 cursor-pointer select-none">
+              <i class="fa-solid fa-arrows-rotate text-xs" id="ceoRefreshIcon"></i>
+              <span class="text-xs">Sync</span>
             </button>
 
-            <!-- Functional CEO Logout Button -->
-            <button onclick="logoutCeo()" title="Lock & Logout CEO Console" class="text-xs bg-rose-500/10 hover:bg-rose-500/20 active:scale-95 text-rose-300 border border-rose-500/30 px-2.5 py-1.5 rounded-full font-bold transition flex items-center gap-1">
-              <i class="fa-solid fa-lock text-[10px]"></i>
-              <span class="text-[10px]">Logout</span>
+            <!-- Functional CEO Logout Button with 44x44px touch target -->
+            <button onclick="logoutCeo()" title="Lock & Logout CEO Console" class="text-xs bg-rose-500/10 hover:bg-rose-500/20 active:scale-95 text-rose-300 border border-rose-500/30 min-h-[44px] min-w-[44px] px-3 py-2.5 rounded-full font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none">
+              <i class="fa-solid fa-lock text-xs"></i>
+              <span class="text-xs">Logout</span>
             </button>
           </div>
         </div>
@@ -583,9 +594,9 @@
         <form id="orderForm" onsubmit="handleCreateOrder(event)" class="p-4 pt-1 space-y-3.5 border-t border-white/[0.06] bg-black/20">
           <div>
             <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
-              <i class="fa-solid fa-store text-[10px] text-amber-400"></i> Merchant / Sender
+              <i class="fa-solid fa-store text-[10px] text-amber-400"></i> Sender / Merchant Name <span class="text-slate-500 font-normal">(Optional)</span>
             </label>
-            <input id="merchantName" required placeholder="e.g. Apex Attire / Zara Store" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+            <input id="merchantName" placeholder="e.g. Apex Attire / Zara Store / Amina (Optional)" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
           </div>
           
           <div>
@@ -1805,6 +1816,26 @@
       }
     }
 
+    // WhatsApp Dynamic Template Builder (Adapts for merchants and individual senders)
+    function buildWhatsAppTemplates(order) {
+      const sender = (order.merchant || "").trim();
+      const isGeneric = !sender || ["personal package", "package", "sender", "standard delivery", "none", "n/a", "-"].includes(sender.toLowerCase());
+      const fromText = (!isGeneric && sender) ? ` from *${sender}*` : "";
+      
+      const hasCod = order.codAmount && Number(order.codAmount) > 0;
+      const cod_text = hasCod ? `₦${Number(order.codAmount).toLocaleString()}` : "Prepaid / None";
+      const delivery_address = order.address || "your destination";
+
+      const inTransitText = `🚚 *SADEX EXPRESS*\n\nHello, your package${fromText} is now *In-Transit* with SADEX Express to: *${delivery_address}*.\n\n💵 *Cash to Collect:* *${cod_text}*\n\nOur dispatch rider is currently en route. Thank you for choosing SADEX!`;
+
+      const deliveredText = `🎉 *SADEX EXPRESS*\n\nHello, your package${fromText} has been safely *Delivered* to: *${delivery_address}*.\n\nThank you for using SADEX Express!\n⭐ Reply 1 to 5 to rate our delivery rider.`;
+
+      return {
+        inTransitLink: `https://wa.me/${order.phone}?text=${encodeURIComponent(inTransitText)}`,
+        deliveredLink: `https://wa.me/${order.phone}?text=${encodeURIComponent(deliveredText)}`
+      };
+    }
+
     // Render CEO Console Orders
     function renderOrders() {
       const container = document.getElementById("ordersContainer");
@@ -1872,23 +1903,9 @@
           </span>
         `;
 
-        const inTransitText = encodeURIComponent(
-          `🚚 *SADEX Express Dispatch Alert*\n\n` +
-          `Hello, your package from *${order.merchant}* is now *In-Transit* via SADEX Express to: ${order.address}.\n` +
-          `📦 Category: ${order.category}\n` +
-          (hasCod ? `💵 Cash on Delivery: *₦${Number(order.codAmount).toLocaleString()}*\n` : `💳 Payment: *Prepaid*\n`) +
-          `Our dispatch rider is currently en route. Thank you for choosing SADEX Express!`
-        );
-        const inTransitLink = `https://wa.me/${order.phone}?text=${inTransitText}`;
-
-        const proofSection = order.proofUrl ? `\n\n📷 Photo Proof: ${order.proofUrl}` : "";
-        const deliveredText = encodeURIComponent(
-          `🎉 *SADEX Express Delivery Completed*\n\n` +
-          `Hello, your package from *${order.merchant}* has been safely *Delivered* by SADEX Express to: ${order.address}!${proofSection}\n\n` +
-          `⭐ How was your delivery experience today? Reply 1-5 to rate our service.`
-        );
-        const deliveredLink = `https://wa.me/${order.phone}?text=${deliveredText}`;
+        const { inTransitLink, deliveredLink } = buildWhatsAppTemplates(order);
         const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
+        const displayName = order.merchant || "Standard Delivery";
 
         return `
           <div class="ios-card sheen-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} ${isSelected ? 'ios-card-selected' : ''} rounded-2xl p-4 space-y-3.5 transition-all shadow-xl">
@@ -1927,7 +1944,7 @@
                     ${codBadge}
                   </div>
 
-                  <h3 class="font-black text-white text-sm tracking-tight pt-0.5 truncate">${order.merchant}</h3>
+                  <h3 class="font-black text-white text-sm tracking-tight pt-0.5 truncate">${displayName}</h3>
                 </div>
               </div>
 
@@ -2055,14 +2072,8 @@
           </span>
         `;
 
-        const alertText = encodeURIComponent(
-          `🚚 *SADEX Express Dispatch Alert*\n\n` +
-          `Hello, your package is now *In-Transit* via SADEX Express to: ${order.address}.\n` +
-          `📦 Category: ${order.category}\n` +
-          (hasCod ? `💵 Cash on Delivery: *₦${Number(order.codAmount).toLocaleString()}*\n` : `💳 Payment: *Prepaid*\n`) +
-          `Our dispatch rider is en route to your location. Thank you for choosing SADEX Express!`
-        );
-        const alertLink = `https://wa.me/${order.phone}?text=${alertText}`;
+        const { inTransitLink } = buildWhatsAppTemplates(order);
+        const alertLink = inTransitLink;
         const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
 
         return `
@@ -2153,6 +2164,7 @@
 
       const phoneVal = document.getElementById("customerPhone").value.trim();
       const merchantVal = document.getElementById("merchantName").value.trim();
+      const senderVal = merchantVal || "Package";
       const rawAddress = document.getElementById("deliveryAddress").value.trim();
       const landmarkVal = (document.getElementById("landmark")?.value || "").trim();
       const fullAddress = landmarkVal ? `${rawAddress} (Landmark: ${landmarkVal})` : rawAddress;
@@ -2164,7 +2176,7 @@
       const payload = {
         parent: { database_id: DATABASE_ID },
         properties: {
-          "Merchant Name": { title: [{ text: { content: merchantVal } }] },
+          "Merchant Name": { title: [{ text: { content: senderVal } }] },
           "Delivery Address": { rich_text: [{ text: { content: fullAddress } }] },
           "Customer Phone": { phone_number: phoneVal },
           "Item Category": { select: { name: catVal } },
