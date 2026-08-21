@@ -13,6 +13,10 @@
   <meta name="theme-color" content="#061810" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- Leaflet.js Interactive Map Engine -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -212,6 +216,41 @@
     }
     .pin-shake {
       animation: pinShake 0.4s ease-in-out;
+    }
+
+    /* Leaflet Dark Customizations */
+    .leaflet-container {
+      background: #020617 !important;
+      font-family: inherit;
+    }
+    .leaflet-popup-content-wrapper {
+      background: rgba(15, 23, 42, 0.95) !important;
+      color: #f8fafc !important;
+      border: 1px solid rgba(245, 158, 11, 0.3) !important;
+      border-radius: 14px !important;
+      backdrop-filter: blur(12px) !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+      font-size: 11px !important;
+    }
+    .leaflet-popup-tip {
+      background: rgba(15, 23, 42, 0.95) !important;
+    }
+    .rider-pulse-marker {
+      position: relative;
+    }
+    .rider-pulse-marker::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.4);
+      animation: riderPulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes riderPulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.6); opacity: 0.2; }
+      100% { transform: scale(2.2); opacity: 0; }
     }
   </style>
 </head>
@@ -574,6 +613,64 @@
         </div>
       </div>
 
+      <!-- Live Fleet Radar (Real-Time Leaflet GPS Telemetry Map) -->
+      <div id="ceoFleetRadarCard" class="ios-card rounded-2xl p-3.5 border border-amber-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 shadow-xl space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-satellite-dish animate-pulse"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-xs font-bold text-white tracking-tight">Live Fleet Radar</h2>
+                <span id="radarStatusPill" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Beacon
+                </span>
+              </div>
+              <p class="text-[10px] text-slate-400">Real-Time Dispatch GPS Tracking • Abuja Fleet</p>
+            </div>
+          </div>
+
+          <button onclick="pollRiderTracking(true)" title="Force Ping Telemetry" class="text-[11px] bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-300 px-2.5 py-1 rounded-lg border border-white/10 flex items-center gap-1 transition select-none">
+            <i class="fa-solid fa-arrows-rotate text-[10px]" id="radarSyncIcon"></i>
+            <span>Ping</span>
+          </button>
+        </div>
+
+        <!-- Telemetry Strip -->
+        <div class="grid grid-cols-3 gap-2 bg-black/40 p-2.5 rounded-xl border border-white/[0.06] text-center">
+          <div>
+            <p class="text-[9px] text-slate-400 font-bold uppercase">Rider Unit</p>
+            <p id="radarRiderName" class="text-xs font-black text-amber-400 mt-0.5 truncate">SADEX 01</p>
+          </div>
+          <div>
+            <p class="text-[9px] text-slate-400 font-bold uppercase">Speed</p>
+            <p id="radarSpeedVal" class="text-xs font-black text-sky-400 mt-0.5">0 km/h</p>
+          </div>
+          <div>
+            <p class="text-[9px] text-slate-400 font-bold uppercase">Last Ping</p>
+            <p id="radarLastPingVal" class="text-xs font-black text-emerald-400 mt-0.5">Live</p>
+          </div>
+        </div>
+
+        <!-- Leaflet Map Container -->
+        <div class="relative rounded-xl overflow-hidden border border-white/10 shadow-inner bg-slate-950">
+          <div id="fleetMap" class="w-full h-64 z-0"></div>
+
+          <!-- Floating Map Actions -->
+          <div class="absolute bottom-2.5 right-2.5 z-[1000] flex items-center gap-1.5">
+            <button onclick="centerMapOnRider()" class="ios-blur bg-slate-900/90 hover:bg-slate-800 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg flex items-center gap-1.5 transition active:scale-95">
+              <i class="fa-solid fa-location-crosshairs text-xs"></i>
+              <span>Center Rider</span>
+            </button>
+            <button onclick="fitMapToFleet()" class="ios-blur bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-white/15 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-lg flex items-center gap-1 transition active:scale-95">
+              <i class="fa-solid fa-expand text-xs"></i>
+              <span>All Stops</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- CEO Intake Logger Accordion Card (With COD Input) -->
       <details class="group ios-card rounded-2xl border border-white/[0.08] transition overflow-hidden">
         <summary class="list-none p-3.5 flex items-center justify-between cursor-pointer select-none hover:bg-white/[0.02] transition">
@@ -776,6 +873,253 @@
     let isCeoAuthenticated = false;
     let pollingInterval = null;
 
+    // Live Fleet Radar & Rider GPS Tracking State
+    let fleetMapInstance = null;
+    let riderMapMarker = null;
+    let stopMapMarkers = [];
+    let latestRiderTelemetry = null;
+    let trackingPollInterval = null;
+    let relativeTimeInterval = null;
+
+    function initFleetMap() {
+      const mapContainer = document.getElementById("fleetMap");
+      if (!mapContainer || typeof L === "undefined") return;
+
+      if (!fleetMapInstance) {
+        fleetMapInstance = L.map("fleetMap", {
+          zoomControl: true,
+          attributionControl: false
+        }).setView([9.05785, 7.49508], 13); // Default Abuja center
+
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          maxZoom: 19,
+          subdomains: "abcd"
+        }).addTo(fleetMapInstance);
+      } else {
+        setTimeout(() => {
+          fleetMapInstance.invalidateSize();
+        }, 200);
+      }
+
+      pollRiderTracking(false);
+      updateDeliveryStopMarkers();
+      startTrackingPolling();
+    }
+
+    function startTrackingPolling() {
+      if (trackingPollInterval) clearInterval(trackingPollInterval);
+      // Auto-poll rider GPS every 15 seconds
+      trackingPollInterval = setInterval(() => {
+        if (isCeoAuthenticated) {
+          pollRiderTracking(false);
+        }
+      }, 15000);
+
+      if (relativeTimeInterval) clearInterval(relativeTimeInterval);
+      relativeTimeInterval = setInterval(() => {
+        if (latestRiderTelemetry && isCeoAuthenticated) {
+          updateTelemetryUI(latestRiderTelemetry);
+        }
+      }, 3000);
+    }
+
+    function formatRelativeTime(timestamp) {
+      if (!timestamp) return "Never";
+      const diffSec = Math.floor((Date.now() - timestamp) / 1000);
+      if (diffSec < 5) return "Just now";
+      if (diffSec < 60) return `${diffSec}s ago`;
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m ago`;
+      const diffHr = Math.floor(diffMin / 60);
+      return `${diffHr}h ago`;
+    }
+
+    function updateTelemetryUI(data) {
+      const riderNameEl = document.getElementById("radarRiderName");
+      const speedEl = document.getElementById("radarSpeedVal");
+      const lastPingEl = document.getElementById("radarLastPingVal");
+      const statusPill = document.getElementById("radarStatusPill");
+
+      if (riderNameEl) riderNameEl.textContent = data.riderName || "SADEX 01";
+
+      const speedKmh = data.speed !== null && data.speed !== undefined && data.speed >= 0
+        ? Math.round(Number(data.speed) * 3.6)
+        : 0;
+      if (speedEl) speedEl.textContent = `${speedKmh} km/h`;
+
+      const diffSec = Math.floor((Date.now() - (data.timestamp || 0)) / 1000);
+      if (lastPingEl) lastPingEl.textContent = formatRelativeTime(data.timestamp);
+
+      if (statusPill) {
+        if (diffSec <= 45) {
+          if (speedKmh > 3) {
+            statusPill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1";
+            statusPill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Moving (${speedKmh} km/h)`;
+          } else {
+            statusPill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1";
+            statusPill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live Beacon`;
+          }
+        } else if (diffSec <= 300) {
+          statusPill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center gap-1";
+          statusPill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span> Active Standby`;
+        } else {
+          statusPill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1";
+          statusPill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Idle / Offline`;
+        }
+      }
+    }
+
+    async function pollRiderTracking(isManual = false) {
+      const syncIcon = document.getElementById("radarSyncIcon");
+      if (isManual && syncIcon) syncIcon.classList.add("fa-spin");
+
+      try {
+        const res = await fetch("/api/track");
+        if (!res.ok) throw new Error("Tracking API error");
+        const data = await res.json();
+
+        if (data && data.success && (data.data || data.tracking)) {
+          const t = data.data || data.tracking;
+          latestRiderTelemetry = t;
+          updateTelemetryUI(t);
+
+          if (fleetMapInstance && typeof L !== "undefined" && t.lat && t.lng) {
+            const lat = Number(t.lat);
+            const lng = Number(t.lng);
+
+            const riderIconHtml = `
+              <div class="rider-pulse-marker w-10 h-10 -ml-5 -mt-5 rounded-full bg-amber-500/90 border-2 border-white text-slate-950 flex items-center justify-center text-base shadow-xl font-bold cursor-pointer transition transform hover:scale-110">
+                <i class="fa-solid fa-motorcycle text-slate-950"></i>
+              </div>
+            `;
+            const customRiderIcon = L.divIcon({
+              className: 'custom-rider-leaflet-marker',
+              html: riderIconHtml,
+              iconSize: [40, 40],
+              iconAnchor: [20, 20],
+              popupAnchor: [0, -22]
+            });
+
+            const speedKmh = t.speed ? Math.round(Number(t.speed) * 3.6) : 0;
+            const popupContent = `
+              <div class="p-1 space-y-1">
+                <div class="flex items-center gap-1.5 text-amber-400 font-extrabold text-xs">
+                  <i class="fa-solid fa-motorcycle"></i> ${t.riderName || 'SADEX Unit 01'}
+                </div>
+                <div class="text-[11px] text-slate-300">
+                  <p><strong>Speed:</strong> ${speedKmh} km/h</p>
+                  <p><strong>Ping:</strong> ${formatRelativeTime(t.timestamp)}</p>
+                  <p class="text-[9px] text-slate-400">GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}</p>
+                </div>
+              </div>
+            `;
+
+            if (!riderMapMarker) {
+              riderMapMarker = L.marker([lat, lng], { icon: customRiderIcon }).addTo(fleetMapInstance);
+              riderMapMarker.bindPopup(popupContent);
+              if (isManual) {
+                fleetMapInstance.setView([lat, lng], 14);
+              }
+            } else {
+              riderMapMarker.setLatLng([lat, lng]);
+              riderMapMarker.setIcon(customRiderIcon);
+              riderMapMarker.setPopupContent(popupContent);
+            }
+          }
+        }
+        if (isManual) showToast("Rider telemetry updated!");
+      } catch (err) {
+        console.warn("Could not fetch rider tracking:", err.message);
+        if (isManual) showToast("Telemetry ping failed", false);
+      } finally {
+        if (isManual && syncIcon) syncIcon.classList.remove("fa-spin");
+      }
+    }
+
+    function updateDeliveryStopMarkers() {
+      if (!fleetMapInstance || typeof L === "undefined") return;
+
+      // Clear existing stop markers
+      stopMapMarkers.forEach(m => fleetMapInstance.removeLayer(m));
+      stopMapMarkers = [];
+
+      const activeStops = globalOrders.filter(o => o.status !== "Delivered");
+
+      activeStops.forEach((order, idx) => {
+        const coords = estimateClientAbujaCoords(order.address);
+        if (!coords || !coords.lat || !coords.lng) return;
+
+        const isFragile = (order.category || "").toLowerCase().includes("fragile");
+        const stopPinHtml = `
+          <div class="w-7 h-7 -ml-3.5 -mt-3.5 rounded-full ${isFragile ? 'bg-rose-500' : 'bg-amber-400'} text-slate-950 border-2 border-white flex items-center justify-center font-black text-[11px] shadow-lg cursor-pointer transform hover:scale-125 transition">
+            #${idx + 1}
+          </div>
+        `;
+        const stopIcon = L.divIcon({
+          className: 'custom-stop-leaflet-marker',
+          html: stopPinHtml,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+          popupAnchor: [0, -16]
+        });
+
+        const stopPopup = `
+          <div class="p-1 space-y-1">
+            <div class="font-bold text-xs text-amber-400 flex items-center gap-1">
+              <span>Stop #${idx + 1}</span>
+              <span class="text-[10px] text-slate-300 font-normal truncate">• ${order.merchant || 'Package'}</span>
+            </div>
+            <p class="text-[11px] text-slate-200"><strong>Destination:</strong> ${order.address}</p>
+            ${order.landmark ? `<p class="text-[10px] text-amber-300"><strong>Landmark:</strong> ${order.landmark}</p>` : ''}
+            <div class="flex items-center justify-between text-[10px] pt-1 text-slate-300 border-t border-white/10 mt-1">
+              <span>COD: ${order.codAmount > 0 ? `₦${order.codAmount.toLocaleString()}` : 'Prepaid'}</span>
+              <a href="tel:${order.phone}" class="text-amber-400 font-bold">+${order.phone}</a>
+            </div>
+          </div>
+        `;
+
+        const marker = L.marker([coords.lat, coords.lng], { icon: stopIcon }).addTo(fleetMapInstance);
+        marker.bindPopup(stopPopup);
+        stopMapMarkers.push(marker);
+      });
+    }
+
+    function centerMapOnRider() {
+      if (!fleetMapInstance) return;
+      if (latestRiderTelemetry && latestRiderTelemetry.lat && latestRiderTelemetry.lng) {
+        fleetMapInstance.flyTo([Number(latestRiderTelemetry.lat), Number(latestRiderTelemetry.lng)], 15, { duration: 0.8 });
+        if (riderMapMarker) {
+          setTimeout(() => riderMapMarker.openPopup(), 900);
+        }
+        showToast("Centered camera on SADEX 01");
+      } else {
+        showToast("No active GPS beacon from rider yet", false);
+      }
+    }
+
+    function fitMapToFleet() {
+      if (!fleetMapInstance || typeof L === "undefined") return;
+
+      const points = [];
+      if (latestRiderTelemetry && latestRiderTelemetry.lat && latestRiderTelemetry.lng) {
+        points.push([Number(latestRiderTelemetry.lat), Number(latestRiderTelemetry.lng)]);
+      }
+
+      const activeStops = globalOrders.filter(o => o.status !== "Delivered");
+      activeStops.forEach(o => {
+        const c = estimateClientAbujaCoords(o.address);
+        if (c && c.lat && c.lng) points.push([c.lat, c.lng]);
+      });
+
+      if (points.length > 0) {
+        const bounds = L.latLngBounds(points);
+        fleetMapInstance.fitBounds(bounds, { padding: [35, 35], maxZoom: 15 });
+        showToast("Fitted all stops on radar");
+      } else {
+        fleetMapInstance.setView([9.05785, 7.49508], 13);
+      }
+    }
+
     // View switcher & Session Management
     function initViewAndAuth() {
       isCeoAuthenticated = localStorage.getItem("sadex_ceo_auth") === "true";
@@ -791,6 +1135,7 @@
       if (isCeoAuthenticated) {
         if (riderSection) riderSection.classList.add("hidden");
         if (ceoSection) ceoSection.classList.remove("hidden");
+        setTimeout(initFleetMap, 200);
       } else {
         if (riderSection) riderSection.classList.remove("hidden");
         if (ceoSection) ceoSection.classList.add("hidden");
@@ -1091,6 +1436,7 @@
         updateStats();
         renderOrders();
         renderRiderOrders();
+        updateDeliveryStopMarkers();
         if (!silent) showToast("Fleet database synced");
       } catch (err) {
         if (!silent) {

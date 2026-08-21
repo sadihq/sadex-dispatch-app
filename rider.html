@@ -112,7 +112,12 @@
               ABUJA FLEET
             </span>
           </div>
-          <p class="text-[10px] text-slate-400 font-medium">Active Multi-Stop Delivery Queue</p>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span id="gpsStatusBadge" class="text-[9px] font-bold text-emerald-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>🛰️ GPS Tracking Active</span>
+            </span>
+          </div>
         </div>
       </div>
       
@@ -128,6 +133,19 @@
       </div>
     </div>
   </header>
+
+  <!-- Offline Status & Sync Alert Bar -->
+  <div id="offlineStatusBar" class="hidden ios-blur bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-amber-300 text-xs font-bold transition">
+    <div class="max-w-md mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
+        <i class="fa-solid fa-satellite-dish text-xs text-amber-400 animate-pulse shrink-0"></i>
+        <span id="offlineStatusText" class="truncate text-[11px]">📡 Offline Mode (Changes Saved Locally)</span>
+      </div>
+      <button onclick="syncOfflineQueue()" class="shrink-0 text-[10px] bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1 rounded-md font-black uppercase tracking-wider transition active:scale-95">
+        Sync Now
+      </button>
+    </div>
+  </div>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
 
@@ -368,9 +386,207 @@
       return { optimizedStops: clientSorted, provider: "browser_shortest_path" };
     }
 
+    // State variables
+    let isOfflineMode = !navigator.onLine;
+    let isSyncingQueue = false;
+    let lastGpsSentTime = 0;
+
+    // Load initial deliveries instantly from local cache if present
+    function loadCachedManifestIfAvailable() {
+      try {
+        const cachedRaw = localStorage.getItem("sadex_cached_manifest");
+        if (cachedRaw) {
+          const cached = JSON.parse(cachedRaw);
+          if (Array.isArray(cached) && cached.length > 0) {
+            activeOrders = cached;
+            updateHeaderCounts();
+            renderRiderOrders();
+          }
+        }
+      } catch (err) {
+        console.warn("Could not read local manifest cache:", err.message);
+      }
+    }
+
+    // Update Header and UI status indicators for Network & Queue
+    function updateNetworkBadge() {
+      const isOnline = navigator.onLine;
+      const offlineBar = document.getElementById("offlineStatusBar");
+      const offlineText = document.getElementById("offlineStatusText");
+      
+      let queue = [];
+      try {
+        queue = JSON.parse(localStorage.getItem("sadex_offline_queue") || "[]");
+      } catch (e) {
+        queue = [];
+      }
+
+      if (!isOnline) {
+        isOfflineMode = true;
+        if (offlineBar && offlineText) {
+          offlineBar.classList.remove("hidden");
+          if (queue.length > 0) {
+            offlineText.innerHTML = `📡 <strong>Offline Mode</strong> (${queue.length} update${queue.length === 1 ? '' : 's'} saved locally)`;
+          } else {
+            offlineText.innerHTML = `📡 <strong>Offline Mode</strong> (Viewing cached manifest)`;
+          }
+        }
+      } else if (queue.length > 0) {
+        if (offlineBar && offlineText) {
+          offlineBar.classList.remove("hidden");
+          offlineText.innerHTML = `⚡ <strong>Online</strong> (${queue.length} pending offline update${queue.length === 1 ? '' : 's'})`;
+        }
+      } else {
+        isOfflineMode = false;
+        if (offlineBar) {
+          offlineBar.classList.add("hidden");
+        }
+      }
+    }
+
+    // Background Auto-Sync for Offline Delivery Queue
+    async function syncOfflineQueue() {
+      if (isSyncingQueue || !navigator.onLine) return;
+
+      let queue = [];
+      try {
+        queue = JSON.parse(localStorage.getItem("sadex_offline_queue") || "[]");
+      } catch (e) {
+        queue = [];
+      }
+
+      if (queue.length === 0) {
+        updateNetworkBadge();
+        return;
+      }
+
+      isSyncingQueue = true;
+      showToast(`⚡ Syncing ${queue.length} offline update(s) to Notion...`);
+
+      const remainingQueue = [];
+      let syncedCount = 0;
+
+      for (const item of queue) {
+        try {
+          const payload = {
+            properties: {
+              "Status": { status: { name: item.status || "Delivered" } }
+            }
+          };
+
+          const res = await fetch(`/api/notion?path=v1/pages/${item.pageId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            syncedCount++;
+          } else {
+            console.warn("Item sync deferred:", item.pageId);
+            remainingQueue.push(item);
+          }
+        } catch (err) {
+          console.warn("Sync error for item:", item.pageId, err.message);
+          remainingQueue.push(item);
+        }
+      }
+
+      if (remainingQueue.length === 0) {
+        localStorage.removeItem("sadex_offline_queue");
+        showToast("✅ Back online — Offline changes synced to Notion.");
+      } else {
+        localStorage.setItem("sadex_offline_queue", JSON.stringify(remainingQueue));
+      }
+
+      isSyncingQueue = false;
+      updateNetworkBadge();
+
+      // Refresh latest orders from Notion
+      await fetchOrders();
+    }
+
+    // Network connection listeners
+    window.addEventListener("online", () => {
+      updateNetworkBadge();
+      syncOfflineQueue();
+    });
+
+    window.addEventListener("offline", () => {
+      updateNetworkBadge();
+      showToast("📡 Offline mode active (Saved changes keep local)", false);
+    });
+
+    // Real-Time Rider GPS Beacon
+    function initRiderGpsTracker() {
+      const badge = document.getElementById("gpsStatusBadge");
+
+      if (!navigator.geolocation) {
+        if (badge) {
+          badge.innerHTML = `<span class="text-slate-400">🛰️ GPS Unavailable</span>`;
+        }
+        return;
+      }
+
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          if (badge) {
+            badge.className = "text-[9px] font-bold text-emerald-400 flex items-center gap-1";
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>🛰️ GPS Tracking Active</span>`;
+          }
+
+          const now = Date.now();
+          // Throttle coordinates upload to server every 20 seconds
+          if (now - lastGpsSentTime >= 20000) {
+            lastGpsSentTime = now;
+            sendRiderCoordinates(pos.coords);
+          }
+        },
+        (err) => {
+          console.warn("GPS tracking status:", err.message);
+          if (badge) {
+            badge.className = "text-[9px] font-semibold text-amber-400/80 flex items-center gap-1";
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span><span>🛰️ GPS Standby</span>`;
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 10000,
+          timeout: 15000
+        }
+      );
+    }
+
+    async function sendRiderCoordinates(coords) {
+      if (!navigator.onLine) return; // Suppress quietly when offline
+      try {
+        await fetch("/api/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            riderId: "SADEX 01",
+            riderName: "SADEX Unit 01 (Abuja)",
+            lat: coords.latitude,
+            lng: coords.longitude,
+            speed: coords.speed,
+            heading: coords.heading,
+            accuracy: coords.accuracy,
+            timestamp: Date.now()
+          })
+        });
+      } catch (err) {
+        // Quietly ignore network failures in background telemetry
+      }
+    }
+
     async function fetchOrders() {
       const icon = document.getElementById("refreshIcon");
       if (icon) icon.classList.add("fa-spin");
+
+      // If online and has queued items, sync them first
+      if (navigator.onLine) {
+        await syncOfflineQueue();
+      }
 
       try {
         const res = await fetch(`/api/notion?path=v1/databases/${DATABASE_ID}/query`, {
@@ -427,20 +643,60 @@
           };
         });
 
+        // Exclude any pages currently in the offline delivered queue
+        let queue = [];
+        try {
+          queue = JSON.parse(localStorage.getItem("sadex_offline_queue") || "[]");
+        } catch (e) {
+          queue = [];
+        }
+        const queuedDeliveredIds = new Set(queue.map(q => q.pageId));
+
         // Rider view strictly shows active stops (Pending & In-Transit)
-        activeOrders = all.filter(o => o.status !== "Delivered");
+        activeOrders = all.filter(o => o.status !== "Delivered" && !queuedDeliveredIds.has(o.id));
+
+        // 1. Local Manifest Caching: Cache fresh deliveries payload in localStorage
+        try {
+          localStorage.setItem("sadex_cached_manifest", JSON.stringify(activeOrders));
+        } catch (cacheErr) {
+          console.warn("Could not write manifest cache:", cacheErr.message);
+        }
 
         updateHeaderCounts();
         renderRiderOrders();
+        updateNetworkBadge();
       } catch (err) {
-        document.getElementById("riderOrdersContainer").innerHTML = `
-          <div class="ios-card rounded-2xl p-6 text-center text-rose-400 text-xs font-semibold space-y-2">
-            <i class="fa-solid fa-triangle-exclamation text-xl text-rose-500"></i>
-            <p>Failed to load orders: ${err.message}</p>
-            <button onclick="fetchOrders()" class="mt-2 px-3 py-1.5 rounded-lg bg-white/10 text-white font-bold text-xs">Retry</button>
-          </div>
-        `;
-        showToast("Sync failed: " + err.message, false);
+        console.warn("Fetch orders network/API exception:", err.message);
+
+        // Fallback to local manifest cache so stops, landmarks and navigation remain functional
+        let cacheLoaded = false;
+        try {
+          const cachedRaw = localStorage.getItem("sadex_cached_manifest");
+          if (cachedRaw) {
+            const cached = JSON.parse(cachedRaw);
+            if (Array.isArray(cached) && cached.length > 0) {
+              activeOrders = cached;
+              updateHeaderCounts();
+              renderRiderOrders();
+              cacheLoaded = true;
+              showToast("📡 Network offline — Loaded from offline cache", false);
+            }
+          }
+        } catch (e) {
+          console.warn("Cache parse error:", e.message);
+        }
+
+        if (!cacheLoaded) {
+          document.getElementById("riderOrdersContainer").innerHTML = `
+            <div class="ios-card rounded-2xl p-6 text-center text-rose-400 text-xs font-semibold space-y-2">
+              <i class="fa-solid fa-triangle-exclamation text-xl text-rose-500"></i>
+              <p>Failed to load orders: ${err.message}</p>
+              <button onclick="fetchOrders()" class="mt-2 px-3 py-1.5 rounded-lg bg-white/10 text-white font-bold text-xs">Retry</button>
+            </div>
+          `;
+          showToast("Sync failed: " + err.message, false);
+        }
+        updateNetworkBadge();
       } finally {
         if (icon) icon.classList.remove("fa-spin");
       }
@@ -562,10 +818,47 @@
       );
     }
 
+    // Offline-Resilient Mark as Delivered
     async function markAsDelivered(pageId, order) {
       if (updatingStatusIds.has(pageId)) return;
       updatingStatusIds.add(pageId);
       renderRiderOrders();
+
+      const saveToOfflineQueue = () => {
+        let queue = [];
+        try {
+          queue = JSON.parse(localStorage.getItem("sadex_offline_queue") || "[]");
+        } catch (e) {
+          queue = [];
+        }
+
+        if (!queue.find(item => item.pageId === pageId)) {
+          queue.push({
+            pageId,
+            status: "Delivered",
+            timestamp: Date.now()
+          });
+          localStorage.setItem("sadex_offline_queue", JSON.stringify(queue));
+        }
+
+        // Optimistically remove from active list & cache
+        activeOrders = activeOrders.filter(o => o.id !== pageId);
+        try {
+          localStorage.setItem("sadex_cached_manifest", JSON.stringify(activeOrders));
+        } catch (e) {}
+
+        updateHeaderCounts();
+        renderRiderOrders();
+        updateNetworkBadge();
+        showToast("📦 Marked Delivered (Saved Offline) — Will sync when online");
+      };
+
+      // If already offline, queue immediately without waiting for failed network roundtrip
+      if (!navigator.onLine) {
+        saveToOfflineQueue();
+        updatingStatusIds.delete(pageId);
+        return;
+      }
 
       try {
         const payload = {
@@ -586,9 +879,16 @@
         }
         
         showToast(`Stop marked Delivered!`);
-        await fetchOrders();
+        activeOrders = activeOrders.filter(o => o.id !== pageId);
+        try {
+          localStorage.setItem("sadex_cached_manifest", JSON.stringify(activeOrders));
+        } catch (e) {}
+
+        updateHeaderCounts();
+        renderRiderOrders();
       } catch (e) {
-        showToast("Update failed: " + e.message, false);
+        console.warn("Online update failed, storing offline:", e.message);
+        saveToOfflineQueue();
       } finally {
         updatingStatusIds.delete(pageId);
         renderRiderOrders();
@@ -735,10 +1035,17 @@
       }).join("");
     }
 
-    // Initial load and 60s background polling
+    // Initial startup: instant cache restore, network status, GPS beacon & live fetch
+    loadCachedManifestIfAvailable();
+    updateNetworkBadge();
+    initRiderGpsTracker();
     fetchOrders();
+
+    // 60s background orders refresh
     setInterval(() => {
-      fetchOrders();
+      if (navigator.onLine) {
+        fetchOrders();
+      }
     }, 60000);
   </script>
 </body>

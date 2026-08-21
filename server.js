@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import handler from "./api/notion.js";
 import optimizeHandler from "./api/optimize-route.js";
+import trackHandler from "./api/track.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +32,18 @@ app.all("/api/optimize-route", async (req, res) => {
     await optimizeHandler(req, res);
   } catch (error) {
     console.error("Route Optimization error:", error);
+    if (!res.headersSent) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+});
+
+// Live Rider GPS Tracking Telemetry API Route
+app.all("/api/track", async (req, res) => {
+  try {
+    await trackHandler(req, res);
+  } catch (error) {
+    console.error("Tracking API error:", error);
     if (!res.headersSent) {
       res.status(500).json({ message: error.message });
     }
