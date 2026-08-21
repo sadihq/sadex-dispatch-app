@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SADEX Dispatch Engine</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-12">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-2">
+      <span class="text-xl">🚀</span>
+      <h1 class="font-bold text-lg tracking-tight text-white">SADEX <span class="text-amber-500">Dispatch</span></h1>
+    </div>
+    <button onclick="fetchOrders()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg font-medium transition">
+      ↻ Refresh
+    </button>
+  </header>
+
+  <main class="max-w-md mx-auto p-4 space-y-6">
+
+    <!-- Intake Logger Card -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+        <span>📦</span> Log New Package
+      </h2>
+      <form id="orderForm" onsubmit="handleCreateOrder(event)" class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400 font-medium">Merchant Name</label>
+          <input id="merchantName" required placeholder="e.g. Apex Store" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500 text-white" />
+        </div>
+        
+        <div>
+          <label class="text-xs text-slate-400 font-medium">Delivery Address</label>
+          <input id="deliveryAddress" required placeholder="e.g. 14 Aguiyi Ironsi St, Maitama" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500 text-white" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Customer Phone</label>
+            <input id="customerPhone" required placeholder="08012345678" type="tel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500 text-white" />
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Category</label>
+            <select id="itemCategory" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500 text-white">
+              <option value="Standard">Standard</option>
+              <option value="Fragile">Fragile</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 font-medium">Photo Proof URL (Optional)</label>
+          <input id="proofUrl" placeholder="https://..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500 text-white" />
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition shadow-lg shadow-amber-500/20 active:scale-[0.98]">
+          + Log to Notion Database
+        </button>
+      </form>
+    </section>
+
+    <!-- Active Orders / Dispatch Sequence -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+          <span>📍</span> Active Dispatch Sequence
+        </h2>
+        <span id="orderCount" class="text-xs bg-slate-800 text-amber-400 px-2 py-0.5 rounded-full font-mono font-bold">0 Pending</span>
+      </div>
+
+      <div id="ordersContainer" class="space-y-3">
+        <div class="text-center py-8 text-slate-500 text-xs">Loading Notion database...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Configuration
+    const NOTION_API_KEY = "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";
+    const DATABASE_ID = "3c1c21a6f4768049a840d9ed8972b630";
+
+    const ZONE_PRIORITIES = {
+      "maitama": 1,
+      "wuse 2": 2,
+      "wuse": 3,
+      "central area": 4,
+      "area 11": 5,
+      "garki": 6,
+      "utako": 7,
+      "jabi": 8
+    };
+
+    function cleanPhone(raw) {
+      let d = raw.replace(/\D/g, "");
+      if (d.startsWith("0") && d.length === 11) return "234" + d.slice(1);
+      if (d.length === 10) return "234" + d;
+      return d || "2347045750528";
+    }
+
+    function getZone(address) {
+      const lower = (address || "").toLowerCase();
+      for (const [zone, rank] of Object.entries(ZONE_PRIORITIES)) {
+        if (lower.includes(zone)) return { name: zone.toUpperCase(), rank };
+      }
+      return { name: "CENTRAL", rank: 99 };
+    }
+
+    async function fetchOrders() {
+      const container = document.getElementById("ordersContainer");
+      container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Syncing with Notion...</div>`;
+
+      try {
+        // Querying through a CORS proxy for pure client-side functionality
+        const res = await fetch(`https://api.allorigins.win/raw?url=` + encodeURIComponent(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`), {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${NOTION_API_KEY}`,
+            "Content-Type": "application/json",
+            "Notion-Version": "2022-06-28"
+          },
+          body: JSON.stringify({})
+        });
+
+        const data = await res.json();
+        let orders = (data.results || []).map(page => {
+          const props = page.properties;
+          const merchant = props["Merchant Name"]?.title?.[0]?.plain_text || "Merchant";
+          const address = props["Delivery Address"]?.rich_text?.[0]?.plain_text || "Abuja";
+          const category = props["Item Category"]?.select?.name || "Standard";
+          const status = props["Status"]?.status?.name || "Pending";
+          const proofUrl = props["Photo Proof of Delivery URL"]?.url || "";
+          
+          let phone = "";
+          if (props["Customer Phone"]?.type === "phone_number") {
+            phone = props["Customer Phone"]?.phone_number || "";
+          } else {
+            phone = props["Customer Phone"]?.rich_text?.[0]?.plain_text || "";
+          }
+
+          const zoneInfo = getZone(address);
+
+          return {
+            id: page.id,
+            merchant,
+            address,
+            phone: cleanPhone(phone),
+            category,
+            status,
+            proofUrl,
+            zone: zoneInfo.name,
+            rank: zoneInfo.rank
+          };
+        });
+
+        // Filter and sort
+        orders.sort((a, b) => a.rank - b.rank);
+        renderOrders(orders);
+      } catch (err) {
+        container.innerHTML = `<div class="text-center py-6 text-red-400 text-xs">Failed to load: ${err.message}</div>`;
+      }
+    }
+
+    function renderOrders(orders) {
+      const container = document.getElementById("ordersContainer");
+      const countEl = document.getElementById("orderCount");
+      const active = orders.filter(o => o.status !== "Delivered");
+      countEl.innerText = `${active.length} Active`;
+
+      if (orders.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No orders in database.</div>`;
+        return;
+      }
+
+      container.innerHTML = orders.map((order, idx) => {
+        const inTransitText = encodeURIComponent(`🚚 *SADEX Express Alert*\n\nHello, your order from *${order.merchant}* is now *In-Transit* to: ${order.address}.\n📦 Category: ${order.category}`);
+        const inTransitLink = `https://wa.me/${order.phone}?text=${inTransitText}`;
+
+        const deliveredText = encodeURIComponent(`🎉 *SADEX Delivery Completed*\n\nYour order from *${order.merchant}* has been safely *Delivered* to ${order.address}!\n📷 Photo Proof: ${order.proofUrl}\n\n⭐ Reply 1-5 to rate our service.`);
+        const deliveredLink = `https://wa.me/${order.phone}?text=${deliveredText}`;
+
+        const isDelivered = order.status === "Delivered";
+
+        return `
+          <div class="bg-slate-900 border ${isDelivered ? 'border-emerald-950/60 opacity-60' : 'border-slate-800'} rounded-xl p-3.5 space-y-2.5">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-amber-400 tracking-wider">#${idx + 1} ${order.zone}</span>
+                <h3 class="font-bold text-white text-sm mt-1">${order.merchant}</h3>
+                <p class="text-xs text-slate-400">${order.address}</p>
+              </div>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${isDelivered ? 'bg-emerald-900/60 text-emerald-300' : 'bg-amber-950/60 text-amber-300'}">${order.status}</span>
+            </div>
+
+            <div class="pt-2 border-t border-slate-800/80 grid grid-cols-2 gap-2">
+              <a href="${inTransitLink}" target="_blank" class="text-center text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 py-1.5 rounded-lg font-medium transition">
+                📲 Alert In-Transit
+              </a>
+              <a href="${deliveredLink}" target="_blank" class="text-center text-xs bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded-lg font-bold transition">
+                ✅ Send POD Proof
+              </a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function handleCreateOrder(e) {
+      e.preventDefault();
+      const btn = document.getElementById("submitBtn");
+      btn.innerText = "Saving to Notion...";
+      btn.disabled = true;
+
+      const payload = {
+        parent: { database_id: DATABASE_ID },
+        properties: {
+          "Merchant Name": { title: [{ text: { content: document.getElementById("merchantName").value } }] },
+          "Delivery Address": { rich_text: [{ text: { content: document.getElementById("deliveryAddress").value } }] },
+          "Customer Phone": { phone_number: document.getElementById("customerPhone").value },
+          "Item Category": { select: { name: document.getElementById("itemCategory").value } },
+          "Status": { status: { name: "Pending" } }
+        }
+      };
+
+      const proof = document.getElementById("proofUrl").value;
+      if (proof) payload.properties["Photo Proof of Delivery URL"] = { url: proof };
+
+      try {
+        await fetch(`https://api.allorigins.win/raw?url=` + encodeURIComponent(`https://api.notion.com/v1/pages`), {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${NOTION_API_KEY}`,
+            "Content-Type": "application/json",
+            "Notion-Version": "2022-06-28"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        document.getElementById("orderForm").reset();
+        await fetchOrders();
+      } catch (err) {
+        alert("Error saving: " + err.message);
+      } finally {
+        btn.innerText = "+ Log to Notion Database";
+        btn.disabled = false;
+      }
+    }
+
+    // Initial load
+    fetchOrders();
+  </script>
+</body>
+</html>
