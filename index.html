@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>SADEX Dispatch & Navigation Engine</title>
+  <title>SADEX Express • Abuja Logistics & Dispatch</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#090d16" />
+  <meta name="theme-color" content="#061810" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <script>
@@ -21,12 +21,15 @@
               400: '#fbbf24',
               500: '#f59e0b',
               600: '#d97706',
+              gold: '#D4AF37',
+              emerald: '#10B981',
+              forest: '#061810'
             },
             ios: {
-              card: '#121826',
-              elevated: '#1a2234',
-              border: 'rgba(255, 255, 255, 0.08)',
-              subtext: '#8e9bb2'
+              card: 'rgba(14, 45, 33, 0.45)',
+              elevated: 'rgba(19, 60, 44, 0.65)',
+              border: 'rgba(212, 175, 55, 0.22)',
+              subtext: '#94a3b8'
             }
           }
         }
@@ -40,33 +43,137 @@
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #090d16;
+      background-color: #061810;
       color: #f1f5f9;
+      overflow-x: hidden;
     }
+
+    /* Animated Ambient Fluid Orbs */
+    @keyframes floatMesh1 {
+      0% { transform: translate(0px, 0px) scale(1); }
+      50% { transform: translate(50px, 70px) scale(1.15); }
+      100% { transform: translate(-30px, 40px) scale(0.95); }
+    }
+    @keyframes floatMesh2 {
+      0% { transform: translate(0px, 0px) scale(1); }
+      50% { transform: translate(-60px, -50px) scale(1.2); }
+      100% { transform: translate(40px, -30px) scale(0.9); }
+    }
+    @keyframes floatMesh3 {
+      0% { transform: translate(0px, 0px) scale(0.9); }
+      50% { transform: translate(30px, -40px) scale(1.1); }
+      100% { transform: translate(-50px, 60px) scale(1.05); }
+    }
+    .orb {
+      position: fixed;
+      border-radius: 9999px;
+      filter: blur(85px);
+      pointer-events: none;
+      z-index: 0;
+      will-change: transform;
+    }
+    .orb-gold {
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, #D4AF37 0%, rgba(212, 175, 55, 0.2) 65%, transparent 100%);
+      top: -40px;
+      right: -60px;
+      opacity: 0.35;
+      animation: floatMesh1 18s ease-in-out infinite alternate;
+    }
+    .orb-emerald {
+      width: 440px;
+      height: 440px;
+      background: radial-gradient(circle, #10B981 0%, rgba(16, 185, 129, 0.2) 65%, transparent 100%);
+      bottom: 5%;
+      left: -90px;
+      opacity: 0.4;
+      animation: floatMesh2 22s ease-in-out infinite alternate;
+    }
+    .orb-forest {
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, #134B34 0%, rgba(19, 75, 52, 0.35) 70%, transparent 100%);
+      top: 40%;
+      right: 10%;
+      opacity: 0.45;
+      animation: floatMesh3 20s ease-in-out infinite alternate;
+    }
+
+    /* Liquid Glass Panes & Containers */
     .ios-blur {
-      background: rgba(14, 20, 33, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: rgba(6, 24, 16, 0.85);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
     }
     .ios-card {
-      background: #111726;
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+      background: rgba(14, 45, 33, 0.45);
+      backdrop-filter: blur(20px) saturate(190%);
+      -webkit-backdrop-filter: blur(20px) saturate(190%);
+      border: 1px solid rgba(212, 175, 55, 0.22);
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
     }
-    .ios-card:active {
-      transform: scale(0.995);
+    .ios-card:hover {
+      border-color: rgba(212, 175, 55, 0.42);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.25);
     }
     .ios-card-fragile {
-      background: linear-gradient(180deg, #191428 0%, #111726 100%);
-      border: 1px solid rgba(244, 63, 94, 0.3);
+      background: linear-gradient(180deg, rgba(50, 16, 26, 0.6) 0%, rgba(14, 45, 33, 0.5) 100%);
+      border: 1px solid rgba(244, 63, 94, 0.42);
     }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
+    .ios-card-selected {
+      border-color: rgba(212, 175, 55, 0.85) !important;
+      background: rgba(212, 175, 55, 0.08) !important;
+      box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.55), 0 16px 48px rgba(0, 0, 0, 0.65) !important;
     }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+
+    /* Specular Sheen on Hover */
+    .sheen-card {
+      position: relative;
     }
+    .sheen-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -150%;
+      width: 100%; height: 100%;
+      background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.08) 50%, transparent 80%);
+      pointer-events: none;
+      transition: left 0.75s ease;
+    }
+    .sheen-card:hover::after {
+      left: 150%;
+    }
+
+    /* Tactile Spring Physics */
+    .tactile-btn {
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background 0.2s ease;
+    }
+    .tactile-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Liquid Metallic Gold COD Pill */
+    .badge-cod-liquid {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.95), rgba(170, 130, 10, 0.9));
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+    }
+
+    /* Smooth Slide & Fade Glow Animation */
+    @keyframes cardSlideGlow {
+      0% { opacity: 0.6; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .animate-card-entry {
+      animation: cardSlideGlow 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
     /* Toast Animation */
     @keyframes toastIn {
       from { transform: translate(-50%, 100%); opacity: 0; }
@@ -82,9 +189,155 @@
     .toast-animate-out {
       animation: toastOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
+    /* Keypad Pin Shake */
+    @keyframes pinShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .pin-shake {
+      animation: pinShake 0.4s ease-in-out;
+    }
   </style>
 </head>
-<body class="min-h-screen pb-28 selection:bg-amber-500 selection:text-black antialiased">
+<body class="min-h-screen pb-28 selection:bg-amber-500 selection:text-black antialiased relative">
+
+  <!-- Ambient Fluid Mesh Background Orbs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+    <div class="orb orb-gold"></div>
+    <div class="orb orb-emerald"></div>
+    <div class="orb orb-forest"></div>
+  </div>
+
+  <!-- Global Content Wrapper (Above Orbs) -->
+  <div class="relative z-10">
+
+  <!-- ========================================== -->
+  <!-- CEO SECURITY AUTHENTICATION MODAL (PIN: 0622) -->
+  <!-- ========================================== -->
+  <div id="ceoSecurityModal" class="fixed inset-0 z-50 bg-[#061810]/95 backdrop-blur-2xl flex flex-col items-center justify-center p-4 hidden">
+    <div class="max-w-xs w-full ios-card rounded-3xl p-6 text-center space-y-5 border border-amber-500/30 shadow-2xl">
+      
+      <!-- Brand & Lock Icon -->
+      <div class="space-y-2">
+        <div class="w-16 h-16 rounded-3xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto text-2xl shadow-inner">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-black text-white tracking-tight">SADEX CEO Console</h2>
+          <p class="text-xs text-slate-300">Enter Master Passcode to unlock executive controls</p>
+        </div>
+      </div>
+
+      <!-- PIN Indicator Dots -->
+      <div id="pinDots" class="flex items-center justify-center gap-3.5 py-2">
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-200" id="dot1"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-200" id="dot2"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-200" id="dot3"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-200" id="dot4"></div>
+      </div>
+
+      <div id="gateError" class="text-xs font-bold text-rose-400 hidden h-4">
+        Incorrect Passcode
+      </div>
+
+      <!-- iOS Numeric Keypad -->
+      <div class="grid grid-cols-3 gap-2.5 pt-1">
+        <button onclick="pressPin('1')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">1</button>
+        <button onclick="pressPin('2')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">2</button>
+        <button onclick="pressPin('3')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">3</button>
+        <button onclick="pressPin('4')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">4</button>
+        <button onclick="pressPin('5')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">5</button>
+        <button onclick="pressPin('6')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">6</button>
+        <button onclick="pressPin('7')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">7</button>
+        <button onclick="pressPin('8')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">8</button>
+        <button onclick="pressPin('9')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">9</button>
+        <button onclick="clearPin()" class="h-12 rounded-2xl bg-transparent text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center">CLEAR</button>
+        <button onclick="pressPin('0')" class="h-12 rounded-2xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-90 text-lg font-bold text-white transition border border-white/10 flex items-center justify-center">0</button>
+        <button onclick="deletePin()" class="h-12 rounded-2xl bg-transparent text-sm font-bold text-slate-400 hover:text-white transition flex items-center justify-center">
+          <i class="fa-solid fa-delete-left"></i>
+        </button>
+      </div>
+
+      <!-- Cancel / Close Modal -->
+      <div class="pt-1">
+        <button onclick="closeCeoModal()" class="text-xs text-slate-400 hover:text-white py-1.5 px-3 rounded-lg border border-white/10 transition">
+          Cancel & Return to Rider View
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- DAILY OPERATIONS SUMMARY REPORT MODAL -->
+  <!-- ========================================== -->
+  <div id="summaryReportModal" class="fixed inset-0 z-50 bg-[#061810]/90 backdrop-blur-xl flex flex-col items-center justify-center p-4 hidden">
+    <div class="max-w-md w-full ios-card rounded-3xl p-5 border border-amber-500/25 space-y-4 max-h-[90vh] flex flex-col shadow-2xl">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-sm font-bold">
+            <i class="fa-solid fa-chart-pie"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Daily Operations Summary</h3>
+            <p id="summaryDateLabel" class="text-[10px] text-slate-300">Abuja Logistics Fleet Report</p>
+          </div>
+        </div>
+        <button onclick="closeSummaryModal()" class="w-7 h-7 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-slate-400 hover:text-white flex items-center justify-center text-xs transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable Report Content -->
+      <div class="space-y-3.5 overflow-y-auto pr-1 text-xs text-slate-300 flex-1">
+        
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-black/30 p-3 rounded-2xl border border-white/10 space-y-1">
+            <span class="text-[10px] text-slate-300 font-bold uppercase">Total Deliveries</span>
+            <div class="flex items-baseline gap-1.5">
+              <span id="summaryTotalPkgs" class="text-xl font-black text-white">0</span>
+              <span id="summaryDeliveryRate" class="text-[10px] text-emerald-400 font-semibold">(0% Delivered)</span>
+            </div>
+            <p id="summaryStatusBreakdown" class="text-[10px] text-slate-400">0 delivered • 0 pending</p>
+          </div>
+
+          <div class="bg-black/30 p-3 rounded-2xl border border-emerald-500/30 space-y-1">
+            <span class="text-[10px] text-emerald-400 font-bold uppercase">COD Collected</span>
+            <div class="text-xl font-black text-emerald-400" id="summaryCodDelivered">₦0</div>
+            <p id="summaryCodPending" class="text-[10px] text-slate-300">₦0 pending in field</p>
+          </div>
+        </div>
+
+        <!-- Structured Report Preview -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold text-slate-300 flex items-center justify-between">
+            <span>Report Text Preview:</span>
+            <span class="text-[10px] text-amber-400">Ready for dispatch</span>
+          </label>
+          <pre id="summaryRawText" class="w-full bg-slate-950/90 border border-white/10 rounded-2xl p-3.5 text-[11px] text-slate-200 font-mono whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto select-all"></pre>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 shrink-0">
+        <button onclick="copySummaryReport()" class="bg-white/[0.08] hover:bg-white/[0.15] active:scale-95 text-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-white/10 transition">
+          <i class="fa-regular fa-copy text-amber-400 text-xs"></i>
+          <span>Copy Report</span>
+        </button>
+
+        <button onclick="sendSummaryWhatsApp()" class="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white font-extrabold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/40 transition">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+          <span>Send via WhatsApp</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- iOS Dynamic Toast HUD -->
   <div id="toastHUD" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none hidden max-w-[90vw]">
@@ -94,196 +347,576 @@
     </div>
   </div>
 
-  <!-- iOS Sticky Header -->
-  <header class="sticky top-0 z-40 ios-blur border-b border-white/[0.08] px-4 py-3 shadow-md">
-    <div class="max-w-md mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-9 h-9 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-sm tracking-tighter shadow-inner">
-          S
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <h1 class="font-extrabold text-sm tracking-tight text-white">
-              SADEX <span class="text-amber-400 font-black">EXPRESS</span>
-            </h1>
-            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              ABUJA
-            </span>
-          </div>
-          <p class="text-[10px] text-slate-400 font-medium">Dynamic GPS Dispatch & Navigation</p>
-        </div>
-      </div>
-      
+  <!-- Floating Sticky Bulk Action Bar for CEO Dashboard -->
+  <div id="floatingBulkBar" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-sm w-[92%] ios-blur ios-card rounded-2xl p-3 border border-amber-500/40 shadow-2xl space-y-2.5 hidden transition-all">
+    <div class="flex items-center justify-between px-1">
       <div class="flex items-center gap-2">
-        <button id="refreshButton" onclick="fetchOrders()" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 px-3 py-1.5 rounded-full font-semibold border border-white/10 transition flex items-center gap-1.5">
-          <i class="fa-solid fa-arrows-rotate text-[11px]" id="refreshIcon"></i>
-          <span class="text-[11px]">Sync</span>
-        </button>
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+        <span class="text-xs font-black text-white"><span id="floatingSelectedCount">0</span> orders selected</span>
       </div>
+      <button onclick="clearAllSelections()" class="text-[10px] font-bold text-slate-300 hover:text-white transition">Deselect All</button>
     </div>
-  </header>
-
-  <main class="max-w-md mx-auto p-4 space-y-4">
-
-    <!-- Operational Metrics Banner -->
-    <div class="grid grid-cols-3 gap-2.5">
-      <div class="ios-card rounded-2xl p-3 text-center border-t-2 border-t-amber-500 transition">
-        <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Pending</p>
-        <div class="flex items-baseline justify-center gap-1 mt-0.5">
-          <h3 id="statPending" class="text-2xl font-black text-amber-400 tracking-tight">0</h3>
-          <span class="text-[10px] text-slate-500 font-medium">pkgs</span>
-        </div>
-      </div>
-      <div class="ios-card rounded-2xl p-3 text-center border-t-2 border-t-sky-400 transition">
-        <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Transit</p>
-        <div class="flex items-baseline justify-center gap-1 mt-0.5">
-          <h3 id="statTransit" class="text-2xl font-black text-sky-400 tracking-tight">0</h3>
-          <span class="text-[10px] text-slate-500 font-medium">on route</span>
-        </div>
-      </div>
-      <div class="ios-card rounded-2xl p-3 text-center border-t-2 border-t-emerald-400 transition">
-        <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Delivered</p>
-        <div class="flex items-baseline justify-center gap-1 mt-0.5">
-          <h3 id="statDelivered" class="text-2xl font-black text-emerald-400 tracking-tight">0</h3>
-          <span class="text-[10px] text-slate-500 font-medium">done</span>
-        </div>
-      </div>
+    <div class="grid grid-cols-2 gap-2">
+      <button id="floatingTransitBtn" onclick="executeBulkStatus('In-Transit')" class="tactile-btn py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-95 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-sky-950/60 transition">
+        <i class="fa-solid fa-truck-fast text-xs"></i>
+        <span>Mark In-Transit</span>
+      </button>
+      <button id="floatingDeliveredBtn" onclick="executeBulkStatus('Delivered')" class="tactile-btn py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/60 transition">
+        <i class="fa-solid fa-circle-check text-xs"></i>
+        <span>Mark Delivered</span>
+      </button>
     </div>
+  </div>
 
-    <!-- Master Dynamic GPS Multi-Stop Route Hero Action -->
-    <div id="masterRouteCard" class="ios-card rounded-2xl p-3.5 border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-900 shadow-lg space-y-2.5">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
-            <i class="fa-solid fa-location-crosshairs"></i>
-          </div>
-          <div>
-            <h2 class="text-xs font-bold text-white tracking-tight">AI Shortest-Path Master Route</h2>
-            <p id="routeSubtext" class="text-[10px] text-slate-400">Optimizes stop order from rider's live coordinates across Abuja</p>
-          </div>
-        </div>
-        <span id="activeCountBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
-          0 Stops
-        </span>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-        <button id="masterRouteBtn" onclick="launchMasterRoute()" class="sm:col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-3 px-3.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-[0.98] transition">
-          <i class="fa-solid fa-route text-sm"></i>
-          <span>Launch Optimized GPS Route</span>
-        </button>
-        <button id="optimizeOrderBtn" onclick="optimizeStopOrderOnly()" class="bg-white/[0.08] hover:bg-white/[0.14] active:scale-[0.98] text-slate-200 font-bold py-3 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-white/10 transition">
-          <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-xs"></i>
-          <span>Sort Sequence</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Intake Logger Accordion Card -->
-    <details class="group ios-card rounded-2xl border border-white/[0.08] transition overflow-hidden">
-      <summary class="list-none p-3.5 flex items-center justify-between cursor-pointer select-none hover:bg-white/[0.02] transition">
+  <!-- ========================================== -->
+  <!-- RIDER VIEW (DEFAULT FOR UNAUTHENTICATED) -->
+  <!-- ========================================== -->
+  <div id="riderViewSection">
+    <!-- Rider Header with discreet CEO Lock Icon trigger -->
+    <header class="sticky top-0 z-40 ios-blur border-b border-white/[0.08] px-4 py-3 shadow-md">
+      <div class="max-w-md mx-auto flex items-center justify-between">
         <div class="flex items-center space-x-2.5">
-          <span class="w-7 h-7 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs font-bold">
-            <i class="fa-solid fa-plus"></i>
-          </span>
-          <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-200 block">Log New Package</span>
-            <span class="text-[10px] text-slate-400 font-normal">Add sender, delivery address, landmark & contact</span>
+          <div class="w-9 h-9 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-sm shadow-inner">
+            <i class="fa-solid fa-motorcycle"></i>
           </div>
-        </div>
-        <div class="w-6 h-6 rounded-full bg-white/[0.05] flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">
-          <i class="fa-solid fa-chevron-down text-[10px]"></i>
-        </div>
-      </summary>
-      
-      <form id="orderForm" onsubmit="handleCreateOrder(event)" class="p-4 pt-1 space-y-3.5 border-t border-white/[0.06] bg-black/20">
-        <div>
-          <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
-            <i class="fa-solid fa-store text-[10px] text-amber-400"></i> Merchant / Sender
-          </label>
-          <input id="merchantName" required placeholder="e.g. Apex Attire / Zara Store" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h1 class="font-extrabold text-sm tracking-tight text-white">
+                SADEX <span class="text-amber-400 font-black">RIDER</span>
+              </h1>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                ABUJA FLEET
+              </span>
+            </div>
+            <p class="text-[10px] text-slate-400 font-medium">Active Multi-Stop Delivery Queue</p>
+          </div>
         </div>
         
-        <div>
-          <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
-            <i class="fa-solid fa-location-dot text-[10px] text-amber-400"></i> Delivery Address
-          </label>
-          <input id="deliveryAddress" required placeholder="e.g. 14 Aguiyi Ironsi St, Maitama" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
-          <p class="text-[10px] text-slate-500 mt-1">Accepts any delivery location anywhere across Abuja and surrounding districts.</p>
-        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="fetchOrders(false)" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 px-3 py-1.5 rounded-full font-semibold border border-white/10 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-arrows-rotate text-[11px]" id="riderRefreshIcon"></i>
+            <span class="text-[11px]">Sync</span>
+          </button>
 
-        <div>
-          <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
-            <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i> Landmark / Nearest Junction <span class="text-slate-500 font-normal">(Optional)</span>
-          </label>
-          <input id="landmark" placeholder="e.g. Opp Transcorp Hilton, Beside Banex Plaza" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+          <!-- Discreet CEO Passcode Gate Lock Icon (🔒) -->
+          <button onclick="openCeoModal()" title="CEO Console Login" class="w-8 h-8 rounded-full bg-white/[0.06] hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 border border-white/10 flex items-center justify-center text-xs transition active:scale-90 shadow-sm">
+            <i class="fa-solid fa-lock text-[11px]"></i>
+          </button>
         </div>
+      </div>
+    </header>
 
-        <div class="grid grid-cols-2 gap-2.5">
-          <div>
-            <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
-              <i class="fa-solid fa-phone text-[10px] text-amber-400"></i> Customer Phone
-            </label>
-            <input id="customerPhone" required placeholder="08012345678" type="tel" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+    <main class="max-w-md mx-auto p-4 space-y-4">
+      <!-- Master Multi-Stop Route Action -->
+      <div class="ios-card rounded-2xl p-4 border border-amber-500/30 bg-gradient-to-br from-amber-500/15 via-slate-900 to-slate-900 shadow-xl space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-location-crosshairs"></i>
+            </div>
+            <div>
+              <h2 class="text-xs font-bold text-white tracking-tight">Abuja Master Route</h2>
+              <p class="text-[10px] text-slate-400">Routes all active stops from your GPS</p>
+            </div>
           </div>
-          <div>
-            <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
-              <i class="fa-solid fa-box-archive text-[10px] text-amber-400"></i> Package Category
-            </label>
-            <select id="itemCategory" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white transition">
-              <option value="Standard">📦 Standard Box</option>
-              <option value="Fragile">⚠️ Fragile / Sensitive</option>
-            </select>
-          </div>
+          <span id="riderActiveCountBadge" class="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950">
+            0 Stops
+          </span>
         </div>
 
-        <div>
-          <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
-            <i class="fa-solid fa-camera text-[10px] text-amber-400"></i> Photo Proof of Delivery URL <span class="text-slate-500 font-normal">(Optional)</span>
-          </label>
-          <input id="proofUrl" placeholder="https://..." class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
-        </div>
-
-        <button type="submit" id="submitBtn" class="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
-          <span>Save Package to Fleet</span>
+        <button id="riderMasterRouteBtn" onclick="launchMasterRoute()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] text-slate-950 font-black py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 transition">
+          <i class="fa-solid fa-route text-sm"></i>
+          <span>Launch Full Multi-Stop Google Route</span>
         </button>
-      </form>
-    </details>
+      </div>
 
-    <!-- iOS Segmented Control Tabs -->
-    <div class="bg-slate-900/90 p-1 rounded-2xl border border-white/[0.08] flex items-center shadow-inner">
-      <button onclick="switchTab('active')" id="tabActive" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
-        <i class="fa-solid fa-motorcycle text-xs"></i>
-        <span>Active Route</span>
-        <span id="activeTabBadge" class="text-[10px] px-1.5 py-0.2 rounded-full bg-black/20 text-slate-950 font-extrabold">0</span>
-      </button>
-      <button onclick="switchTab('completed')" id="tabCompleted" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200">
-        <i class="fa-solid fa-circle-check text-xs"></i>
-        <span>Completed</span>
-        <span id="completedTabBadge" class="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 text-slate-300 font-extrabold">0</span>
-      </button>
-    </div>
+      <!-- Active Stops Queue Header -->
+      <div class="flex items-center justify-between px-1">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <h2 class="text-xs font-black uppercase tracking-wider text-slate-300">Deliveries To Complete</h2>
+        </div>
+        <span id="riderQueueCount" class="text-[10px] text-slate-400 font-bold">0 Remaining</span>
+      </div>
 
-    <!-- Active Orders / Dispatch Sequence -->
-    <section class="space-y-3">
-      <div id="ordersContainer" class="space-y-3">
+      <!-- Active Stops Card Container -->
+      <div id="riderOrdersContainer" class="space-y-3.5">
         <div class="ios-card rounded-2xl py-14 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-3">
           <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
             <i class="fa-solid fa-circle-notch fa-spin text-amber-400 text-lg"></i>
           </div>
-          <span class="font-medium tracking-wide">Syncing live Abuja deliveries from Notion...</span>
+          <span class="font-medium tracking-wide">Syncing active dispatch queue...</span>
         </div>
       </div>
-    </section>
+    </main>
+  </div>
 
-  </main>
+  <!-- ========================================== -->
+  <!-- CEO DASHBOARD (UNLOCKED WITH PASSCODE 0622) -->
+  <!-- ========================================== -->
+  <div id="ceoDashboardSection" class="hidden">
+    <!-- CEO Header -->
+    <header class="sticky top-0 z-40 ios-blur border-b border-white/[0.08] px-4 py-3 shadow-md">
+      <div class="max-w-md mx-auto space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-sm tracking-tighter shadow-inner">
+              S
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h1 class="font-extrabold text-sm tracking-tight text-white">
+                  SADEX <span class="text-amber-400 font-black">CEO CONSOLE</span>
+                </h1>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  ABUJA
+                </span>
+              </div>
+              <p class="text-[10px] text-slate-400 font-medium">Executive Logistics & Fleet Operations</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <button onclick="fetchOrders(false)" title="Sync Notion" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 px-3 py-1.5 rounded-full font-semibold border border-white/10 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-arrows-rotate text-[11px]" id="ceoRefreshIcon"></i>
+              <span class="text-[11px]">Sync</span>
+            </button>
+
+            <!-- Functional CEO Logout Button -->
+            <button onclick="logoutCeo()" title="Lock & Logout CEO Console" class="text-xs bg-rose-500/10 hover:bg-rose-500/20 active:scale-95 text-rose-300 border border-rose-500/30 px-2.5 py-1.5 rounded-full font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-lock text-[10px]"></i>
+              <span class="text-[10px]">Logout</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Executive Action Toolbar -->
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+          <button onclick="sendManifestToRider()" class="w-full bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 active:scale-[0.97] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-950/40 transition">
+            <i class="fa-brands fa-whatsapp text-sm"></i>
+            <span>📱 Manifest to Rider</span>
+          </button>
+
+          <button onclick="openSummaryModal()" class="w-full bg-white/[0.07] hover:bg-white/[0.12] active:scale-[0.97] text-amber-300 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-amber-500/30 transition">
+            <i class="fa-solid fa-chart-column text-amber-400 text-xs"></i>
+            <span>📊 Daily Summary</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 space-y-4">
+      
+      <!-- Operational Metrics Banner (with Liquid Glass & COD Financials) -->
+      <div class="grid grid-cols-4 gap-2">
+        <div class="ios-card rounded-2xl p-2.5 text-center border-t-2 border-t-amber-400 transition shadow-lg">
+          <p class="text-[9px] text-slate-300 font-bold uppercase tracking-wider">Pending</p>
+          <div class="flex items-baseline justify-center gap-0.5 mt-0.5">
+            <h3 id="statPending" class="text-xl font-black text-amber-400 tracking-tight">0</h3>
+          </div>
+        </div>
+        <div class="ios-card rounded-2xl p-2.5 text-center border-t-2 border-t-sky-400 transition shadow-lg">
+          <p class="text-[9px] text-slate-300 font-bold uppercase tracking-wider">Transit</p>
+          <div class="flex items-baseline justify-center gap-0.5 mt-0.5">
+            <h3 id="statTransit" class="text-xl font-black text-sky-400 tracking-tight">0</h3>
+          </div>
+        </div>
+        <div class="ios-card rounded-2xl p-2.5 text-center border-t-2 border-t-emerald-400 transition shadow-lg">
+          <p class="text-[9px] text-slate-300 font-bold uppercase tracking-wider">Delivered</p>
+          <div class="flex items-baseline justify-center gap-0.5 mt-0.5">
+            <h3 id="statDelivered" class="text-xl font-black text-emerald-400 tracking-tight">0</h3>
+          </div>
+        </div>
+        <div class="ios-card rounded-2xl p-2.5 text-center border-t-2 border-t-amber-400 transition shadow-lg">
+          <p class="text-[9px] text-amber-300/90 font-black uppercase tracking-wider">COD Collected</p>
+          <div class="flex items-baseline justify-center gap-0.5 mt-0.5">
+            <h3 id="statCodCollected" class="text-xs font-black text-emerald-400 tracking-tight">₦0</h3>
+          </div>
+          <p id="statCodPendingBadge" class="text-[8px] text-slate-400 truncate">₦0 pending</p>
+        </div>
+      </div>
+
+      <!-- Master Dynamic GPS Multi-Stop Route Hero Action -->
+      <div id="ceoMasterRouteCard" class="ios-card rounded-2xl p-3.5 border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-900 shadow-lg space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-location-crosshairs"></i>
+            </div>
+            <div>
+              <h2 class="text-xs font-bold text-white tracking-tight">AI Shortest-Path Master Route</h2>
+              <p class="text-[10px] text-slate-400">Optimizes stop sequence from live GPS coordinates across Abuja</p>
+            </div>
+          </div>
+          <span id="activeCountBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
+            0 Stops
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button id="masterRouteBtn" onclick="launchMasterRoute()" class="sm:col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-3 px-3.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-[0.98] transition">
+            <i class="fa-solid fa-route text-sm"></i>
+            <span>Launch Optimized GPS Route</span>
+          </button>
+          <button id="optimizeOrderBtn" onclick="optimizeStopOrderOnly()" class="bg-white/[0.08] hover:bg-white/[0.14] active:scale-[0.98] text-slate-200 font-bold py-3 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-white/10 transition">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-xs"></i>
+            <span>Sort Sequence</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- CEO Intake Logger Accordion Card (With COD Input) -->
+      <details class="group ios-card rounded-2xl border border-white/[0.08] transition overflow-hidden">
+        <summary class="list-none p-3.5 flex items-center justify-between cursor-pointer select-none hover:bg-white/[0.02] transition">
+          <div class="flex items-center space-x-2.5">
+            <span class="w-7 h-7 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs font-bold">
+              <i class="fa-solid fa-plus"></i>
+            </span>
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-200 block">Log New Package</span>
+              <span class="text-[10px] text-slate-400 font-normal">Add merchant, delivery address, contact & COD</span>
+            </div>
+          </div>
+          <div class="w-6 h-6 rounded-full bg-white/[0.05] flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+          </div>
+        </summary>
+        
+        <form id="orderForm" onsubmit="handleCreateOrder(event)" class="p-4 pt-1 space-y-3.5 border-t border-white/[0.06] bg-black/20">
+          <div>
+            <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-store text-[10px] text-amber-400"></i> Merchant / Sender
+            </label>
+            <input id="merchantName" required placeholder="e.g. Apex Attire / Zara Store" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+          </div>
+          
+          <div>
+            <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-location-dot text-[10px] text-amber-400"></i> Delivery Address
+            </label>
+            <input id="deliveryAddress" required placeholder="e.g. 14 Aguiyi Ironsi St, Maitama" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+            <p class="text-[10px] text-slate-500 mt-1">Accepts any delivery location anywhere across Abuja.</p>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i> Landmark / Nearest Junction <span class="text-slate-500 font-normal">(Optional)</span>
+            </label>
+            <input id="landmark" placeholder="e.g. Opp Transcorp Hilton, Beside Banex Plaza" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+                <i class="fa-solid fa-phone text-[10px] text-amber-400"></i> Customer Phone
+              </label>
+              <input id="customerPhone" required placeholder="08012345678" type="tel" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+                <i class="fa-solid fa-box-archive text-[10px] text-amber-400"></i> Package Category
+              </label>
+              <select id="itemCategory" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white transition">
+                <option value="Standard">📦 Standard Box</option>
+                <option value="Fragile">⚠️ Fragile / Sensitive</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Cash on Delivery (COD) Field -->
+          <div class="bg-amber-500/5 p-3 rounded-xl border border-amber-500/20 space-y-1">
+            <label class="text-[11px] text-amber-300 font-bold tracking-wide flex items-center gap-1.5">
+              <i class="fa-solid fa-money-bill-wave text-amber-400"></i> Cash on Delivery (COD) Amount (₦)
+            </label>
+            <input id="codAmount" type="number" min="0" step="100" placeholder="e.g. 15000 (Enter 0 or leave blank for Prepaid)" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+            <p class="text-[10px] text-slate-400">Leave at 0 or blank if already prepaid by customer.</p>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-camera text-[10px] text-amber-400"></i> Photo Proof of Delivery URL <span class="text-slate-500 font-normal">(Optional)</span>
+            </label>
+            <input id="proofUrl" placeholder="https://..." class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+          </div>
+
+          <button type="submit" id="submitBtn" class="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Save Package to Fleet</span>
+          </button>
+        </form>
+      </details>
+
+      <!-- Real-Time Search & Filter Bar -->
+      <div class="space-y-2">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+          </div>
+          <input
+            id="ceoSearchInput"
+            type="text"
+            oninput="handleSearchChange(this.value)"
+            placeholder="Search merchant, address, landmark, phone or COD..."
+            class="w-full bg-slate-900/90 border border-white/10 rounded-2xl pl-9 pr-8 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition shadow-inner"
+          />
+          <button
+            id="ceoSearchClearBtn"
+            onclick="clearSearchInput()"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-white transition hidden"
+            title="Clear search"
+          >
+            <i class="fa-solid fa-circle-xmark text-xs"></i>
+          </button>
+        </div>
+
+        <div id="searchFilterStats" class="text-[10px] text-slate-400 flex items-center justify-between px-1 hidden">
+          <span id="searchResultCountText">Found 0 matching packages</span>
+          <button onclick="clearSearchInput()" class="text-amber-400 hover:underline font-semibold">Reset search</button>
+        </div>
+      </div>
+
+      <!-- iOS Segmented Control Tabs (Active vs Completed) -->
+      <div class="bg-slate-900/90 p-1 rounded-2xl border border-white/[0.08] flex items-center shadow-inner">
+        <button onclick="switchTab('active')" id="tabActive" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
+          <i class="fa-solid fa-motorcycle text-xs"></i>
+          <span>Active Route</span>
+          <span id="activeTabBadge" class="text-[10px] px-1.5 py-0.2 rounded-full bg-black/20 text-slate-950 font-extrabold">0</span>
+        </button>
+        <button onclick="switchTab('completed')" id="tabCompleted" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200">
+          <i class="fa-solid fa-circle-check text-xs"></i>
+          <span>Completed</span>
+          <span id="completedTabBadge" class="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 text-slate-300 font-extrabold">0</span>
+        </button>
+      </div>
+
+      <!-- CEO Bulk Selection & Action Control Bar -->
+      <div id="bulkActionBar" class="ios-card rounded-2xl p-3 border border-amber-500/25 bg-gradient-to-br from-slate-900/95 via-[#0c2419]/90 to-slate-900/95 shadow-xl space-y-2.5 transition-all">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="selectAllCheckbox"
+              onchange="handleSelectAllToggle(this.checked)"
+              class="w-4 h-4 rounded border-amber-500/40 bg-slate-950 text-amber-500 focus:ring-0 cursor-pointer accent-amber-500 transition"
+            />
+            <label for="selectAllCheckbox" class="text-xs font-extrabold text-slate-200 cursor-pointer select-none flex items-center gap-1.5">
+              <span>Select All</span>
+              <span class="text-[11px] text-slate-400 font-normal">(<span id="bulkVisibleCount">0</span> visible)</span>
+            </label>
+            <span id="bulkSelectedBadge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow-sm hidden">
+              0 Selected
+            </span>
+          </div>
+
+          <button id="clearSelectionBtn" onclick="clearAllSelections()" class="text-[11px] font-bold text-slate-400 hover:text-amber-300 transition hidden flex items-center gap-1">
+            <i class="fa-solid fa-xmark text-[10px]"></i>
+            <span>Deselect</span>
+          </button>
+        </div>
+
+        <!-- Bulk Action Buttons -->
+        <div class="grid grid-cols-2 gap-2 pt-0.5">
+          <button
+            id="bulkTransitBtn"
+            onclick="executeBulkStatus('In-Transit')"
+            disabled
+            class="tactile-btn disabled:opacity-35 disabled:pointer-events-none w-full bg-sky-600/30 hover:bg-sky-600/50 active:scale-[0.98] text-sky-200 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-sky-500/30 shadow-md transition"
+          >
+            <i class="fa-solid fa-truck-fast text-sky-400 text-xs" id="bulkTransitIcon"></i>
+            <span>In-Transit <span id="bulkTransitCount" class="font-black text-white">(0)</span></span>
+          </button>
+
+          <button
+            id="bulkDeliveredBtn"
+            onclick="executeBulkStatus('Delivered')"
+            disabled
+            class="tactile-btn disabled:opacity-35 disabled:pointer-events-none w-full bg-emerald-600/30 hover:bg-emerald-600/50 active:scale-[0.98] text-emerald-200 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-emerald-500/30 shadow-md transition"
+          >
+            <i class="fa-solid fa-circle-check text-emerald-400 text-xs" id="bulkDeliveredIcon"></i>
+            <span>Delivered <span id="bulkDeliveredCount" class="font-black text-white">(0)</span></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Orders Container -->
+      <section class="space-y-3">
+        <div id="ordersContainer" class="space-y-3">
+          <div class="ios-card rounded-2xl py-14 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <i class="fa-solid fa-circle-notch fa-spin text-amber-400 text-lg"></i>
+            </div>
+            <span class="font-medium tracking-wide">Syncing live Abuja deliveries from Notion...</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script>
     const DATABASE_ID = "3c1c21a6f4768049a840d9ed8972b630";
+    const CEO_MASTER_PASSCODE = "0622";
+    const RIDER_PHONE = "2347045750528";
+    
     let currentTab = "active";
+    let searchQuery = "";
     let globalOrders = [];
     let updatingStatusIds = new Set();
+    let selectedOrderIds = new Set();
+    let isBulkUpdating = false;
+    let enteredPin = "";
+    let isCeoAuthenticated = false;
+    let pollingInterval = null;
+
+    // View switcher & Session Management
+    function initViewAndAuth() {
+      isCeoAuthenticated = localStorage.getItem("sadex_ceo_auth") === "true";
+      renderViewStructure();
+      fetchOrders(true);
+      startBackgroundPolling();
+    }
+
+    function renderViewStructure() {
+      const riderSection = document.getElementById("riderViewSection");
+      const ceoSection = document.getElementById("ceoDashboardSection");
+
+      if (isCeoAuthenticated) {
+        if (riderSection) riderSection.classList.add("hidden");
+        if (ceoSection) ceoSection.classList.remove("hidden");
+      } else {
+        if (riderSection) riderSection.classList.remove("hidden");
+        if (ceoSection) ceoSection.classList.add("hidden");
+        const floatingBar = document.getElementById("floatingBulkBar");
+        if (floatingBar) floatingBar.classList.add("hidden");
+      }
+    }
+
+    function openCeoModal() {
+      const modal = document.getElementById("ceoSecurityModal");
+      const errEl = document.getElementById("gateError");
+      if (errEl) errEl.classList.add("hidden");
+      clearPin();
+      if (modal) modal.classList.remove("hidden");
+    }
+
+    function closeCeoModal() {
+      const modal = document.getElementById("ceoSecurityModal");
+      if (modal) modal.classList.add("hidden");
+      clearPin();
+    }
+
+    function logoutCeo() {
+      localStorage.removeItem("sadex_ceo_auth");
+      isCeoAuthenticated = false;
+      selectedOrderIds.clear();
+      const floatingBar = document.getElementById("floatingBulkBar");
+      if (floatingBar) floatingBar.classList.add("hidden");
+      showToast("CEO Session closed. Returned to Rider View");
+      renderViewStructure();
+      renderRiderOrders();
+    }
+
+    function pressPin(digit) {
+      if (enteredPin.length < 4) {
+        enteredPin += digit;
+        updatePinDots();
+        if (enteredPin.length === 4) {
+          verifyPinAttempt();
+        }
+      }
+    }
+
+    function deletePin() {
+      if (enteredPin.length > 0) {
+        enteredPin = enteredPin.slice(0, -1);
+        updatePinDots();
+      }
+    }
+
+    function clearPin() {
+      enteredPin = "";
+      updatePinDots();
+    }
+
+    function updatePinDots() {
+      for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById(`dot${i}`);
+        if (!dot) continue;
+        if (i <= enteredPin.length) {
+          dot.className = "w-3.5 h-3.5 rounded-full bg-amber-400 border-2 border-amber-400 scale-110 transition-all duration-150 shadow-sm shadow-amber-400/50";
+        } else {
+          dot.className = "w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-150";
+        }
+      }
+    }
+
+    async function verifyPinAttempt() {
+      const candidatePin = enteredPin;
+      let isValid = false;
+
+      try {
+        const res = await fetch("/api/verify-pin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pin: candidatePin })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          isValid = data.success === true;
+        }
+      } catch (err) {
+        // Fallback local check
+        isValid = candidatePin === CEO_MASTER_PASSCODE;
+      }
+
+      if (candidatePin === CEO_MASTER_PASSCODE) {
+        isValid = true;
+      }
+
+      if (isValid) {
+        localStorage.setItem("sadex_ceo_auth", "true");
+        isCeoAuthenticated = true;
+        closeCeoModal();
+        renderViewStructure();
+        updateStats();
+        renderOrders();
+        showToast("CEO Dashboard Unlocked");
+      } else {
+        const pinContainer = document.getElementById("pinDots");
+        const errorEl = document.getElementById("gateError");
+        if (pinContainer) pinContainer.classList.add("pin-shake");
+        if (errorEl) {
+          errorEl.textContent = "Incorrect Passcode";
+          errorEl.classList.remove("hidden");
+        }
+
+        setTimeout(() => {
+          if (pinContainer) pinContainer.classList.remove("pin-shake");
+          clearPin();
+        }, 600);
+      }
+    }
+
+    // Physical keyboard listener for PIN modal
+    window.addEventListener("keydown", (e) => {
+      const modal = document.getElementById("ceoSecurityModal");
+      if (modal && !modal.classList.contains("hidden")) {
+        if (/^[0-9]$/.test(e.key)) {
+          pressPin(e.key);
+        } else if (e.key === "Backspace") {
+          deletePin();
+        } else if (e.key === "Escape") {
+          closeCeoModal();
+        }
+      }
+    });
+
+    // 60-Second Background Polling Sync
+    function startBackgroundPolling() {
+      if (pollingInterval) clearInterval(pollingInterval);
+      pollingInterval = setInterval(() => {
+        fetchOrders(true);
+      }, 60000);
+    }
 
     function showToast(message, isSuccess = true) {
       const hud = document.getElementById("toastHUD");
@@ -344,6 +977,29 @@
       }
     }
 
+    // Search and Filtering Logic
+    function handleSearchChange(query) {
+      searchQuery = (query || "").trim().toLowerCase();
+      const clearBtn = document.getElementById("ceoSearchClearBtn");
+      const statsEl = document.getElementById("searchFilterStats");
+      
+      if (clearBtn) {
+        if (searchQuery.length > 0) {
+          clearBtn.classList.remove("hidden");
+        } else {
+          clearBtn.classList.add("hidden");
+        }
+      }
+
+      renderOrders();
+    }
+
+    function clearSearchInput() {
+      const input = document.getElementById("ceoSearchInput");
+      if (input) input.value = "";
+      handleSearchChange("");
+    }
+
     function switchTab(tab) {
       currentTab = tab;
       const tabActive = document.getElementById("tabActive");
@@ -359,9 +1015,13 @@
       renderOrders();
     }
 
-    async function fetchOrders() {
-      const icon = document.getElementById("refreshIcon");
-      if (icon) icon.classList.add("fa-spin");
+    async function fetchOrders(silent = false) {
+      const riderIcon = document.getElementById("riderRefreshIcon");
+      const ceoIcon = document.getElementById("ceoRefreshIcon");
+      if (!silent) {
+        if (riderIcon) riderIcon.classList.add("fa-spin");
+        if (ceoIcon) ceoIcon.classList.add("fa-spin");
+      }
 
       try {
         const res = await fetch(`/api/notion?path=v1/databases/${DATABASE_ID}/query`, {
@@ -376,11 +1036,28 @@
         globalOrders = (data.results || []).map((page, index) => {
           const props = page.properties;
           const merchant = props["Merchant Name"]?.title?.[0]?.plain_text || "Merchant";
-          const address = props["Delivery Address"]?.rich_text?.[0]?.plain_text || "Abuja";
+          const rawAddress = props["Delivery Address"]?.rich_text?.[0]?.plain_text || "Abuja";
           const category = props["Item Category"]?.select?.name || "Standard";
           const status = props["Status"]?.status?.name || "Pending";
           const proofUrl = props["Photo Proof of Delivery URL"]?.url || "";
           
+          // Parse Cash on Delivery (COD) Amount
+          let codAmount = 0;
+          if (props["COD Amount"]?.type === "number") {
+            codAmount = Number(props["COD Amount"]?.number || 0);
+          } else if (props["COD Amount"]?.type === "rich_text") {
+            const rawText = props["COD Amount"]?.rich_text?.[0]?.plain_text || "";
+            codAmount = Number(rawText.replace(/[^0-9.]/g, "")) || 0;
+          }
+
+          let address = rawAddress;
+          let landmark = "";
+          const lmMatch = rawAddress.match(/\(Landmark:\s*(.*?)\)/i);
+          if (lmMatch) {
+            landmark = lmMatch[1].trim();
+            address = rawAddress.replace(/\(Landmark:\s*.*?\)/i, "").trim();
+          }
+
           let phone = "";
           if (props["Customer Phone"]?.type === "phone_number") {
             phone = props["Customer Phone"]?.phone_number || "";
@@ -392,9 +1069,11 @@
             id: page.id,
             merchant,
             address,
+            landmark,
             phone: cleanPhone(phone),
             category,
             status,
+            codAmount,
             proofUrl,
             orderIndex: index
           };
@@ -402,17 +1081,15 @@
 
         updateStats();
         renderOrders();
+        renderRiderOrders();
+        if (!silent) showToast("Fleet database synced");
       } catch (err) {
-        document.getElementById("ordersContainer").innerHTML = `
-          <div class="ios-card rounded-2xl p-6 text-center text-rose-400 text-xs font-semibold space-y-2">
-            <i class="fa-solid fa-triangle-exclamation text-xl text-rose-500"></i>
-            <p>Failed to load orders: ${err.message}</p>
-            <button onclick="fetchOrders()" class="mt-2 px-3 py-1.5 rounded-lg bg-white/10 text-white font-bold text-xs">Retry</button>
-          </div>
-        `;
-        showToast("Sync failed: " + err.message, false);
+        if (!silent) {
+          showToast("Sync failed: " + err.message, false);
+        }
       } finally {
-        if (icon) icon.classList.remove("fa-spin");
+        if (riderIcon) riderIcon.classList.remove("fa-spin");
+        if (ceoIcon) ceoIcon.classList.remove("fa-spin");
       }
     }
 
@@ -422,9 +1099,22 @@
       const delivered = globalOrders.filter(o => o.status === "Delivered").length;
       const activeTotal = pending + transit;
 
+      // Calculate COD Metrics
+      const codDelivered = globalOrders
+        .filter(o => o.status === "Delivered")
+        .reduce((sum, o) => sum + (o.codAmount || 0), 0);
+      
+      const codPending = globalOrders
+        .filter(o => o.status !== "Delivered")
+        .reduce((sum, o) => sum + (o.codAmount || 0), 0);
+
+      // CEO Console Badges
       const statPending = document.getElementById("statPending");
       const statTransit = document.getElementById("statTransit");
       const statDelivered = document.getElementById("statDelivered");
+      const statCodCollected = document.getElementById("statCodCollected");
+      const statCodPendingBadge = document.getElementById("statCodPendingBadge");
+
       const activeCountBadge = document.getElementById("activeCountBadge");
       const activeTabBadge = document.getElementById("activeTabBadge");
       const completedTabBadge = document.getElementById("completedTabBadge");
@@ -432,12 +1122,21 @@
       if (statPending) statPending.innerText = pending;
       if (statTransit) statTransit.innerText = transit;
       if (statDelivered) statDelivered.innerText = delivered;
+      if (statCodCollected) statCodCollected.innerText = `₦${codDelivered.toLocaleString()}`;
+      if (statCodPendingBadge) statCodPendingBadge.innerText = `₦${codPending.toLocaleString()} pending`;
+
       if (activeCountBadge) activeCountBadge.innerText = `${activeTotal} Stop${activeTotal === 1 ? '' : 's'}`;
       if (activeTabBadge) activeTabBadge.innerText = activeTotal;
       if (completedTabBadge) completedTabBadge.innerText = delivered;
+
+      // Rider View Badges
+      const riderActiveCountBadge = document.getElementById("riderActiveCountBadge");
+      const riderQueueCount = document.getElementById("riderQueueCount");
+      if (riderActiveCountBadge) riderActiveCountBadge.innerText = `${activeTotal} Stop${activeTotal === 1 ? '' : 's'}`;
+      if (riderQueueCount) riderQueueCount.innerText = `${activeTotal} Remaining`;
     }
 
-    // Zero-Key Abuja Coordinates Map for instant browser-level optimization
+    // Zero-Key Abuja Coordinates Map
     const ABUJA_CLIENT_COORDS = {
       maitama: { lat: 9.0882, lng: 7.4933 },
       "wuse 2": { lat: 9.0754, lng: 7.4728 },
@@ -539,7 +1238,6 @@
         return { optimizedStops: activeStops, provider: "single_stop" };
       }
 
-      // Try free backend OSRM / Geodesic optimizer (Zero API Keys required)
       try {
         const response = await fetch("/api/optimize-route", {
           method: "POST",
@@ -560,10 +1258,9 @@
           }
         }
       } catch (err) {
-        console.warn("Backend optimization endpoint unavailable, using client-side TSP solver:", err.message);
+        console.warn("Using client-side TSP solver:", err.message);
       }
 
-      // In-browser zero-key TSP solver fallback
       const clientSorted = clientTspSort(originCoords, activeStops);
       return { optimizedStops: clientSorted, provider: "browser_shortest_path" };
     }
@@ -572,6 +1269,7 @@
       const deliveredStops = globalOrders.filter(o => o.status === "Delivered");
       globalOrders = [...optimizedActiveStops, ...deliveredStops];
       renderOrders();
+      renderRiderOrders();
     }
 
     async function buildAndOpenRoute(originCoords = null) {
@@ -581,28 +1279,21 @@
         return;
       }
 
-      showToast("Calculating zero-key shortest path...");
+      showToast("Calculating shortest route sequence...");
 
-      // Call zero-key route optimization service to calculate shortest path and reorder waypoints
-      const { optimizedStops, provider } = await requestOptimizedStops(originCoords, activeStops);
-      
-      // Update the local list so the UI displays the reordered stops
+      const { optimizedStops } = await requestOptimizedStops(originCoords, activeStops);
       applyOptimizedOrderToState(optimizedStops);
 
-      // Format all addresses with Abuja suffix for accurate Google Maps geocoding
       const formattedStops = optimizedStops.map(o => formatAbujaAddress(o.address));
       const destination = encodeURIComponent(formattedStops[formattedStops.length - 1]);
 
       let masterUrl = "https://www.google.com/maps/dir/?api=1";
-      
       if (originCoords && originCoords.latitude && originCoords.longitude) {
         masterUrl += `&origin=${originCoords.latitude},${originCoords.longitude}`;
       }
-
       masterUrl += `&destination=${destination}`;
 
       if (formattedStops.length > 1) {
-        // Intermediary stops chained as waypoints in calculated shortest order
         const waypoints = formattedStops
           .slice(0, -1)
           .map(addr => encodeURIComponent(addr))
@@ -612,7 +1303,7 @@
 
       masterUrl += `&travelmode=driving`;
       
-      showToast("Shortest route sequenced: Launching Google Maps...");
+      showToast("Launching Google Maps multi-stop navigation...");
       window.open(masterUrl, '_blank');
     }
 
@@ -651,7 +1342,7 @@
         }
       }
 
-      const { optimizedStops, provider } = await requestOptimizedStops(originCoords, activeStops);
+      const { optimizedStops } = await requestOptimizedStops(originCoords, activeStops);
       applyOptimizedOrderToState(optimizedStops);
 
       if (btn) {
@@ -659,7 +1350,7 @@
         btn.disabled = false;
       }
 
-      showToast(`Stops sorted by shortest distance (${provider.replace(/_/g, ' ')})`);
+      showToast(`Stops sorted by shortest distance`);
     }
 
     function launchMasterRoute() {
@@ -669,18 +1360,20 @@
         return;
       }
 
-      const btn = document.getElementById("masterRouteBtn");
+      const btn = isCeoAuthenticated 
+        ? document.getElementById("masterRouteBtn")
+        : document.getElementById("riderMasterRouteBtn");
       const originalHTML = btn ? btn.innerHTML : "";
 
       if (btn) {
-        btn.innerHTML = `<i class="fa-solid fa-location-crosshairs fa-spin text-sm"></i> <span>Acquiring Rider GPS...</span>`;
+        btn.innerHTML = `<i class="fa-solid fa-location-crosshairs fa-spin text-sm"></i> <span>Acquiring Live GPS...</span>`;
         btn.disabled = true;
       }
 
-      showToast("Acquiring rider GPS position...");
+      showToast("Acquiring GPS position...");
 
       if (!navigator.geolocation) {
-        showToast("GPS unavailable — routing without live origin");
+        showToast("GPS unavailable — routing with default origin");
         if (btn) {
           btn.innerHTML = originalHTML;
           btn.disabled = false;
@@ -697,7 +1390,7 @@
             btn.innerHTML = originalHTML;
             btn.disabled = false;
           }
-          showToast("GPS timeout — launching route fallback", false);
+          showToast("GPS timeout — routing with fallback origin", false);
           buildAndOpenRoute(null);
         }
       }, 6500);
@@ -725,8 +1418,7 @@
             btn.innerHTML = originalHTML;
             btn.disabled = false;
           }
-          console.warn("Geolocation warning:", err.message);
-          showToast("Location denied or unavailable — routing with default origin", false);
+          showToast("Location unavailable — routing with default origin", false);
           buildAndOpenRoute(null);
         },
         {
@@ -741,6 +1433,7 @@
       if (updatingStatusIds.has(pageId)) return;
       updatingStatusIds.add(pageId);
       renderOrders();
+      renderRiderOrders();
 
       try {
         const payload = {
@@ -761,28 +1454,404 @@
         }
         
         showToast(`Status updated to ${newStatus}`);
-        await fetchOrders();
+        selectedOrderIds.delete(pageId);
+        await fetchOrders(true);
       } catch (e) {
         showToast("Status update failed: " + e.message, false);
       } finally {
         updatingStatusIds.delete(pageId);
         renderOrders();
+        renderRiderOrders();
       }
     }
 
+    // =========================================================
+    // 3. WHATSAPP MANIFEST DISPATCH TO RIDER (2347045750528)
+    // =========================================================
+    function sendManifestToRider() {
+      const activeStops = globalOrders.filter(o => o.status !== "Delivered");
+      if (activeStops.length === 0) {
+        showToast("No active stops in queue to dispatch!", false);
+        return;
+      }
+
+      const totalCodPending = activeStops.reduce((sum, o) => sum + (o.codAmount || 0), 0);
+      const todayStr = new Date().toLocaleDateString('en-GB', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+
+      let manifestText = `🏍️ *SADEX EXPRESS • DISPATCH MANIFEST*\n`;
+      manifestText += `📅 *Date:* ${todayStr}\n`;
+      manifestText += `📍 *Total Active Stops:* ${activeStops.length}\n`;
+      manifestText += `💰 *Total COD to Collect:* ₦${totalCodPending.toLocaleString()}\n`;
+      manifestText += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+      activeStops.forEach((stop, index) => {
+        const isFragile = (stop.category || "").toLowerCase().includes("fragile");
+        const codLabel = (stop.codAmount && stop.codAmount > 0)
+          ? `💵 *₦${Number(stop.codAmount).toLocaleString()} COD (COLLECT CASH)*`
+          : `💳 *Prepaid*`;
+
+        manifestText += `*STOP #${index + 1}*\n`;
+        manifestText += `🏪 *Merchant:* ${stop.merchant}\n`;
+        manifestText += `📦 *Type:* ${isFragile ? '⚠️ FRAGILE' : '📦 Standard'}\n`;
+        manifestText += `📍 *Address:* ${stop.address}\n`;
+        if (stop.landmark) {
+          manifestText += `🚩 *Landmark:* ${stop.landmark}\n`;
+        }
+        manifestText += `📞 *Customer:* +${stop.phone}\n`;
+        manifestText += `💵 *Payment:* ${codLabel}\n`;
+        manifestText += `📌 *Status:* ${stop.status}\n\n`;
+      });
+
+      manifestText += `━━━━━━━━━━━━━━━━━━━━━\n`;
+      manifestText += `🚀 *Drive safely & update delivery status upon drop-off!*`;
+
+      const encoded = encodeURIComponent(manifestText);
+      const waUrl = `https://wa.me/${RIDER_PHONE}?text=${encoded}`;
+      
+      showToast("Opening WhatsApp Manifest Dispatch...");
+      window.open(waUrl, "_blank");
+    }
+
+    // =========================================================
+    // 4. END-OF-DAY OPERATIONS SUMMARY GENERATOR
+    // =========================================================
+    let currentReportText = "";
+
+    function openSummaryModal() {
+      const modal = document.getElementById("summaryReportModal");
+      const dateLabel = document.getElementById("summaryDateLabel");
+      const totalPkgsEl = document.getElementById("summaryTotalPkgs");
+      const deliveryRateEl = document.getElementById("summaryDeliveryRate");
+      const statusBreakdownEl = document.getElementById("summaryStatusBreakdown");
+      const codDeliveredEl = document.getElementById("summaryCodDelivered");
+      const codPendingEl = document.getElementById("summaryCodPending");
+      const rawTextEl = document.getElementById("summaryRawText");
+
+      const total = globalOrders.length;
+      const delivered = globalOrders.filter(o => o.status === "Delivered").length;
+      const transit = globalOrders.filter(o => o.status === "In-Transit").length;
+      const pending = globalOrders.filter(o => o.status === "Pending").length;
+      const rate = total > 0 ? Math.round((delivered / total) * 100) : 0;
+
+      const codDelivered = globalOrders
+        .filter(o => o.status === "Delivered")
+        .reduce((sum, o) => sum + (o.codAmount || 0), 0);
+
+      const codPending = globalOrders
+        .filter(o => o.status !== "Delivered")
+        .reduce((sum, o) => sum + (o.codAmount || 0), 0);
+
+      const today = new Date();
+      const dateFormatted = today.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+      const timeFormatted = today.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      if (dateLabel) dateLabel.textContent = `${dateFormatted} • ${timeFormatted}`;
+      if (totalPkgsEl) totalPkgsEl.textContent = total;
+      if (deliveryRateEl) deliveryRateEl.textContent = `(${rate}% Success Rate)`;
+      if (statusBreakdownEl) statusBreakdownEl.textContent = `${delivered} Delivered • ${transit} In-Transit • ${pending} Pending`;
+      if (codDeliveredEl) codDeliveredEl.textContent = `₦${codDelivered.toLocaleString()}`;
+      if (codPendingEl) codPendingEl.textContent = `₦${codPending.toLocaleString()} pending in field`;
+
+      // Build structured report
+      let rep = `📊 *SADEX EXPRESS • DAILY OPERATIONS REPORT*\n`;
+      rep += `📅 *Date:* ${dateFormatted} (${timeFormatted})\n`;
+      rep += `━━━━━━━━━━━━━━━━━━━━━\n`;
+      rep += `📦 *Total Packages Processed:* ${total}\n`;
+      rep += `✅ *Delivered:* ${delivered} (${rate}%)\n`;
+      rep += `🚚 *In-Transit:* ${transit}\n`;
+      rep += `⏳ *Pending Intake:* ${pending}\n\n`;
+      rep += `💰 *FINANCIAL & COD SUMMARY:*\n`;
+      rep += `💵 *COD Cash Collected (Delivered):* ₦${codDelivered.toLocaleString()}\n`;
+      rep += `⚠️ *COD Pending Collection:* ₦${codPending.toLocaleString()}\n`;
+      rep += `🏷️ *Total COD Manifest Value:* ₦${(codDelivered + codPending).toLocaleString()}\n`;
+      rep += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+      
+      rep += `📋 *ITEMIZED LOG:*\n`;
+      if (globalOrders.length === 0) {
+        rep += `(No packages logged today)\n`;
+      } else {
+        globalOrders.forEach((o, i) => {
+          const codStr = (o.codAmount && o.codAmount > 0) ? `₦${Number(o.codAmount).toLocaleString()} COD` : `Prepaid`;
+          rep += `${i + 1}. [${o.status}] ${o.merchant} → ${o.address} (${codStr})\n`;
+        });
+      }
+      rep += `\n✨ *Generated by SADEX CEO Executive Console*`;
+
+      currentReportText = rep;
+      if (rawTextEl) rawTextEl.textContent = rep;
+
+      if (modal) modal.classList.remove("hidden");
+    }
+
+    function closeSummaryModal() {
+      const modal = document.getElementById("summaryReportModal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function copySummaryReport() {
+      if (!currentReportText) return;
+      copyToClipboard(currentReportText, "Daily Operations Summary");
+    }
+
+    function sendSummaryWhatsApp() {
+      if (!currentReportText) return;
+      const encoded = encodeURIComponent(currentReportText);
+      const url = `https://wa.me/${RIDER_PHONE}?text=${encoded}`;
+      showToast("Routing report to WhatsApp...");
+      window.open(url, "_blank");
+    }
+
+    // Helpers for Bulk Order Actions
+    function getCurrentlyVisibleOrders() {
+      const tabFiltered = globalOrders.filter(o => currentTab === "active" ? o.status !== "Delivered" : o.status === "Delivered");
+      return tabFiltered.filter(o => {
+        if (!searchQuery) return true;
+        const target = [
+          o.merchant,
+          o.address,
+          o.landmark,
+          o.phone,
+          o.category,
+          o.status,
+          o.codAmount > 0 ? `₦${o.codAmount} cod cash` : "prepaid"
+        ].join(" ").toLowerCase();
+        return target.includes(searchQuery);
+      });
+    }
+
+    function toggleOrderSelection(orderId, isChecked) {
+      if (isChecked === undefined) {
+        if (selectedOrderIds.has(orderId)) {
+          selectedOrderIds.delete(orderId);
+        } else {
+          selectedOrderIds.add(orderId);
+        }
+      } else {
+        if (isChecked) {
+          selectedOrderIds.add(orderId);
+        } else {
+          selectedOrderIds.delete(orderId);
+        }
+      }
+      renderOrders();
+    }
+
+    function handleSelectAllToggle(isChecked) {
+      const visibleOrders = getCurrentlyVisibleOrders();
+      if (isChecked) {
+        visibleOrders.forEach(o => selectedOrderIds.add(o.id));
+      } else {
+        visibleOrders.forEach(o => selectedOrderIds.delete(o.id));
+      }
+      renderOrders();
+    }
+
+    function clearAllSelections() {
+      selectedOrderIds.clear();
+      renderOrders();
+    }
+
+    function updateBulkBarUI(visibleOrders = null) {
+      if (!visibleOrders) {
+        visibleOrders = getCurrentlyVisibleOrders();
+      }
+      const visibleCount = visibleOrders.length;
+      const selectedCount = selectedOrderIds.size;
+      const visibleSelectedCount = visibleOrders.filter(o => selectedOrderIds.has(o.id)).length;
+
+      const visibleEl = document.getElementById("bulkVisibleCount");
+      const badgeEl = document.getElementById("bulkSelectedBadge");
+      const clearBtn = document.getElementById("clearSelectionBtn");
+      const selectAllChk = document.getElementById("selectAllCheckbox");
+      const transitBtn = document.getElementById("bulkTransitBtn");
+      const deliveredBtn = document.getElementById("bulkDeliveredBtn");
+      const transitCountEl = document.getElementById("bulkTransitCount");
+      const deliveredCountEl = document.getElementById("bulkDeliveredCount");
+      const floatingBar = document.getElementById("floatingBulkBar");
+      const floatingCountEl = document.getElementById("floatingSelectedCount");
+
+      if (visibleEl) visibleEl.textContent = visibleCount;
+
+      if (selectAllChk) {
+        if (visibleCount > 0 && visibleSelectedCount === visibleCount) {
+          selectAllChk.checked = true;
+          selectAllChk.indeterminate = false;
+        } else if (visibleSelectedCount > 0 && visibleSelectedCount < visibleCount) {
+          selectAllChk.checked = false;
+          selectAllChk.indeterminate = true;
+        } else {
+          selectAllChk.checked = false;
+          selectAllChk.indeterminate = false;
+        }
+      }
+
+      if (selectedCount > 0) {
+        if (badgeEl) {
+          badgeEl.textContent = `${selectedCount} Selected`;
+          badgeEl.classList.remove("hidden");
+        }
+        if (clearBtn) clearBtn.classList.remove("hidden");
+        if (transitBtn) {
+          transitBtn.disabled = isBulkUpdating;
+          if (transitCountEl) transitCountEl.textContent = `(${selectedCount})`;
+        }
+        if (deliveredBtn) {
+          deliveredBtn.disabled = isBulkUpdating;
+          if (deliveredCountEl) deliveredCountEl.textContent = `(${selectedCount})`;
+        }
+        if (floatingBar && isCeoAuthenticated) {
+          floatingBar.classList.remove("hidden");
+          if (floatingCountEl) floatingCountEl.textContent = selectedCount;
+        }
+      } else {
+        if (badgeEl) badgeEl.classList.add("hidden");
+        if (clearBtn) clearBtn.classList.add("hidden");
+        if (transitBtn) {
+          transitBtn.disabled = true;
+          if (transitCountEl) transitCountEl.textContent = "(0)";
+        }
+        if (deliveredBtn) {
+          deliveredBtn.disabled = true;
+          if (deliveredCountEl) deliveredCountEl.textContent = "(0)";
+        }
+        if (floatingBar) floatingBar.classList.add("hidden");
+      }
+    }
+
+    async function executeBulkStatus(newStatus) {
+      if (selectedOrderIds.size === 0) {
+        showToast("Select at least 1 order for bulk action", false);
+        return;
+      }
+      if (isBulkUpdating) return;
+
+      const idsToUpdate = Array.from(selectedOrderIds);
+      isBulkUpdating = true;
+      
+      idsToUpdate.forEach(id => updatingStatusIds.add(id));
+      renderOrders();
+
+      const transitIcon = document.getElementById("bulkTransitIcon");
+      const deliveredIcon = document.getElementById("bulkDeliveredIcon");
+
+      if (newStatus === "In-Transit") {
+        if (transitIcon) transitIcon.className = "fa-solid fa-circle-notch fa-spin text-sky-400 text-xs";
+      } else {
+        if (deliveredIcon) deliveredIcon.className = "fa-solid fa-circle-notch fa-spin text-emerald-400 text-xs";
+      }
+
+      showToast(`Bulk updating ${idsToUpdate.length} order(s) to ${newStatus}...`);
+
+      try {
+        const promises = idsToUpdate.map(async (pageId) => {
+          const payload = {
+            properties: {
+              "Status": { status: { name: newStatus } }
+            }
+          };
+          const res = await fetch(`/api/notion?path=v1/pages/${pageId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || "Failed");
+          }
+          return pageId;
+        });
+
+        const results = await Promise.allSettled(promises);
+        let succeeded = 0;
+        let failed = 0;
+
+        results.forEach((r, idx) => {
+          const pageId = idsToUpdate[idx];
+          if (r.status === "fulfilled") {
+            succeeded++;
+            selectedOrderIds.delete(pageId);
+          } else {
+            failed++;
+          }
+        });
+
+        if (failed === 0) {
+          showToast(`Bulk marked ${succeeded} order(s) as ${newStatus}`);
+        } else {
+          showToast(`Updated ${succeeded} order(s), ${failed} failed`, false);
+        }
+
+        await fetchOrders(true);
+      } catch (e) {
+        showToast("Bulk update error: " + e.message, false);
+      } finally {
+        idsToUpdate.forEach(id => updatingStatusIds.delete(id));
+        isBulkUpdating = false;
+        if (transitIcon) transitIcon.className = "fa-solid fa-truck-fast text-sky-400 text-xs";
+        if (deliveredIcon) deliveredIcon.className = "fa-solid fa-circle-check text-emerald-400 text-xs";
+        renderOrders();
+        renderRiderOrders();
+      }
+    }
+
+    // Render CEO Console Orders
     function renderOrders() {
       const container = document.getElementById("ordersContainer");
-      const filtered = globalOrders.filter(o => currentTab === "active" ? o.status !== "Delivered" : o.status === "Delivered");
+      if (!container) return;
+
+      const tabFiltered = globalOrders.filter(o => currentTab === "active" ? o.status !== "Delivered" : o.status === "Delivered");
+
+      const filtered = tabFiltered.filter(o => {
+        if (!searchQuery) return true;
+        const target = [
+          o.merchant,
+          o.address,
+          o.landmark,
+          o.phone,
+          o.category,
+          o.status,
+          o.codAmount > 0 ? `₦${o.codAmount} cod cash` : "prepaid"
+        ].join(" ").toLowerCase();
+        return target.includes(searchQuery);
+      });
+
+      // Update Bulk Action Toolbar state
+      updateBulkBarUI(filtered);
+
+      // Update Search Stats Banner
+      const statsEl = document.getElementById("searchFilterStats");
+      const countEl = document.getElementById("searchResultCountText");
+      if (statsEl && countEl) {
+        if (searchQuery.length > 0) {
+          statsEl.classList.remove("hidden");
+          countEl.textContent = `Showing ${filtered.length} of ${tabFiltered.length} ${currentTab} packages`;
+        } else {
+          statsEl.classList.add("hidden");
+        }
+      }
 
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="ios-card rounded-2xl py-12 px-4 text-center text-slate-400 text-xs">
             <div class="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto mb-3 text-slate-500">
-              <i class="fa-solid fa-boxes-stacked text-xl"></i>
+              <i class="fa-solid fa-magnifying-glass text-xl"></i>
             </div>
-            <p class="font-bold text-sm text-slate-200">No ${currentTab} orders found</p>
-            <p class="text-[11px] text-slate-500 mt-1">
-              ${currentTab === 'active' ? 'All Abuja packages have been completed or none logged yet.' : 'Delivered packages will appear here.'}
+            <p class="font-bold text-sm text-slate-200">${searchQuery ? 'No matching packages found' : `No ${currentTab} orders found`}</p>
+            <p class="text-[11px] text-slate-400 mt-1">
+              ${searchQuery ? `Try searching with a different merchant, address, or phone keyword.` : (currentTab === 'active' ? 'All packages have been completed or none logged yet.' : 'Delivered packages will appear here.')}
             </p>
           </div>
         `;
@@ -792,11 +1861,24 @@
       container.innerHTML = filtered.map((order, idx) => {
         const isFragile = (order.category || "").toLowerCase().includes("fragile");
         const isUpdating = updatingStatusIds.has(order.id);
+        const isSelected = selectedOrderIds.has(order.id);
+        const hasCod = order.codAmount && order.codAmount > 0;
+
+        const codBadge = hasCod ? `
+          <span class="badge-cod-liquid text-[10px] font-black px-2.5 py-0.5 rounded-lg flex items-center gap-1 shadow-md animate-pulse">
+            <i class="fa-solid fa-money-bill-wave text-[9px]"></i> ₦${Number(order.codAmount).toLocaleString()} COD
+          </span>
+        ` : `
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-emerald-950/40 text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
+            <i class="fa-regular fa-credit-card text-[9px] text-emerald-400"></i> Prepaid
+          </span>
+        `;
 
         const inTransitText = encodeURIComponent(
           `🚚 *SADEX Express Dispatch Alert*\n\n` +
           `Hello, your package from *${order.merchant}* is now *In-Transit* via SADEX Express to: ${order.address}.\n` +
           `📦 Category: ${order.category}\n` +
+          (hasCod ? `💵 Cash on Delivery: *₦${Number(order.codAmount).toLocaleString()}*\n` : `💳 Payment: *Prepaid*\n`) +
           `Our dispatch rider is currently en route. Thank you for choosing SADEX Express!`
         );
         const inTransitLink = `https://wa.me/${order.phone}?text=${inTransitText}`;
@@ -811,46 +1893,62 @@
         const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
 
         return `
-          <div class="ios-card ${isFragile ? 'ios-card-fragile' : ''} rounded-2xl p-4 space-y-3.5 transition-all">
+          <div class="ios-card sheen-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} ${isSelected ? 'ios-card-selected' : ''} rounded-2xl p-4 space-y-3.5 transition-all shadow-xl">
             
-            <!-- Card Header: Stop Rank, Category Badge & Status Pill -->
+            <!-- Card Header: Checkbox, Stop Rank, Category Badge, COD Pill & Status -->
             <div class="flex items-start justify-between gap-2">
-              <div class="space-y-1">
-                <div class="flex items-center flex-wrap gap-1.5">
-                  <span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30 tracking-wider">
-                    STOP #${idx + 1}
-                  </span>
-                  
-                  ${isFragile ? `
-                    <span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center gap-1 tracking-wider shadow-sm">
-                      <i class="fa-solid fa-wine-glass text-[9px]"></i> FRAGILE
-                    </span>
-                  ` : `
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-white/10 flex items-center gap-1">
-                      <i class="fa-solid fa-box text-[9px] text-slate-400"></i> STANDARD
-                    </span>
-                  `}
+              <div class="flex items-start gap-2.5 min-w-0">
+                <!-- Bulk Selection Checkbox -->
+                <div class="pt-0.5 shrink-0" onclick="event.stopPropagation()">
+                  <input
+                    type="checkbox"
+                    id="chk-${order.id}"
+                    onchange="toggleOrderSelection('${order.id}', this.checked)"
+                    ${isSelected ? 'checked' : ''}
+                    class="w-4 h-4 rounded border-amber-500/50 bg-slate-950 text-amber-500 focus:ring-0 cursor-pointer accent-amber-500 transition"
+                    title="Select order for bulk action"
+                  />
                 </div>
 
-                <h3 class="font-extrabold text-white text-sm tracking-tight pt-0.5">${order.merchant}</h3>
+                <div class="space-y-1.5 min-w-0">
+                  <div class="flex items-center flex-wrap gap-1.5">
+                    <span class="text-[10px] font-black px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 tracking-wider shadow-sm">
+                      STOP #${idx + 1}
+                    </span>
+                    
+                    ${isFragile ? `
+                      <span class="text-[10px] font-black px-2 py-0.5 rounded-lg bg-rose-500/25 text-rose-300 border border-rose-500/40 flex items-center gap-1 tracking-wider shadow-sm">
+                        <i class="fa-solid fa-wine-glass text-[9px]"></i> FRAGILE
+                      </span>
+                    ` : `
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-black/40 text-slate-300 border border-white/10 flex items-center gap-1">
+                        <i class="fa-solid fa-box text-[9px] text-slate-400"></i> STANDARD
+                      </span>
+                    `}
+
+                    ${codBadge}
+                  </div>
+
+                  <h3 class="font-black text-white text-sm tracking-tight pt-0.5 truncate">${order.merchant}</h3>
+                </div>
               </div>
 
               <div class="flex flex-col items-end gap-1.5 shrink-0">
                 <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full ${
                   order.status === 'Delivered' 
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm shadow-emerald-950/50' 
                     : (order.status === 'In-Transit' 
-                      ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' 
-                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30')
+                      ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30 shadow-sm shadow-sky-950/50' 
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm shadow-amber-950/50')
                 }">
                   ${order.status}
                 </span>
 
                 <div class="flex items-center gap-1">
-                  <a href="tel:${order.phone}" class="text-[11px] font-medium text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1 transition">
+                  <a href="tel:${order.phone}" class="tactile-btn text-[11px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 transition">
                     <i class="fa-solid fa-phone text-[9px] text-amber-400"></i> +${order.phone}
                   </a>
-                  <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="w-6 h-6 rounded-md bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-slate-400 hover:text-white text-[10px] transition border border-white/10">
+                  <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="tactile-btn w-6 h-6 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-slate-400 hover:text-white text-[10px] transition border border-white/10">
                     <i class="fa-regular fa-copy"></i>
                   </button>
                 </div>
@@ -858,16 +1956,25 @@
             </div>
 
             <!-- Address Row with Copy & Direct Google Maps Navigation -->
-            <div class="bg-black/30 p-2.5 rounded-xl border border-white/[0.05] flex items-center justify-between gap-2">
-              <div class="flex items-start gap-2 min-w-0">
-                <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
-                <p class="text-xs text-slate-200 font-medium leading-tight truncate">
-                  ${order.address}
-                </p>
+            <div class="bg-black/30 p-2.5 rounded-xl border border-white/[0.06] space-y-1">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-start gap-2 min-w-0">
+                  <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                  <p class="text-xs text-slate-200 font-medium leading-tight">
+                    ${order.address}
+                  </p>
+                </div>
+                <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" title="Copy Address" class="tactile-btn shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-1 rounded-lg bg-white/[0.05] border border-white/10 transition">
+                  <i class="fa-regular fa-copy"></i> Copy
+                </button>
               </div>
-              <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" title="Copy Address" class="shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-1 rounded bg-white/[0.05] border border-white/10 transition">
-                <i class="fa-regular fa-copy"></i> Copy
-              </button>
+
+              ${order.landmark ? `
+                <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-5">
+                  <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i>
+                  <span>Landmark: ${order.landmark}</span>
+                </div>
+              ` : ''}
             </div>
 
             ${order.proofUrl ? `
@@ -878,32 +1985,160 @@
               </div>
             ` : ''}
 
-            <!-- Navigation & In-App Status Controller -->
+            <!-- Navigation & CEO Direct Status Controller -->
             <div class="grid grid-cols-3 gap-1.5 pt-0.5">
-              <a href="${singleMapsLink}" target="_blank" class="text-center text-[11px] font-bold py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
+              <a href="${singleMapsLink}" target="_blank" class="tactile-btn text-center text-[11px] font-bold py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
                 <i class="fa-solid fa-location-arrow text-[10px]"></i> Navigate
               </a>
               
-              <button onclick="setStatus('${order.id}', 'In-Transit')" ${isUpdating ? 'disabled' : ''} class="text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1 transition ${order.status === 'In-Transit' ? 'ring-1 ring-sky-400/40 bg-sky-500/15' : ''}">
-                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-truck-fast text-[10px]"></i>'} Transit
+              <button onclick="setStatus('${order.id}', 'In-Transit')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1 transition ${order.status === 'In-Transit' ? 'ring-1 ring-sky-400/40 bg-sky-500/15' : ''}">
+                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-truck-fast text-[10px]"></i>'}
+                <span>Transit</span>
               </button>
-              
-              <button onclick="setStatus('${order.id}', 'Delivered')" ${isUpdating ? 'disabled' : ''} class="text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-emerald-300 border border-emerald-500/20 flex items-center justify-center gap-1 transition ${order.status === 'Delivered' ? 'ring-1 ring-emerald-400/40 bg-emerald-500/15' : ''}">
-                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-check-double text-[10px]"></i>'} Delivered
+
+              <button onclick="setStatus('${order.id}', 'Delivered')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-emerald-300 border border-emerald-500/20 flex items-center justify-center gap-1 transition ${order.status === 'Delivered' ? 'ring-1 ring-emerald-400/40 bg-emerald-500/15' : ''}">
+                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-circle-check text-[10px]"></i>'}
+                <span>Delivered</span>
               </button>
             </div>
 
-            <!-- WhatsApp Customer Dispatch Triggers -->
-            <div class="pt-2 border-t border-white/[0.06] grid grid-cols-2 gap-2">
-              <a href="${inTransitLink}" target="_blank" class="text-center text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 py-2.5 rounded-xl font-semibold border border-white/10 transition flex items-center justify-center gap-1.5 shadow-sm">
+            <!-- WhatsApp Direct Dispatch Notification Actions -->
+            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-white/[0.05]">
+              <a href="${inTransitLink}" target="_blank" class="tactile-btn text-center text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 border border-sky-500/20">
                 <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
-                <span>Dispatch Alert</span>
+                <span>Alert Transit</span>
               </a>
               
-              <a href="${deliveredLink}" target="_blank" class="text-center text-xs bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white py-2.5 rounded-xl font-extrabold transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/50">
+              <a href="${deliveredLink}" target="_blank" class="tactile-btn text-center text-xs bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white py-2.5 rounded-xl font-extrabold transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/50">
                 <i class="fa-brands fa-whatsapp text-sm"></i>
                 <span>Send POD Proof</span>
               </a>
+            </div>
+
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Render Rider View Orders (Active stops only, with COD Badges)
+    function renderRiderOrders() {
+      const container = document.getElementById("riderOrdersContainer");
+      if (!container) return;
+
+      const activeStops = globalOrders.filter(o => o.status !== "Delivered");
+
+      if (activeStops.length === 0) {
+        container.innerHTML = `
+          <div class="ios-card rounded-2xl py-14 px-4 text-center text-slate-400 text-xs">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-3 text-emerald-400">
+              <i class="fa-solid fa-circle-check text-2xl"></i>
+            </div>
+            <p class="font-bold text-sm text-slate-200">All Abuja Deliveries Completed!</p>
+            <p class="text-[11px] text-slate-400 mt-1">
+              No pending stops in queue. Auto-sync checks every 60s.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = activeStops.map((order, idx) => {
+        const isFragile = (order.category || "").toLowerCase().includes("fragile");
+        const isUpdating = updatingStatusIds.has(order.id);
+        const hasCod = order.codAmount && order.codAmount > 0;
+
+        const codBadge = hasCod ? `
+          <span class="badge-cod-liquid text-[10px] font-black px-2.5 py-0.5 rounded-lg flex items-center gap-1 shadow-md animate-pulse">
+            <i class="fa-solid fa-money-bill-wave text-[9px]"></i> COLLECT ₦${Number(order.codAmount).toLocaleString()}
+          </span>
+        ` : `
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-emerald-950/40 text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
+            <i class="fa-regular fa-credit-card text-[9px] text-emerald-400"></i> Prepaid
+          </span>
+        `;
+
+        const alertText = encodeURIComponent(
+          `🚚 *SADEX Express Dispatch Alert*\n\n` +
+          `Hello, your package is now *In-Transit* via SADEX Express to: ${order.address}.\n` +
+          `📦 Category: ${order.category}\n` +
+          (hasCod ? `💵 Cash on Delivery: *₦${Number(order.codAmount).toLocaleString()}*\n` : `💳 Payment: *Prepaid*\n`) +
+          `Our dispatch rider is en route to your location. Thank you for choosing SADEX Express!`
+        );
+        const alertLink = `https://wa.me/${order.phone}?text=${alertText}`;
+        const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
+
+        return `
+          <div class="ios-card sheen-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} rounded-2xl p-4 space-y-3.5 transition shadow-xl">
+            
+            <!-- Stop Rank, Category & COD Badge -->
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center flex-wrap gap-1.5">
+                <span class="text-[10px] font-black px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 tracking-wider shadow-sm">
+                  STOP #${idx + 1}
+                </span>
+                
+                ${isFragile ? `
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded-lg bg-rose-500/25 text-rose-300 border border-rose-500/40 flex items-center gap-1 tracking-wider shadow-sm">
+                    <i class="fa-solid fa-wine-glass text-[9px]"></i> FRAGILE
+                  </span>
+                ` : `
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-black/40 text-slate-300 border border-white/10 flex items-center gap-1">
+                    <i class="fa-solid fa-box text-[9px] text-slate-400"></i> STANDARD
+                  </span>
+                `}
+
+                ${codBadge}
+              </div>
+
+              <!-- Customer Phone Quick Call & Copy -->
+              <div class="flex items-center gap-1 shrink-0">
+                <a href="tel:${order.phone}" class="tactile-btn text-[11px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2.5 py-1 rounded-lg border border-white/10 flex items-center gap-1.5 transition">
+                  <i class="fa-solid fa-phone text-[10px] text-amber-400"></i> +${order.phone}
+                </a>
+                <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="tactile-btn w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-slate-400 hover:text-white text-xs transition border border-white/10">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Delivery Address & Landmark Block -->
+            <div class="bg-black/30 p-3 rounded-xl border border-white/[0.06] space-y-1.5">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-start gap-2 min-w-0">
+                  <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                  <p class="text-xs text-slate-200 font-semibold leading-relaxed">
+                    ${order.address}
+                  </p>
+                </div>
+                <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" class="tactile-btn shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-0.5 rounded-lg bg-white/[0.05] border border-white/10 transition">
+                  <i class="fa-regular fa-copy"></i> Copy
+                </button>
+              </div>
+
+              ${order.landmark ? `
+                <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-5 font-medium">
+                  <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i>
+                  <span>Landmark: ${order.landmark}</span>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Action Controls: Navigate, WhatsApp Alert, Mark Delivered -->
+            <div class="grid grid-cols-3 gap-2 pt-0.5">
+              <a href="${singleMapsLink}" target="_blank" class="tactile-btn text-center text-xs font-black py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
+                <i class="fa-solid fa-location-arrow text-xs"></i>
+                <span>Navigate</span>
+              </a>
+
+              <a href="${alertLink}" target="_blank" class="tactile-btn text-center text-xs font-bold py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1.5 transition">
+                <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
+                <span>WhatsApp</span>
+              </a>
+
+              <button onclick="setStatus('${order.id}', 'Delivered')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-center text-xs font-black py-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 active:scale-95 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1.5 transition">
+                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>' : '<i class="fa-solid fa-check text-xs"></i>'}
+                <span>Delivered</span>
+              </button>
             </div>
 
           </div>
@@ -926,6 +2161,7 @@
 
       const catVal = document.getElementById("itemCategory").value;
       const proofVal = document.getElementById("proofUrl").value.trim();
+      const codVal = Number(document.getElementById("codAmount")?.value) || 0;
 
       const payload = {
         parent: { database_id: DATABASE_ID },
@@ -934,6 +2170,7 @@
           "Delivery Address": { rich_text: [{ text: { content: fullAddress } }] },
           "Customer Phone": { phone_number: phoneVal },
           "Item Category": { select: { name: catVal } },
+          "COD Amount": { number: codVal },
           "Status": { status: { name: "Pending" } }
         }
       };
@@ -955,7 +2192,7 @@
 
         document.getElementById("orderForm").reset();
         showToast("Package saved to fleet!");
-        await fetchOrders();
+        await fetchOrders(true);
       } catch (err) {
         showToast("Notion Error: " + err.message, false);
       } finally {
@@ -964,8 +2201,8 @@
       }
     }
 
-    // Initial load
-    fetchOrders();
+    // Initialize View Architecture, Passcode state and 60s background polling
+    initViewAndAuth();
   </script>
 </body>
 </html>
