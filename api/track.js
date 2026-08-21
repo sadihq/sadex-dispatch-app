@@ -26,10 +26,14 @@ export default async function trackHandler(req, res) {
       const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
       const { lat, lng, speed, heading, accuracy, riderId, riderName, status } = body;
 
-      if (typeof lat === "number" && typeof lng === "number") {
-        const speedKmh = typeof speed === "number" && !isNaN(speed) && speed >= 0
-          ? Math.round(speed * 3.6)
-          : (typeof speed === "number" ? Math.round(speed) : 0);
+      const parsedLat = parseFloat(lat);
+      const parsedLng = parseFloat(lng);
+
+      if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+        const parsedSpeed = typeof speed === "number" ? speed : parseFloat(speed);
+        const speedKmh = !isNaN(parsedSpeed) && parsedSpeed >= 0
+          ? Math.round(parsedSpeed * 3.6)
+          : 0;
 
         let derivedStatus = status || "Active";
         if (speedKmh > 3) {
@@ -38,14 +42,17 @@ export default async function trackHandler(req, res) {
           derivedStatus = "Idle";
         }
 
+        const parsedHeading = typeof heading === "number" ? heading : parseFloat(heading);
+        const parsedAccuracy = typeof accuracy === "number" ? accuracy : parseFloat(accuracy);
+
         latestTracking = {
           riderId: riderId || "SADEX 01",
           riderName: riderName || "SADEX Unit 01 (Abuja)",
-          lat: Number(lat),
-          lng: Number(lng),
+          lat: parsedLat,
+          lng: parsedLng,
           speed: speedKmh,
-          heading: typeof heading === "number" ? Math.round(heading) : 0,
-          accuracy: typeof accuracy === "number" ? Math.round(accuracy) : 8,
+          heading: !isNaN(parsedHeading) ? Math.round(parsedHeading) : 0,
+          accuracy: !isNaN(parsedAccuracy) ? Math.round(parsedAccuracy) : 8,
           status: derivedStatus,
           timestamp: Date.now(),
           lastUpdated: new Date().toISOString()
@@ -54,7 +61,7 @@ export default async function trackHandler(req, res) {
         return res.status(200).json({ success: true, data: latestTracking });
       }
 
-      return res.status(400).json({ success: false, error: "Latitude and longitude numbers are required" });
+      return res.status(400).json({ success: false, error: "Valid latitude and longitude numbers are required" });
     } catch (err) {
       return res.status(500).json({ success: false, error: err.message });
     }

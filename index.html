@@ -318,6 +318,23 @@
       50% { transform: scale(1.6); opacity: 0.2; }
       100% { transform: scale(2.2); opacity: 0; }
     }
+    .user-pulse-marker {
+      position: relative;
+    }
+    .user-pulse-marker::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.5);
+      animation: userPulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes userPulseRing {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.6); opacity: 0.25; }
+      100% { transform: scale(2.3); opacity: 0; }
+    }
   </style>
 </head>
 <body class="min-h-screen pb-28 selection:bg-amber-500 selection:text-black antialiased relative">
@@ -758,13 +775,13 @@
         <div class="relative rounded-xl overflow-hidden border border-white/10 shadow-inner bg-slate-950">
           <div id="fleetMap" class="w-full h-64 z-0"></div>
 
-          <!-- Floating Map Actions -->
+          <!-- Floating Map Actions (Bottom) -->
           <div class="absolute bottom-2.5 right-2.5 z-[1000] flex items-center gap-1.5">
-            <button onclick="centerMapOnRider()" class="ios-blur bg-slate-900/90 hover:bg-slate-800 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg flex items-center gap-1.5 transition active:scale-95">
-              <i class="fa-solid fa-location-crosshairs text-xs"></i>
+            <button onclick="centerMapOnRider()" class="ios-blur bg-slate-900/90 hover:bg-slate-800 text-amber-400 border border-amber-500/30 px-2.5 py-1.5 rounded-lg text-xs font-bold shadow-lg flex items-center gap-1.5 transition active:scale-95 cursor-pointer">
+              <i class="fa-solid fa-motorcycle text-xs"></i>
               <span>Center Rider</span>
             </button>
-            <button onclick="fitMapToFleet()" class="ios-blur bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-white/15 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-lg flex items-center gap-1 transition active:scale-95">
+            <button onclick="fitMapToFleet()" class="ios-blur bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-white/15 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-lg flex items-center gap-1 transition active:scale-95 cursor-pointer">
               <i class="fa-solid fa-expand text-xs"></i>
               <span>All Stops</span>
             </button>
@@ -1134,10 +1151,358 @@
     // Live Fleet Radar & Rider GPS Tracking State
     let fleetMapInstance = null;
     let riderMapMarker = null;
+    let ceoUserLocationMarker = null;
+    let ceoUserAccuracyCircle = null;
     let stopMapMarkers = [];
     let latestRiderTelemetry = null;
     let trackingPollInterval = null;
     let relativeTimeInterval = null;
+    let lastGpsSentTimestamp = 0;
+    let activeGpsWatcherId = null;
+    let currentDeviceLocation = null;
+
+    // Real-time GPS Tracker & Transceiver Engine for Rider View
+    function initRiderGpsTracker() {
+      if (!navigator.geolocation) {
+        updateRiderGpsUIState('unavailable', null);
+        return;
+      }
+
+      updateRiderGpsUIState('acquiring', null);
+
+      // 1. Immediate Instant GPS Acquisition
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          currentDeviceLocation = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            speed: pos.coords.speed,
+            heading: pos.coords.heading
+          };
+          updateRiderGpsUIState('active', pos.coords);
+          sendRiderCoordinatesToServer(pos.coords, false);
+        },
+        (err) => {
+          console.warn("Initial GPS position check:", err.message);
+          updateRiderGpsUIState('standby', null, err.message);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 10000,
+          timeout: 10000
+        }
+      );
+
+      // 2. Continuous Real-Time High-Precision Watcher
+      if (activeGpsWatcherId !== null) {
+        navigator.geolocation.clearWatch(activeGpsWatcherId);
+      }
+
+      activeGpsWatcherId = navigator.geolocation.watchPosition(
+        (pos) => {
+          currentDeviceLocation = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            speed: pos.coords.speed,
+            heading: pos.coords.heading
+          };
+          updateRiderGpsUIState('active', pos.coords);
+
+          const now = Date.now();
+          // Throttle network transmit to 10 seconds or when forced
+          if (now - lastGpsSentTimestamp >= 10000) {
+            lastGpsSentTimestamp = now;
+            sendRiderCoordinatesToServer(pos.coords, false);
+          }
+        },
+        (err) => {
+          console.warn("GPS tracking warning:", err.message);
+          updateRiderGpsUIState('standby', null, err.message);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 8000,
+          timeout: 12000
+        }
+      );
+    }
+
+    function updateRiderGpsUIState(status, coords, errorMsg = "") {
+      const headerBadge = document.getElementById("riderGpsHeaderBadge");
+      const coordsVal = document.getElementById("riderGpsCoordsVal");
+      const accuracyVal = document.getElementById("riderGpsAccuracyVal");
+      const speedVal = document.getElementById("riderGpsSpeedVal");
+      const pill = document.getElementById("riderGpsPill");
+
+      if (status === 'active' && coords) {
+        const lat = Number(coords.latitude);
+        const lng = Number(coords.longitude);
+        const acc = coords.accuracy ? Math.round(coords.accuracy) : 10;
+        const speedKmh = coords.speed !== null && coords.speed !== undefined && coords.speed >= 0
+          ? Math.round(Number(coords.speed) * 3.6)
+          : 0;
+
+        if (headerBadge) {
+          headerBadge.innerHTML = `
+            <span class="text-[9px] font-bold text-emerald-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>🛰️ GPS Active • ±${acc}m</span>
+            </span>
+          `;
+        }
+
+        if (pill) {
+          pill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1";
+          pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Beacon`;
+        }
+
+        if (coordsVal) coordsVal.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        if (accuracyVal) accuracyVal.textContent = `±${acc}m`;
+        if (speedVal) speedVal.textContent = `${speedKmh} km/h`;
+      } else if (status === 'acquiring') {
+        if (headerBadge) {
+          headerBadge.innerHTML = `
+            <span class="text-[9px] font-bold text-amber-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <span>🛰️ Acquiring GPS Position...</span>
+            </span>
+          `;
+        }
+        if (pill) {
+          pill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1";
+          pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-spin"></span> Acquiring`;
+        }
+        if (coordsVal) coordsVal.textContent = "Acquiring...";
+      } else if (status === 'unavailable') {
+        if (headerBadge) {
+          headerBadge.innerHTML = `<span class="text-[9px] text-slate-400">🛰️ GPS Unavailable</span>`;
+        }
+        if (pill) {
+          pill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1";
+          pill.innerHTML = `<span>🛰️ GPS Blocked</span>`;
+        }
+        if (coordsVal) coordsVal.textContent = "Unavailable";
+      } else {
+        if (headerBadge) {
+          headerBadge.innerHTML = `
+            <span class="text-[9px] font-semibold text-amber-400/80 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span>🛰️ GPS Standby</span>
+            </span>
+          `;
+        }
+        if (pill) {
+          pill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 border border-white/10 flex items-center gap-1";
+          pill.innerHTML = `<span>Standby</span>`;
+        }
+        if (coordsVal && coordsVal.textContent === "Acquiring...") {
+          coordsVal.textContent = "Standby (Tap Ping)";
+        }
+      }
+    }
+
+    async function sendRiderCoordinatesToServer(coords, isManual = false) {
+      if (!coords || isNaN(coords.latitude) || isNaN(coords.longitude)) return;
+      if (!navigator.onLine) return; // Ignore quietly when offline
+
+      try {
+        const payload = {
+          riderId: "SADEX 01",
+          riderName: "SADEX Unit 01 (Abuja)",
+          lat: Number(coords.latitude),
+          lng: Number(coords.longitude),
+          speed: coords.speed,
+          heading: coords.heading,
+          accuracy: coords.accuracy,
+          timestamp: Date.now()
+        };
+
+        const res = await fetch("/api/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.data) {
+            latestRiderTelemetry = data.data;
+          }
+          if (isManual) {
+            showToast(`🛰️ Live Location Broadcasted! (${Number(coords.latitude).toFixed(4)}, ${Number(coords.longitude).toFixed(4)})`);
+          }
+        }
+      } catch (err) {
+        if (isManual) showToast("Telemetry ping failed: " + err.message, false);
+      }
+    }
+
+    // Force one-tap GPS update from Rider view
+    function requestAndBroadcastGps(isManual = true) {
+      const syncIcon = document.getElementById("riderGpsSyncIcon");
+      if (syncIcon) syncIcon.classList.add("fa-spin");
+
+      if (!navigator.geolocation) {
+        showToast("Geolocation is not supported by your browser", false);
+        if (syncIcon) syncIcon.classList.remove("fa-spin");
+        return;
+      }
+
+      showToast("Acquiring high-accuracy GPS position...");
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (syncIcon) syncIcon.classList.remove("fa-spin");
+          currentDeviceLocation = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            speed: pos.coords.speed,
+            heading: pos.coords.heading
+          };
+          updateRiderGpsUIState('active', pos.coords);
+          sendRiderCoordinatesToServer(pos.coords, true);
+        },
+        (err) => {
+          if (syncIcon) syncIcon.classList.remove("fa-spin");
+          updateRiderGpsUIState('standby', null, err.message);
+          showToast("GPS Error: " + err.message + " (Check Location Permissions)", false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    // CEO Action: Broadcast current device location as active rider
+    function broadcastCurrentDeviceGps(isManual = true) {
+      if (!navigator.geolocation) {
+        showToast("Geolocation unavailable", false);
+        return;
+      }
+
+      showToast("Broadcasting this device's GPS to Live Fleet...");
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          currentDeviceLocation = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            speed: pos.coords.speed,
+            heading: pos.coords.heading
+          };
+
+          await sendRiderCoordinatesToServer(pos.coords, true);
+          pollRiderTracking(false);
+          if (fleetMapInstance) {
+            fleetMapInstance.setView([pos.coords.latitude, pos.coords.longitude], 15);
+          }
+        },
+        (err) => {
+          showToast("Could not access device GPS: " + err.message, false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    // CEO Action: Locate current device on the radar map (Blue beacon marker)
+    function locateMyCurrentDevice() {
+      if (!fleetMapInstance || typeof L === "undefined") {
+        showToast("Map is initializing...", false);
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        showToast("Geolocation not supported by browser", false);
+        return;
+      }
+
+      showToast("Acquiring your current device location...");
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const accuracy = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : 10;
+
+          currentDeviceLocation = {
+            latitude: lat,
+            longitude: lng,
+            accuracy: accuracy
+          };
+
+          const userMarkerHtml = `
+            <div class="user-pulse-marker w-10 h-10 -ml-5 -mt-5 rounded-full bg-sky-500/90 border-2 border-white text-slate-950 flex items-center justify-center text-base shadow-xl font-bold cursor-pointer transition transform hover:scale-110">
+              <i class="fa-solid fa-crosshairs text-slate-950"></i>
+            </div>
+          `;
+
+          const customUserIcon = L.divIcon({
+            className: 'custom-user-leaflet-marker',
+            html: userMarkerHtml,
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -22]
+          });
+
+          const popupHtml = `
+            <div class="p-1 space-y-1">
+              <div class="flex items-center gap-1.5 text-sky-400 font-extrabold text-xs">
+                <i class="fa-solid fa-user-tie"></i> My Location (This Device)
+              </div>
+              <div class="text-[11px] text-slate-300">
+                <p><strong>GPS:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}</p>
+                <p><strong>Accuracy:</strong> ±${accuracy}m</p>
+              </div>
+            </div>
+          `;
+
+          if (!ceoUserLocationMarker) {
+            ceoUserLocationMarker = L.marker([lat, lng], { icon: customUserIcon }).addTo(fleetMapInstance);
+            ceoUserLocationMarker.bindPopup(popupHtml);
+          } else {
+            ceoUserLocationMarker.setLatLng([lat, lng]);
+            ceoUserLocationMarker.setIcon(customUserIcon);
+            ceoUserLocationMarker.setPopupContent(popupHtml);
+          }
+
+          if (ceoUserAccuracyCircle) {
+            fleetMapInstance.removeLayer(ceoUserAccuracyCircle);
+          }
+          ceoUserAccuracyCircle = L.circle([lat, lng], {
+            radius: accuracy,
+            color: '#38bdf8',
+            fillColor: '#38bdf8',
+            fillOpacity: 0.15,
+            weight: 1
+          }).addTo(fleetMapInstance);
+
+          fleetMapInstance.flyTo([lat, lng], 15, { duration: 0.8 });
+          setTimeout(() => {
+            if (ceoUserLocationMarker) ceoUserLocationMarker.openPopup();
+          }, 850);
+
+          showToast(`📍 Located your device (±${accuracy}m accuracy)`);
+        },
+        (err) => {
+          showToast("Location error: " + err.message, false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 8000,
+          maximumAge: 5000
+        }
+      );
+    }
 
     function initFleetMap() {
       const mapContainer = document.getElementById("fleetMap");
@@ -1166,12 +1531,12 @@
 
     function startTrackingPolling() {
       if (trackingPollInterval) clearInterval(trackingPollInterval);
-      // Auto-poll rider GPS every 15 seconds
+      // Auto-poll rider GPS every 10 seconds
       trackingPollInterval = setInterval(() => {
         if (isCeoAuthenticated) {
           pollRiderTracking(false);
         }
-      }, 15000);
+      }, 10000);
 
       if (relativeTimeInterval) clearInterval(relativeTimeInterval);
       relativeTimeInterval = setInterval(() => {
@@ -1197,6 +1562,8 @@
       const speedEl = document.getElementById("radarSpeedVal");
       const lastPingEl = document.getElementById("radarLastPingVal");
       const statusPill = document.getElementById("radarStatusPill");
+      const coordsText = document.getElementById("radarCoordsText");
+      const accuracyText = document.getElementById("radarAccuracyText");
 
       if (riderNameEl) riderNameEl.textContent = data.riderName || "SADEX 01";
 
@@ -1207,6 +1574,13 @@
 
       const diffSec = Math.floor((Date.now() - (data.timestamp || 0)) / 1000);
       if (lastPingEl) lastPingEl.textContent = formatRelativeTime(data.timestamp);
+
+      if (coordsText && data.lat && data.lng) {
+        coordsText.textContent = `GPS: ${Number(data.lat).toFixed(5)}, ${Number(data.lng).toFixed(5)}`;
+      }
+      if (accuracyText && data.accuracy) {
+        accuracyText.textContent = `±${Math.round(Number(data.accuracy))}m accuracy`;
+      }
 
       if (statusPill) {
         if (diffSec <= 45) {
@@ -1384,6 +1758,7 @@
       renderViewStructure();
       fetchOrders(true);
       startBackgroundPolling();
+      initRiderGpsTracker();
     }
 
     function renderViewStructure() {

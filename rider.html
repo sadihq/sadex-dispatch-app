@@ -145,12 +145,7 @@
               ABUJA FLEET
             </span>
           </div>
-          <div class="flex items-center gap-2 mt-0.5">
-            <span id="gpsStatusBadge" class="text-[9px] font-bold text-emerald-400 flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>🛰️ GPS Tracking Active</span>
-            </span>
-          </div>
+          <p class="text-[10px] text-slate-400 font-medium">Active Multi-Stop Delivery Queue</p>
         </div>
       </div>
       
@@ -584,66 +579,179 @@
       showToast("📡 Offline mode active (Saved changes keep local)", false);
     });
 
-    // Real-Time Rider GPS Beacon
-    function initRiderGpsTracker() {
-      const badge = document.getElementById("gpsStatusBadge");
+    // Real-Time High-Precision Rider GPS Engine
+    let activeRiderGpsWatcherId = null;
 
+    function initRiderGpsTracker() {
       if (!navigator.geolocation) {
-        if (badge) {
-          badge.innerHTML = `<span class="text-slate-400">🛰️ GPS Unavailable</span>`;
-        }
+        updateRiderGpsTelemetryUI('unavailable', null);
         return;
       }
 
-      navigator.geolocation.watchPosition(
-        (pos) => {
-          if (badge) {
-            badge.className = "text-[9px] font-bold text-emerald-400 flex items-center gap-1";
-            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>🛰️ GPS Tracking Active</span>`;
-          }
+      updateRiderGpsTelemetryUI('acquiring', null);
 
-          const now = Date.now();
-          // Throttle coordinates upload to server every 20 seconds
-          if (now - lastGpsSentTime >= 20000) {
-            lastGpsSentTime = now;
-            sendRiderCoordinates(pos.coords);
-          }
+      // 1. Instant Location Fetch
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          updateRiderGpsTelemetryUI('active', pos.coords);
+          sendRiderCoordinates(pos.coords, false);
         },
         (err) => {
-          console.warn("GPS tracking status:", err.message);
-          if (badge) {
-            badge.className = "text-[9px] font-semibold text-amber-400/80 flex items-center gap-1";
-            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span><span>🛰️ GPS Standby</span>`;
-          }
+          console.warn("Initial GPS fetch warning:", err.message);
+          updateRiderGpsTelemetryUI('standby', null, err.message);
         },
         {
           enableHighAccuracy: true,
           maximumAge: 10000,
-          timeout: 15000
+          timeout: 10000
+        }
+      );
+
+      // 2. Continuous Real-time Watcher
+      if (activeRiderGpsWatcherId !== null) {
+        navigator.geolocation.clearWatch(activeRiderGpsWatcherId);
+      }
+
+      activeRiderGpsWatcherId = navigator.geolocation.watchPosition(
+        (pos) => {
+          updateRiderGpsTelemetryUI('active', pos.coords);
+
+          const now = Date.now();
+          // Throttle coordinates upload to server every 10 seconds
+          if (now - lastGpsSentTime >= 10000) {
+            lastGpsSentTime = now;
+            sendRiderCoordinates(pos.coords, false);
+          }
+        },
+        (err) => {
+          console.warn("GPS tracking status:", err.message);
+          updateRiderGpsTelemetryUI('standby', null, err.message);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 8000,
+          timeout: 12000
         }
       );
     }
 
-    async function sendRiderCoordinates(coords) {
+    function updateRiderGpsTelemetryUI(status, coords, errorMsg = "") {
+      const badge = document.getElementById("gpsStatusBadge");
+      const coordsVal = document.getElementById("riderGpsCoordsVal");
+      const accuracyVal = document.getElementById("riderGpsAccuracyVal");
+      const speedVal = document.getElementById("riderGpsSpeedVal");
+      const pill = document.getElementById("riderGpsPill");
+
+      if (status === 'active' && coords) {
+        const lat = Number(coords.latitude);
+        const lng = Number(coords.longitude);
+        const acc = coords.accuracy ? Math.round(coords.accuracy) : 10;
+        const speedKmh = coords.speed !== null && coords.speed !== undefined && coords.speed >= 0
+          ? Math.round(Number(coords.speed) * 3.6)
+          : 0;
+
+        if (badge) {
+          badge.className = "text-[9px] font-bold text-emerald-400 flex items-center gap-1";
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>🛰️ GPS Active • ±${acc}m</span>`;
+        }
+
+        if (pill) {
+          pill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1";
+          pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Beacon`;
+        }
+
+        if (coordsVal) coordsVal.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        if (accuracyVal) accuracyVal.textContent = `±${acc}m`;
+        if (speedVal) speedVal.textContent = `${speedKmh} km/h`;
+      } else if (status === 'acquiring') {
+        if (badge) {
+          badge.className = "text-[9px] font-bold text-amber-400 flex items-center gap-1";
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span><span>🛰️ Acquiring GPS...</span>`;
+        }
+        if (pill) {
+          pill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1";
+          pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-spin"></span> Acquiring`;
+        }
+        if (coordsVal) coordsVal.textContent = "Acquiring...";
+      } else if (status === 'unavailable') {
+        if (badge) {
+          badge.innerHTML = `<span class="text-slate-400">🛰️ GPS Unavailable</span>`;
+        }
+        if (pill) {
+          pill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1";
+          pill.innerHTML = `<span>🛰️ GPS Blocked</span>`;
+        }
+        if (coordsVal) coordsVal.textContent = "Unavailable";
+      } else {
+        if (badge) {
+          badge.className = "text-[9px] font-semibold text-amber-400/80 flex items-center gap-1";
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span><span>🛰️ GPS Standby</span>`;
+        }
+        if (pill) {
+          pill.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 border border-white/10 flex items-center gap-1";
+          pill.innerHTML = `<span>Standby</span>`;
+        }
+        if (coordsVal && coordsVal.textContent === "Acquiring...") {
+          coordsVal.textContent = "Standby (Tap Ping)";
+        }
+      }
+    }
+
+    async function sendRiderCoordinates(coords, isManual = false) {
+      if (!coords || isNaN(coords.latitude) || isNaN(coords.longitude)) return;
       if (!navigator.onLine) return; // Suppress quietly when offline
       try {
-        await fetch("/api/track", {
+        const res = await fetch("/api/track", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             riderId: "SADEX 01",
             riderName: "SADEX Unit 01 (Abuja)",
-            lat: coords.latitude,
-            lng: coords.longitude,
+            lat: Number(coords.latitude),
+            lng: Number(coords.longitude),
             speed: coords.speed,
             heading: coords.heading,
             accuracy: coords.accuracy,
             timestamp: Date.now()
           })
         });
+        if (res.ok && isManual) {
+          showToast(`🛰️ Live Location Broadcasted! (${Number(coords.latitude).toFixed(4)}, ${Number(coords.longitude).toFixed(4)})`);
+        }
       } catch (err) {
-        // Quietly ignore network failures in background telemetry
+        if (isManual) showToast("Telemetry ping failed", false);
       }
+    }
+
+    function requestAndBroadcastGps(isManual = true) {
+      const syncIcon = document.getElementById("riderGpsSyncIcon");
+      if (syncIcon) syncIcon.classList.add("fa-spin");
+
+      if (!navigator.geolocation) {
+        showToast("Geolocation is not supported by your browser", false);
+        if (syncIcon) syncIcon.classList.remove("fa-spin");
+        return;
+      }
+
+      showToast("Acquiring GPS position...");
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (syncIcon) syncIcon.classList.remove("fa-spin");
+          updateRiderGpsTelemetryUI('active', pos.coords);
+          sendRiderCoordinates(pos.coords, true);
+        },
+        (err) => {
+          if (syncIcon) syncIcon.classList.remove("fa-spin");
+          updateRiderGpsTelemetryUI('standby', null, err.message);
+          showToast("GPS Error: " + err.message + " (Check Location Permissions)", false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
     }
 
     async function fetchOrders() {
