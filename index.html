@@ -218,6 +218,72 @@
       animation: pinShake 0.4s ease-in-out;
     }
 
+    /* Emerald & Gold Liquid Glass Fare Breakdown */
+    .fare-glass-panel {
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(15, 23, 42, 0.85) 50%, rgba(217, 119, 6, 0.15) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+    }
+    .fare-badge-glow {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(15, 23, 42, 0.7) 60%, rgba(245, 158, 11, 0.18) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.15);
+    }
+
+    /* Accordion Dropdown Card Styles */
+    .ios-card-header-btn {
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .ios-card-header-btn:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .chevron-icon {
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .chevron-icon.is-expanded {
+      transform: rotate(180deg);
+    }
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeInSlide 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* ETA Dynamic Badge Styling & Micro-Glow */
+    .eta-badge-glow {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(6, 78, 59, 0.45) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      box-shadow: 0 2px 12px rgba(16, 185, 129, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .eta-badge-glow:hover {
+      border-color: rgba(52, 211, 153, 0.75);
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.32);
+      transform: translateY(-1px);
+    }
+
+    /* Smooth Micro-Interactions & Transitions */
+    .transition-smooth {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .subtle-scale:hover {
+      transform: scale(1.02);
+    }
+    .subtle-scale:active {
+      transform: scale(0.97);
+    }
+
+    /* Form Input Glow States */
+    input:focus, select:focus, textarea:focus {
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.18) !important;
+    }
+
     /* Leaflet Dark Customizations */
     .leaflet-container {
       background: #020617 !important;
@@ -376,15 +442,20 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 shrink-0">
-        <button onclick="copySummaryReport()" class="bg-white/[0.08] hover:bg-white/[0.15] active:scale-95 text-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-white/10 transition">
+      <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 shrink-0">
+        <button onclick="copySummaryReport()" class="bg-white/[0.08] hover:bg-white/[0.15] active:scale-95 text-slate-200 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-white/10 transition cursor-pointer">
           <i class="fa-regular fa-copy text-amber-400 text-xs"></i>
-          <span>Copy Report</span>
+          <span class="truncate">Copy</span>
         </button>
 
-        <button onclick="sendSummaryWhatsApp()" class="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white font-extrabold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/40 transition">
+        <button onclick="exportOrdersToCSV()" class="bg-emerald-600/25 hover:bg-emerald-600/35 active:scale-95 text-emerald-300 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-emerald-500/30 transition cursor-pointer">
+          <i class="fa-solid fa-file-csv text-emerald-400 text-sm"></i>
+          <span class="truncate">Export CSV</span>
+        </button>
+
+        <button onclick="sendSummaryWhatsApp()" class="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white font-extrabold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/40 transition cursor-pointer">
           <i class="fa-brands fa-whatsapp text-sm"></i>
-          <span>Send via WhatsApp</span>
+          <span class="truncate">WhatsApp</span>
         </button>
       </div>
 
@@ -456,6 +527,19 @@
       </div>
     </header>
 
+    <!-- Offline Status & Sync Alert Bar -->
+    <div id="offlineStatusBar" class="hidden ios-blur bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-amber-300 text-xs font-bold transition">
+      <div class="max-w-md mx-auto flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          <span id="offlineStatusText" class="truncate">📡 Offline Mode (Changes Saved Locally)</span>
+        </div>
+        <button onclick="syncOfflineQueue()" class="shrink-0 text-[10px] bg-amber-500 text-slate-950 px-2.5 py-1 rounded-md font-extrabold hover:bg-amber-400 transition cursor-pointer">
+          Sync Now
+        </button>
+      </div>
+    </div>
+
     <main class="max-w-md mx-auto p-4 space-y-4">
       <!-- Master Multi-Stop Route Action -->
       <div class="ios-card rounded-2xl p-4 border border-amber-500/30 bg-gradient-to-br from-amber-500/15 via-slate-900 to-slate-900 shadow-xl space-y-3">
@@ -480,13 +564,25 @@
         </button>
       </div>
 
-      <!-- Active Stops Queue Header -->
+      <!-- Active Stops Queue Header with Accordion Controls -->
       <div class="flex items-center justify-between px-1">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
           <h2 class="text-xs font-black uppercase tracking-wider text-slate-300">Deliveries To Complete</h2>
+          <span class="text-[10px] text-slate-500 hidden sm:inline">(Tap card to expand)</span>
         </div>
-        <span id="riderQueueCount" class="text-[10px] text-slate-400 font-bold">0 Remaining</span>
+        <div class="flex items-center gap-2.5">
+          <span id="riderQueueCount" class="text-[10px] text-slate-400 font-bold">0 Remaining</span>
+          <span class="text-slate-600">•</span>
+          <button type="button" onclick="expandAllOrders()" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition cursor-pointer">
+            <i class="fa-solid fa-up-right-and-down-left-from-center text-[9px]"></i>
+            <span>Expand</span>
+          </button>
+          <button type="button" onclick="collapseAllOrders()" class="text-[10px] text-slate-400 hover:text-slate-200 font-bold flex items-center gap-1 transition cursor-pointer">
+            <i class="fa-solid fa-down-left-and-up-right-to-center text-[9px]"></i>
+            <span>Collapse</span>
+          </button>
+        </div>
       </div>
 
       <!-- Active Stops Card Container -->
@@ -539,15 +635,20 @@
         </div>
 
         <!-- Quick Executive Action Toolbar -->
-        <div class="grid grid-cols-2 gap-2.5 pt-1">
-          <button onclick="sendManifestToRider()" class="w-full bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 active:scale-[0.97] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-950/40 transition">
+        <div class="grid grid-cols-3 gap-2 pt-1">
+          <button onclick="sendManifestToRider()" class="w-full bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 active:scale-[0.97] text-white font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-950/40 transition">
             <i class="fa-brands fa-whatsapp text-sm"></i>
-            <span>📱 Manifest to Rider</span>
+            <span class="truncate">📱 Rider</span>
           </button>
 
-          <button onclick="openSummaryModal()" class="w-full bg-white/[0.07] hover:bg-white/[0.12] active:scale-[0.97] text-amber-300 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-amber-500/30 transition">
+          <button onclick="openSummaryModal()" class="w-full bg-white/[0.07] hover:bg-white/[0.12] active:scale-[0.97] text-amber-300 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-amber-500/30 transition">
             <i class="fa-solid fa-chart-column text-amber-400 text-xs"></i>
-            <span>📊 Daily Summary</span>
+            <span class="truncate">📊 Summary</span>
+          </button>
+
+          <button onclick="exportOrdersToCSV()" title="Download current manifest as CSV for external records" class="w-full bg-gradient-to-r from-emerald-600/30 to-emerald-700/30 hover:from-emerald-600/40 hover:to-emerald-700/40 active:scale-[0.97] text-emerald-300 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-emerald-500/40 shadow-md shadow-emerald-950/30 transition cursor-pointer">
+            <i class="fa-solid fa-file-csv text-emerald-400 text-sm"></i>
+            <span class="truncate">📥 CSV</span>
           </button>
         </div>
       </div>
@@ -671,8 +772,8 @@
         </div>
       </div>
 
-      <!-- CEO Intake Logger Accordion Card (With COD Input) -->
-      <details class="group ios-card rounded-2xl border border-white/[0.08] transition overflow-hidden">
+      <!-- CEO Intake Logger Accordion Card (With COD Input & Dynamic Fare Calculator) -->
+      <details id="intakeAccordion" class="group ios-card rounded-2xl border border-white/[0.08] transition overflow-hidden">
         <summary class="list-none p-3.5 flex items-center justify-between cursor-pointer select-none hover:bg-white/[0.02] transition">
           <div class="flex items-center space-x-2.5">
             <span class="w-7 h-7 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs font-bold">
@@ -680,7 +781,7 @@
             </span>
             <div>
               <span class="text-xs font-bold uppercase tracking-wider text-slate-200 block">Log New Package</span>
-              <span class="text-[10px] text-slate-400 font-normal">Add merchant, delivery address, contact & COD</span>
+              <span class="text-[10px] text-slate-400 font-normal">Add merchant, route, dynamic fare, contact & COD</span>
             </div>
           </div>
           <div class="w-6 h-6 rounded-full bg-white/[0.05] flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">
@@ -695,12 +796,49 @@
             </label>
             <input id="merchantName" placeholder="e.g. Apex Attire / Zara Store / Amina (Optional)" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
           </div>
+
+          <!-- Pickup Hub / Location with Galadimawa Default & Quick Shortcut -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-warehouse text-[10px] text-amber-400"></i> Pickup Address / Origin <span class="text-rose-400 font-bold">*</span>
+              </label>
+              <span id="pickupOriginBadge" class="text-[9px] px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                📍 Origin: Galadimawa Hub (Default)
+              </span>
+            </div>
+
+            <div class="relative">
+              <input
+                id="pickupAddress"
+                required
+                oninput="handleRouteInputChange()"
+                value="Galadimawa Hub, Abuja"
+                placeholder="e.g. Galadimawa Hub, Abuja or Vendor Pickup (Banex, Maitama...)"
+                class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition"
+              />
+            </div>
+            
+            <!-- Quick 1-Tap Hub Shortcut & Origin Chips -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pt-0.5 pb-0.5 no-scrollbar">
+              <button type="button" onclick="setPickupLocation('Galadimawa Hub, Abuja')" class="text-[10px] px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-black whitespace-nowrap flex items-center gap-1 transition shadow-sm cursor-pointer">
+                🏢 Set Pickup as Galadimawa Hub
+              </button>
+              <button type="button" onclick="setPickupLocation('Banex Plaza, Wuse 2, Abuja')" class="text-[10px] px-2 py-0.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-300 border border-white/10 whitespace-nowrap transition cursor-pointer">Banex / Wuse 2</button>
+              <button type="button" onclick="setPickupLocation('Maitama, Abuja')" class="text-[10px] px-2 py-0.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-300 border border-white/10 whitespace-nowrap transition cursor-pointer">Maitama</button>
+              <button type="button" onclick="setPickupLocation('Garki Area 11, Abuja')" class="text-[10px] px-2 py-0.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-300 border border-white/10 whitespace-nowrap transition cursor-pointer">Garki Area 11</button>
+              <button type="button" onclick="setPickupLocation('Jabi Lake Mall, Abuja')" class="text-[10px] px-2 py-0.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-300 border border-white/10 whitespace-nowrap transition cursor-pointer">Jabi</button>
+              <button type="button" onclick="setPickupLocation('Gwarinpa Estate, Abuja')" class="text-[10px] px-2 py-0.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-300 border border-white/10 whitespace-nowrap transition cursor-pointer">Gwarinpa</button>
+              <button type="button" onclick="setPickupLocation('Apo Resettlement, Abuja')" class="text-[10px] px-2 py-0.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-300 border border-white/10 whitespace-nowrap transition cursor-pointer">Apo</button>
+            </div>
+          </div>
           
+          <!-- Drop-off Address -->
           <div>
             <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
-              <i class="fa-solid fa-location-dot text-[10px] text-amber-400"></i> Delivery Address
+              <i class="fa-solid fa-location-dot text-[10px] text-amber-400"></i> Drop-off Address <span class="text-rose-400 font-bold">*</span>
             </label>
-            <input id="deliveryAddress" required placeholder="e.g. 14 Aguiyi Ironsi St, Maitama" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+            <input id="deliveryAddress" required oninput="handleRouteInputChange()" placeholder="e.g. 14 Aguiyi Ironsi St, Maitama, Abuja" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
             <p class="text-[10px] text-slate-500 mt-1">Accepts any delivery location anywhere across Abuja.</p>
           </div>
 
@@ -708,7 +846,7 @@
             <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
               <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i> Landmark / Nearest Junction <span class="text-slate-500 font-normal">(Optional)</span>
             </label>
-            <input id="landmark" placeholder="e.g. Opp Transcorp Hilton, Beside Banex Plaza" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+            <input id="landmark" oninput="handleRouteInputChange()" placeholder="e.g. Opp Transcorp Hilton, Beside Banex Plaza" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
@@ -722,11 +860,110 @@
               <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
                 <i class="fa-solid fa-box-archive text-[10px] text-amber-400"></i> Package Category
               </label>
-              <select id="itemCategory" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white transition">
+              <select id="itemCategory" onchange="handleRouteInputChange()" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white transition">
                 <option value="Standard">📦 Standard Box</option>
-                <option value="Fragile">⚠️ Fragile / Sensitive</option>
+                <option value="Fragile">⚠️ Fragile / High-Care (+₦500)</option>
               </select>
             </div>
+          </div>
+
+          <!-- Dynamic Point-to-Point Route Distance & Live Fare Preview Badge -->
+          <div id="fareLiveBadge" class="fare-badge-glow p-2.5 px-3 rounded-xl flex items-center justify-between text-xs transition">
+            <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+              <span id="fareRouteBadgeText" class="text-slate-200 font-bold flex items-center gap-1 truncate text-[11px]">
+                <span>📍 Route:</span>
+                <span id="farePickupDistrict" class="text-amber-300 font-extrabold">Galadimawa</span>
+                <span class="text-slate-500">➔</span>
+                <span id="fareDestDistrict" class="text-amber-300 font-extrabold">Destination</span>
+              </span>
+              <span class="text-slate-500 hidden sm:inline">•</span>
+              <span id="fareDistancePill" class="text-slate-200 font-bold flex items-center gap-1 text-[11px]">
+                <span>📏</span> <span id="fareDistanceVal">--</span> km
+              </span>
+              <span class="text-slate-500 hidden sm:inline">•</span>
+              <span class="text-emerald-300 font-extrabold flex items-center gap-1 text-[11px]">
+                <span>💡</span> <span>Fare:</span> <span id="fareEstBadgeVal" class="text-amber-400 font-black">₦2,000</span>
+              </span>
+            </div>
+            <span id="fareCalcStatus" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
+              Live Engine
+            </span>
+          </div>
+
+          <!-- Delivery Fee Input & Bolt-Style Fare Breakdown -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-motorcycle text-[10px] text-amber-400"></i> Delivery Fee (₦)
+              </label>
+              <div id="overrideIndicator" class="hidden items-center gap-1.5">
+                <span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30 font-medium">✏️ Manual Override</span>
+                <button type="button" onclick="resetToCalculatedFare()" class="text-[9px] text-sky-400 hover:underline font-bold">Reset</button>
+              </div>
+            </div>
+            
+            <input
+              id="deliveryFee"
+              type="number"
+              min="0"
+              step="100"
+              oninput="handleManualFeeChange(this.value)"
+              placeholder="Auto-calculated (₦2,000 min floor)"
+              class="w-full bg-slate-900/90 border border-emerald-500/30 font-bold text-amber-400 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 placeholder:text-slate-600 transition"
+            />
+
+            <!-- Collapsible Bolt-Style Fare Breakdown Panel -->
+            <details id="fareBreakdownAccordion" class="group/fare fare-glass-panel rounded-xl overflow-hidden border border-emerald-500/30 transition">
+              <summary class="list-none p-2.5 px-3 flex items-center justify-between cursor-pointer select-none text-[11px] font-bold text-emerald-300 hover:text-emerald-200 transition">
+                <span class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-receipt text-xs text-amber-400"></i>
+                  <span>Fare Breakdown</span>
+                </span>
+                <div class="flex items-center gap-1.5 text-[10px]">
+                  <span id="fareBreakdownSummaryText" class="text-amber-400 font-black">₦2,000</span>
+                  <div class="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 group-open/fare:rotate-180 transition-transform">
+                    <i class="fa-solid fa-chevron-down text-[8px]"></i>
+                  </div>
+                </div>
+              </summary>
+              
+              <div class="p-3 pt-2 space-y-2 text-[11px] border-t border-emerald-500/20 text-slate-200 bg-slate-950/40">
+                <div class="flex items-center justify-between py-0.5">
+                  <span class="text-slate-400 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Base Start Fare
+                  </span>
+                  <span class="font-semibold text-slate-200">₦1,000</span>
+                </div>
+                
+                <div class="flex items-center justify-between py-0.5">
+                  <span class="text-slate-400 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span> Distance (<span id="itemizedDistKm">0.0</span> km @ ₦120/km)
+                  </span>
+                  <span id="itemizedDistCost" class="font-semibold text-slate-200">₦0</span>
+                </div>
+                
+                <div class="flex items-center justify-between py-0.5">
+                  <span class="text-slate-400 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Category Surcharge (<span id="itemizedCategoryLabel">Standard</span>)
+                  </span>
+                  <span id="itemizedCategoryCost" class="font-semibold text-slate-200">₦0</span>
+                </div>
+
+                <div id="itemizedFloorNotice" class="flex items-center justify-between py-1 px-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-300">
+                  <span class="flex items-center gap-1">
+                    <i class="fa-solid fa-shield-halved text-[9px] text-amber-400"></i> Minimum Price Floor Applied
+                  </span>
+                  <span class="font-black text-amber-400">₦2,000 Floor</span>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-white/10 font-bold text-xs">
+                  <span class="text-emerald-400 flex items-center gap-1">
+                    <i class="fa-solid fa-calculator text-[10px]"></i> Final Fare Total
+                  </span>
+                  <span id="itemizedFinalTotal" class="text-amber-400 font-black text-sm">₦2,000</span>
+                </div>
+              </div>
+            </details>
           </div>
 
           <!-- Cash on Delivery (COD) Field -->
@@ -844,8 +1081,28 @@
         </div>
       </div>
 
-      <!-- Orders Container -->
-      <section class="space-y-3">
+      <!-- Orders Container & Accordion Controls -->
+      <section class="space-y-2.5">
+        <div class="flex items-center justify-between px-1 text-xs">
+          <div class="flex items-center gap-1.5 text-slate-300 font-bold">
+            <i class="fa-solid fa-boxes-stacked text-amber-400 text-[11px]"></i>
+            <span>Route Manifest</span>
+            <span class="text-[10px] text-slate-500 hidden sm:inline">(Tap card to expand)</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="expandAllOrders()" class="text-[11px] text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition cursor-pointer">
+              <i class="fa-solid fa-up-right-and-down-left-from-center text-[9.5px]"></i>
+              <span>Expand All</span>
+            </button>
+            <span class="text-slate-600">•</span>
+            <button type="button" onclick="collapseAllOrders()" class="text-[11px] text-slate-400 hover:text-slate-200 font-bold flex items-center gap-1 transition cursor-pointer">
+              <i class="fa-solid fa-down-left-and-up-right-to-center text-[9.5px]"></i>
+              <span>Collapse All</span>
+            </button>
+          </div>
+        </div>
+
         <div id="ordersContainer" class="space-y-3">
           <div class="ios-card rounded-2xl py-14 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-3">
             <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
@@ -868,6 +1125,7 @@
     let globalOrders = [];
     let updatingStatusIds = new Set();
     let selectedOrderIds = new Set();
+    let expandedOrderIds = new Set(); // Minimized by default
     let isBulkUpdating = false;
     let enteredPin = "";
     let isCeoAuthenticated = false;
@@ -1369,12 +1627,117 @@
       renderOrders();
     }
 
+    let isSyncingQueue = false;
+
+    function updateNetworkBadge() {
+      const statusBar = document.getElementById("offlineStatusBar");
+      const statusText = document.getElementById("offlineStatusText");
+      
+      let queue = [];
+      try {
+        queue = JSON.parse(localStorage.getItem("sadex_offline_queue") || "[]");
+      } catch (e) {
+        queue = [];
+      }
+
+      if (!navigator.onLine) {
+        if (statusBar) statusBar.classList.remove("hidden");
+        if (statusText) {
+          statusText.textContent = queue.length > 0 
+            ? `📡 Offline Mode (${queue.length} Change${queue.length === 1 ? '' : 's'} Saved Locally)`
+            : `📡 Offline Mode (Changes Saved Locally)`;
+        }
+      } else if (queue.length > 0) {
+        if (statusBar) statusBar.classList.remove("hidden");
+        if (statusText) {
+          statusText.textContent = `⚡ Online — ${queue.length} Offline Update${queue.length === 1 ? '' : 's'} Pending Sync`;
+        }
+      } else {
+        if (statusBar) statusBar.classList.add("hidden");
+      }
+    }
+
+    async function syncOfflineQueue() {
+      if (isSyncingQueue || !navigator.onLine) return;
+
+      let queue = [];
+      try {
+        queue = JSON.parse(localStorage.getItem("sadex_offline_queue") || "[]");
+      } catch (e) {
+        queue = [];
+      }
+
+      if (queue.length === 0) {
+        updateNetworkBadge();
+        return;
+      }
+
+      isSyncingQueue = true;
+      showToast(`⚡ Syncing ${queue.length} offline update(s) to cloud...`);
+
+      const remainingQueue = [];
+      let syncedCount = 0;
+
+      for (const item of queue) {
+        try {
+          const payload = {
+            properties: {
+              "Status": { status: { name: item.status || "Delivered" } }
+            }
+          };
+
+          const res = await fetch(`/api/notion?path=v1/pages/${item.pageId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            syncedCount++;
+          } else {
+            console.warn("Item sync deferred:", item.pageId);
+            remainingQueue.push(item);
+          }
+        } catch (err) {
+          console.warn("Sync error for item:", item.pageId, err.message);
+          remainingQueue.push(item);
+        }
+      }
+
+      if (remainingQueue.length === 0) {
+        localStorage.removeItem("sadex_offline_queue");
+        showToast(`✅ Synced ${syncedCount} offline deliveries to cloud`);
+      } else {
+        localStorage.setItem("sadex_offline_queue", JSON.stringify(remainingQueue));
+      }
+
+      isSyncingQueue = false;
+      updateNetworkBadge();
+
+      await fetchOrders(true);
+    }
+
+    window.addEventListener("online", () => {
+      updateNetworkBadge();
+      syncOfflineQueue();
+    });
+
+    window.addEventListener("offline", () => {
+      updateNetworkBadge();
+      showToast("📡 Offline mode active (Changes saved locally)", false);
+    });
+
     async function fetchOrders(silent = false) {
       const riderIcon = document.getElementById("riderRefreshIcon");
       const ceoIcon = document.getElementById("ceoRefreshIcon");
       if (!silent) {
         if (riderIcon) riderIcon.classList.add("fa-spin");
         if (ceoIcon) ceoIcon.classList.add("fa-spin");
+      }
+
+      // If online and has queued items, flush them first
+      if (navigator.onLine) {
+        await syncOfflineQueue();
       }
 
       try {
@@ -1404,6 +1767,15 @@
             codAmount = Number(rawText.replace(/[^0-9.]/g, "")) || 0;
           }
 
+          // Parse Delivery Fee (if tracked)
+          let deliveryFee = 0;
+          if (props["Delivery Fee"]?.type === "number") {
+            deliveryFee = Number(props["Delivery Fee"]?.number || 0);
+          } else if (props["Delivery Fee"]?.type === "rich_text") {
+            const rawText = props["Delivery Fee"]?.rich_text?.[0]?.plain_text || "";
+            deliveryFee = Number(rawText.replace(/[^0-9.]/g, "")) || 0;
+          }
+
           let address = rawAddress;
           let landmark = "";
           const lmMatch = rawAddress.match(/\(Landmark:\s*(.*?)\)/i);
@@ -1428,20 +1800,52 @@
             category,
             status,
             codAmount,
+            deliveryFee,
             proofUrl,
             orderIndex: index
           };
         });
 
+        // 1. Local Manifest Caching: Cache full manifest in localStorage
+        try {
+          localStorage.setItem("sadex_cached_manifest", JSON.stringify(globalOrders));
+        } catch (cacheErr) {
+          console.warn("Could not cache manifest:", cacheErr.message);
+        }
+
         updateStats();
         renderOrders();
         renderRiderOrders();
         updateDeliveryStopMarkers();
+        updateNetworkBadge();
         if (!silent) showToast("Fleet database synced");
       } catch (err) {
-        if (!silent) {
+        console.warn("Fetch orders network failure, attempting local cache fallback:", err.message);
+
+        // Fallback to local manifest cache
+        let cacheLoaded = false;
+        try {
+          const cachedRaw = localStorage.getItem("sadex_cached_manifest");
+          if (cachedRaw) {
+            const cached = JSON.parse(cachedRaw);
+            if (Array.isArray(cached) && cached.length > 0) {
+              globalOrders = cached;
+              updateStats();
+              renderOrders();
+              renderRiderOrders();
+              updateDeliveryStopMarkers();
+              cacheLoaded = true;
+              showToast("📡 Offline Mode — Loaded manifest from offline cache", false);
+            }
+          }
+        } catch (e) {
+          console.warn("Cache parse error:", e.message);
+        }
+
+        if (!cacheLoaded && !silent) {
           showToast("Sync failed: " + err.message, false);
         }
+        updateNetworkBadge();
       } finally {
         if (riderIcon) riderIcon.classList.remove("fa-spin");
         if (ceoIcon) ceoIcon.classList.remove("fa-spin");
@@ -1491,6 +1895,14 @@
       if (riderQueueCount) riderQueueCount.innerText = `${activeTotal} Remaining`;
     }
 
+    // SADEX Central Fleet Base Reference (Galadimawa)
+    const SADEX_HUB = {
+      name: "SADEX Central Hub (Galadimawa)",
+      lat: 9.0016,
+      lng: 7.4278,
+      address: "Galadimawa Hub, Abuja"
+    };
+
     // Zero-Key Abuja Coordinates Map
     const ABUJA_CLIENT_COORDS = {
       maitama: { lat: 9.0882, lng: 7.4933 },
@@ -1516,12 +1928,17 @@
       asokoro: { lat: 9.0497, lng: 7.5255 },
       apo: { lat: 8.9950, lng: 7.4930 },
       "apo mechanic": { lat: 8.9880, lng: 7.4900 },
+      "apo resettlement": { lat: 8.9830, lng: 7.5120 },
       gwarinpa: { lat: 9.1099, lng: 7.3917 },
       "life camp": { lat: 9.0680, lng: 7.3980 },
       kado: { lat: 9.0820, lng: 7.4350 },
       durumi: { lat: 9.0180, lng: 7.4650 },
       lokogoma: { lat: 8.9850, lng: 7.4420 },
-      galadimawa: { lat: 8.9920, lng: 7.4280 },
+      galadimawa: { lat: 9.0016, lng: 7.4278 },
+      "galadimawa hub": { lat: 9.0016, lng: 7.4278 },
+      "sadex central hub": { lat: 9.0016, lng: 7.4278 },
+      "sadex hub": { lat: 9.0016, lng: 7.4278 },
+      "central hub": { lat: 9.0016, lng: 7.4278 },
       "games village": { lat: 9.0120, lng: 7.4520 },
       kubwa: { lat: 9.1538, lng: 7.3340 },
       lugbe: { lat: 8.9772, lng: 7.3688 },
@@ -1529,12 +1946,18 @@
       nyanya: { lat: 9.0250, lng: 7.6050 },
       mararaba: { lat: 9.0350, lng: 7.6320 },
       airport: { lat: 8.9959, lng: 7.2632 },
+      "centenary city": { lat: 8.9150, lng: 7.3750 },
       gwagwalada: { lat: 8.9430, lng: 7.0860 },
       bwari: { lat: 9.2780, lng: 7.3820 },
       kuje: { lat: 8.8890, lng: 7.2340 },
       mpape: { lat: 9.1350, lng: 7.4920 },
       dawaki: { lat: 9.1380, lng: 7.3790 },
-      dutse: { lat: 9.1680, lng: 7.3650 }
+      dutse: { lat: 9.1680, lng: 7.3650 },
+      banex: { lat: 9.0754, lng: 7.4728 },
+      "transcorp hilton": { lat: 9.0782, lng: 7.4933 },
+      "jabi lake mall": { lat: 9.0734, lng: 7.4253 },
+      "ceddi plaza": { lat: 9.0579, lng: 7.4951 },
+      "grand square": { lat: 9.0579, lng: 7.4951 }
     };
 
     function estimateClientAbujaCoords(address) {
@@ -1542,7 +1965,36 @@
       for (const [k, v] of Object.entries(ABUJA_CLIENT_COORDS)) {
         if (lower.includes(k)) return v;
       }
-      return { lat: 9.0579, lng: 7.4951 };
+      return { lat: 9.0016, lng: 7.4278 };
+    }
+
+    function extractAbujaDistrictName(address, fallbackName = "Destination") {
+      if (!address) return fallbackName;
+      const lower = address.toLowerCase();
+      if (lower.includes("galadimawa") || lower.includes("sadex")) return "Galadimawa";
+      if (lower.includes("banex")) return "Banex";
+      if (lower.includes("wuse 2") || lower.includes("wuse ii")) return "Wuse 2";
+      if (lower.includes("wuse")) return "Wuse";
+      if (lower.includes("maitama")) return "Maitama";
+      if (lower.includes("garki")) return "Garki";
+      if (lower.includes("jabi")) return "Jabi";
+      if (lower.includes("gwarinpa")) return "Gwarinpa";
+      if (lower.includes("utako")) return "Utako";
+      if (lower.includes("asokoro")) return "Asokoro";
+      if (lower.includes("guzape")) return "Guzape";
+      if (lower.includes("apo")) return "Apo";
+      if (lower.includes("lugbe")) return "Lugbe";
+      if (lower.includes("kubwa")) return "Kubwa";
+      if (lower.includes("life camp")) return "Life Camp";
+      if (lower.includes("lokogoma")) return "Lokogoma";
+      if (lower.includes("katampe")) return "Katampe";
+      if (lower.includes("mabushi")) return "Mabushi";
+      if (lower.includes("kado")) return "Kado";
+      if (lower.includes("durumi")) return "Durumi";
+      if (lower.includes("central")) return "CBD";
+      
+      const clean = address.split(",")[0].trim();
+      return clean.length > 15 ? clean.slice(0, 14) + "…" : clean;
     }
 
     function calculateDistanceClient(lat1, lon1, lat2, lon2) {
@@ -1558,7 +2010,7 @@
 
     function clientTspSort(origin, stops) {
       if (stops.length <= 1) return stops;
-      let originCoord = { lat: 9.0579, lng: 7.4951 };
+      let originCoord = { lat: 9.0016, lng: 7.4278 };
       if (origin && origin.latitude && origin.longitude) {
         originCoord = { lat: Number(origin.latitude), lng: Number(origin.longitude) };
       }
@@ -1598,7 +2050,7 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            origin: originCoords,
+            origin: originCoords || { latitude: SADEX_HUB.lat, longitude: SADEX_HUB.lng },
             stops: activeStops
           })
         });
@@ -1616,7 +2068,7 @@
         console.warn("Using client-side TSP solver:", err.message);
       }
 
-      const clientSorted = clientTspSort(originCoords, activeStops);
+      const clientSorted = clientTspSort(originCoords || { latitude: SADEX_HUB.lat, longitude: SADEX_HUB.lng }, activeStops);
       return { optimizedStops: clientSorted, provider: "browser_shortest_path" };
     }
 
@@ -1625,6 +2077,209 @@
       globalOrders = [...optimizedActiveStops, ...deliveredStops];
       renderOrders();
       renderRiderOrders();
+    }
+
+    // ==========================================
+    // AUTOMATED DYNAMIC FARE ENGINE & BREAKDOWN
+    // ==========================================
+    let currentCalculatedFare = 2000;
+    let isManualFareOverride = false;
+    let routeDebounceTimer = null;
+
+    function handleRouteInputChange() {
+      clearTimeout(routeDebounceTimer);
+      routeDebounceTimer = setTimeout(() => {
+        calculateIntakeFare();
+      }, 300);
+    }
+
+    function setPickupLocation(loc) {
+      const pickupEl = document.getElementById("pickupAddress");
+      if (pickupEl) {
+        pickupEl.value = loc;
+        handleRouteInputChange();
+      }
+    }
+
+    function handleManualFeeChange(val) {
+      const cleanVal = (val || "").toString().trim();
+      const overrideBadge = document.getElementById("overrideIndicator");
+      if (cleanVal !== "") {
+        isManualFareOverride = true;
+        if (overrideBadge) {
+          overrideBadge.classList.remove("hidden");
+          overrideBadge.classList.add("flex");
+        }
+      } else {
+        isManualFareOverride = false;
+        if (overrideBadge) {
+          overrideBadge.classList.add("hidden");
+          overrideBadge.classList.remove("flex");
+        }
+      }
+    }
+
+    function resetToCalculatedFare() {
+      isManualFareOverride = false;
+      const feeInput = document.getElementById("deliveryFee");
+      const overrideBadge = document.getElementById("overrideIndicator");
+      if (feeInput) feeInput.value = currentCalculatedFare;
+      if (overrideBadge) {
+        overrideBadge.classList.add("hidden");
+        overrideBadge.classList.remove("flex");
+      }
+      showToast(`Reset to automated rate: ₦${currentCalculatedFare.toLocaleString()}`);
+    }
+
+    async function calculateIntakeFare() {
+      const rawPickup = (document.getElementById("pickupAddress")?.value || "").trim();
+      const pickupVal = rawPickup || "Galadimawa Hub, Abuja";
+      const rawDest = (document.getElementById("deliveryAddress")?.value || "").trim();
+      const landmarkVal = (document.getElementById("landmark")?.value || "").trim();
+      const categoryVal = document.getElementById("itemCategory")?.value || "Standard";
+
+      // Update Pickup Origin Badge
+      const pickupBadge = document.getElementById("pickupOriginBadge");
+      const isGaladimawaDefault = !rawPickup || rawPickup.toLowerCase().includes("galadimawa") || rawPickup.toLowerCase().includes("sadex central");
+      if (pickupBadge) {
+        if (isGaladimawaDefault) {
+          pickupBadge.innerText = "📍 Origin: Galadimawa Hub (Default)";
+          pickupBadge.className = "text-[9px] px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30";
+        } else {
+          const pickupDistrict = extractAbujaDistrictName(rawPickup, "Vendor Pickup");
+          pickupBadge.innerText = `📍 Vendor Pickup: ${pickupDistrict}`;
+          pickupBadge.className = "text-[9px] px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 font-bold border border-sky-500/30";
+        }
+      }
+
+      const destVal = landmarkVal ? `${rawDest} (Landmark: ${landmarkVal})` : rawDest;
+
+      const distValEl = document.getElementById("fareDistanceVal");
+      const estBadgeEl = document.getElementById("fareEstBadgeVal");
+      const statusEl = document.getElementById("fareCalcStatus");
+      const pickupDistrictEl = document.getElementById("farePickupDistrict");
+      const destDistrictEl = document.getElementById("fareDestDistrict");
+      const breakdownSummaryText = document.getElementById("fareBreakdownSummaryText");
+      const itemDistKm = document.getElementById("itemizedDistKm");
+      const itemDistCost = document.getElementById("itemizedDistCost");
+      const itemCatLabel = document.getElementById("itemizedCategoryLabel");
+      const itemCatCost = document.getElementById("itemizedCategoryCost");
+      const itemFloorNotice = document.getElementById("itemizedFloorNotice");
+      const itemFinalTotal = document.getElementById("itemizedFinalTotal");
+      const feeInput = document.getElementById("deliveryFee");
+
+      const pickupDistText = extractAbujaDistrictName(pickupVal, "Galadimawa");
+      const destDistText = extractAbujaDistrictName(rawDest, "Destination");
+
+      if (pickupDistrictEl) pickupDistrictEl.innerText = pickupDistText;
+      if (destDistrictEl) destDistrictEl.innerText = destDistText;
+
+      if (!rawDest) {
+        currentCalculatedFare = 2000;
+        if (distValEl) distValEl.innerText = "--";
+        if (estBadgeEl) estBadgeEl.innerText = "₦2,000";
+        if (statusEl) {
+          statusEl.innerText = "Live Engine";
+          statusEl.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        }
+        if (breakdownSummaryText) breakdownSummaryText.innerText = "₦2,000";
+        if (itemDistKm) itemDistKm.innerText = "0.0";
+        if (itemDistCost) itemDistCost.innerText = "₦0";
+        if (itemCatLabel) itemCatLabel.innerText = categoryVal === "Fragile" ? "Fragile (+₦500)" : "Standard";
+        if (itemCatCost) itemCatCost.innerText = categoryVal === "Fragile" ? "₦500" : "₦0";
+        if (itemFloorNotice) itemFloorNotice.classList.remove("hidden");
+        if (itemFinalTotal) itemFinalTotal.innerText = "₦2,000";
+        if (feeInput && !isManualFareOverride) feeInput.value = 2000;
+        return;
+      }
+
+      if (statusEl) {
+        statusEl.innerText = "Calculating...";
+        statusEl.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse";
+      }
+
+      try {
+        const res = await fetch("/api/distance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            originAddress: pickupVal,
+            destinationAddress: destVal,
+            itemCategory: categoryVal
+          })
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const distanceKm = data.distanceKm || 0;
+        const fare = data.fareBreakdown || {};
+        const totalFare = fare.finalTotal || 2000;
+        currentCalculatedFare = totalFare;
+
+        if (distValEl) distValEl.innerText = distanceKm.toFixed(1);
+        if (estBadgeEl) estBadgeEl.innerText = `₦${totalFare.toLocaleString()}`;
+        if (breakdownSummaryText) breakdownSummaryText.innerText = `₦${totalFare.toLocaleString()}`;
+        if (itemDistKm) itemDistKm.innerText = distanceKm.toFixed(1);
+        if (itemDistCost) itemDistCost.innerText = `₦${(fare.distanceCost || 0).toLocaleString()}`;
+        if (itemCatLabel) itemCatLabel.innerText = categoryVal === "Fragile" ? "Fragile (+₦500)" : "Standard";
+        if (itemCatCost) itemCatCost.innerText = `₦${(fare.fragileSurcharge || 0).toLocaleString()}`;
+
+        if (itemFloorNotice) {
+          if (fare.floorPriceApplied) {
+            itemFloorNotice.classList.remove("hidden");
+          } else {
+            itemFloorNotice.classList.add("hidden");
+          }
+        }
+
+        if (itemFinalTotal) itemFinalTotal.innerText = `₦${totalFare.toLocaleString()}`;
+
+        if (statusEl) {
+          statusEl.innerText = data.routingProvider === "osrm_road_network" ? "🛣️ Road Route" : "📍 Geo-Estimate";
+          statusEl.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+        }
+
+        if (feeInput && !isManualFareOverride) {
+          feeInput.value = totalFare;
+        }
+      } catch (err) {
+        console.warn("Client fare calculation fallback:", err.message);
+        // Offline / Fallback local calculation
+        const originCoords = estimateClientAbujaCoords(pickupVal);
+        const destCoords = estimateClientAbujaCoords(destVal);
+        const straightDist = calculateDistanceClient(originCoords.lat, originCoords.lng, destCoords.lat, destCoords.lng);
+        const estDistanceKm = Math.max(1.5, Math.round((straightDist * 1.32) * 10) / 10);
+        const isFragile = categoryVal.toLowerCase().includes("fragile");
+        const baseFare = 1000;
+        const distCost = Math.round(estDistanceKm * 120);
+        const fragileCost = isFragile ? 500 : 0;
+        const subtotal = baseFare + distCost + fragileCost;
+        const finalTotal = Math.ceil(Math.max(2000, subtotal) / 100) * 100;
+        currentCalculatedFare = finalTotal;
+
+        if (distValEl) distValEl.innerText = estDistanceKm.toFixed(1);
+        if (estBadgeEl) estBadgeEl.innerText = `₦${finalTotal.toLocaleString()}`;
+        if (breakdownSummaryText) breakdownSummaryText.innerText = `₦${finalTotal.toLocaleString()}`;
+        if (itemDistKm) itemDistKm.innerText = estDistanceKm.toFixed(1);
+        if (itemDistCost) itemDistCost.innerText = `₦${distCost.toLocaleString()}`;
+        if (itemCatLabel) itemCatLabel.innerText = isFragile ? "Fragile (+₦500)" : "Standard";
+        if (itemCatCost) itemCatCost.innerText = `₦${fragileCost.toLocaleString()}`;
+        if (itemFloorNotice) {
+          if (subtotal < 2000) itemFloorNotice.classList.remove("hidden");
+          else itemFloorNotice.classList.add("hidden");
+        }
+        if (itemFinalTotal) itemFinalTotal.innerText = `₦${finalTotal.toLocaleString()}`;
+
+        if (statusEl) {
+          statusEl.innerText = "Offline Engine";
+          statusEl.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30";
+        }
+
+        if (feeInput && !isManualFareOverride) {
+          feeInput.value = finalTotal;
+        }
+      }
     }
 
     async function buildAndOpenRoute(originCoords = null) {
@@ -1790,6 +2445,50 @@
       renderOrders();
       renderRiderOrders();
 
+      const saveToOfflineQueue = () => {
+        let queue = [];
+        try {
+          queue = JSON.parse(localStorage.getItem("sadex_offline_queue") || "[]");
+        } catch (e) {
+          queue = [];
+        }
+
+        // Remove previous entry for pageId if exists, append new status
+        queue = queue.filter(item => item.pageId !== pageId);
+        queue.push({
+          pageId,
+          status: newStatus,
+          timestamp: Date.now()
+        });
+        localStorage.setItem("sadex_offline_queue", JSON.stringify(queue));
+
+        // Instantly update local order state for responsive UI
+        const ord = globalOrders.find(o => o.id === pageId);
+        if (ord) {
+          ord.status = newStatus;
+        }
+
+        // Cache updated manifest to localStorage
+        try {
+          localStorage.setItem("sadex_cached_manifest", JSON.stringify(globalOrders));
+        } catch (e) {}
+
+        selectedOrderIds.delete(pageId);
+        updateStats();
+        renderOrders();
+        renderRiderOrders();
+        updateDeliveryStopMarkers();
+        updateNetworkBadge();
+        showToast(`📦 Marked ${newStatus} (Saved Offline) — Will auto-sync when online`);
+      };
+
+      // If offline, queue immediately without waiting for failed network roundtrip
+      if (!navigator.onLine) {
+        saveToOfflineQueue();
+        updatingStatusIds.delete(pageId);
+        return;
+      }
+
       try {
         const payload = {
           properties: {
@@ -1810,9 +2509,22 @@
         
         showToast(`Status updated to ${newStatus}`);
         selectedOrderIds.delete(pageId);
+
+        // Update local object immediately
+        const ord = globalOrders.find(o => o.id === pageId);
+        if (ord) ord.status = newStatus;
+        try {
+          localStorage.setItem("sadex_cached_manifest", JSON.stringify(globalOrders));
+        } catch (e) {}
+
+        updateStats();
+        renderOrders();
+        renderRiderOrders();
+        updateDeliveryStopMarkers();
         await fetchOrders(true);
       } catch (e) {
-        showToast("Status update failed: " + e.message, false);
+        console.warn("Status update online error, saving to offline queue:", e.message);
+        saveToOfflineQueue();
       } finally {
         updatingStatusIds.delete(pageId);
         renderOrders();
@@ -1969,6 +2681,97 @@
       window.open(url, "_blank");
     }
 
+    // =========================================================
+    // 5. CSV MANIFEST EXPORT FOR EXTERNAL BUSINESS RECORDS
+    // =========================================================
+    function exportOrdersToCSV() {
+      if (!globalOrders || globalOrders.length === 0) {
+        showToast("No orders in manifest to export!", false);
+        return;
+      }
+
+      // Check if user has specific orders selected, otherwise export all orders
+      const hasSelection = selectedOrderIds && selectedOrderIds.size > 0;
+      const ordersToExport = hasSelection
+        ? globalOrders.filter(o => selectedOrderIds.has(o.id))
+        : globalOrders;
+
+      if (ordersToExport.length === 0) {
+        showToast("No matching orders found to export!", false);
+        return;
+      }
+
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const filename = `sadex-manifest-${year}-${month}-${day}-${hours}${minutes}.csv`;
+
+      const headers = [
+        "Stop #",
+        "Status",
+        "Merchant / Sender",
+        "Delivery Address",
+        "Landmark",
+        "Customer Phone",
+        "Item Category",
+        "COD Amount (NGN)",
+        "Delivery Fee (NGN)",
+        "Payment Method",
+        "Proof of Delivery URL",
+        "Notion Record ID"
+      ];
+
+      const escapeCsvField = (val) => {
+        if (val === null || val === undefined) return '""';
+        const str = String(val).replace(/"/g, '""');
+        return `"${str}"`;
+      };
+
+      const rows = ordersToExport.map((o, idx) => {
+        const cod = Number(o.codAmount || 0);
+        const fee = Number(o.deliveryFee || 0);
+        const paymentMethod = cod > 0 ? "Cash on Delivery (COD)" : "Prepaid";
+        const phoneFormatted = o.phone ? `+${o.phone}` : "";
+
+        return [
+          escapeCsvField(idx + 1),
+          escapeCsvField(o.status || "Pending"),
+          escapeCsvField(o.merchant || "Standard Delivery"),
+          escapeCsvField(o.address || ""),
+          escapeCsvField(o.landmark || ""),
+          escapeCsvField(phoneFormatted),
+          escapeCsvField(o.category || "Standard"),
+          escapeCsvField(cod),
+          escapeCsvField(fee),
+          escapeCsvField(paymentMethod),
+          escapeCsvField(o.proofUrl || ""),
+          escapeCsvField(o.id || "")
+        ].join(",");
+      });
+
+      // Include UTF-8 BOM (\uFEFF) for clean Excel & Sheets rendering
+      const csvContent = "\uFEFF" + [headers.map(escapeCsvField).join(","), ...rows].join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      const label = hasSelection 
+        ? `Exported ${ordersToExport.length} selected orders to ${filename}` 
+        : `Exported ${ordersToExport.length} orders to ${filename}`;
+      showToast(label);
+    }
+
     // Helpers for Bulk Order Actions
     function getCurrentlyVisibleOrders() {
       const tabFiltered = globalOrders.filter(o => currentTab === "active" ? o.status !== "Delivered" : o.status === "Delivered");
@@ -2017,6 +2820,32 @@
     function clearAllSelections() {
       selectedOrderIds.clear();
       renderOrders();
+    }
+
+    // Accordion Expand/Collapse Dropdown Handlers
+    function toggleOrderExpand(orderId) {
+      if (expandedOrderIds.has(orderId)) {
+        expandedOrderIds.delete(orderId);
+      } else {
+        expandedOrderIds.add(orderId);
+      }
+      renderOrders();
+      renderRiderOrders();
+    }
+
+    function expandAllOrders() {
+      const visible = getCurrentlyVisibleOrders();
+      visible.forEach(o => expandedOrderIds.add(o.id));
+      renderOrders();
+      renderRiderOrders();
+      showToast(`Expanded ${visible.length} stop${visible.length === 1 ? '' : 's'}`);
+    }
+
+    function collapseAllOrders() {
+      expandedOrderIds.clear();
+      renderOrders();
+      renderRiderOrders();
+      showToast("All stops collapsed");
     }
 
     function updateBulkBarUI(visibleOrders = null) {
@@ -2182,6 +3011,27 @@
       };
     }
 
+    // Estimated Time of Arrival (ETA) Helper: Calculates current time + 30-minute buffer
+    function getEstimatedTimeOfArrival(stopIndex = 0, isDelivered = false) {
+      if (isDelivered) return null;
+      // Baseline 30-minute buffer from current time (+8 min routing cascade per subsequent stop)
+      const baseBufferMinutes = 30;
+      const totalMinutes = baseBufferMinutes + (Math.max(0, stopIndex) * 8);
+      const etaDate = new Date(Date.now() + totalMinutes * 60 * 1000);
+      
+      const timeStr = etaDate.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      return {
+        time: timeStr,
+        bufferMinutes: totalMinutes,
+        badgeText: `~${timeStr}`
+      };
+    }
+
     // Render CEO Console Orders
     function renderOrders() {
       const container = document.getElementById("ordersContainer");
@@ -2237,151 +3087,201 @@
         const isFragile = (order.category || "").toLowerCase().includes("fragile");
         const isUpdating = updatingStatusIds.has(order.id);
         const isSelected = selectedOrderIds.has(order.id);
+        const isExpanded = expandedOrderIds.has(order.id);
         const hasCod = order.codAmount && order.codAmount > 0;
 
         const codBadge = hasCod ? `
-          <span class="badge-cod-liquid text-[10px] font-black px-2.5 py-0.5 rounded-lg flex items-center gap-1 shadow-md animate-pulse">
-            <i class="fa-solid fa-money-bill-wave text-[9px]"></i> ₦${Number(order.codAmount).toLocaleString()} COD
+          <span class="badge-cod-liquid text-[9.5px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-money-bill-wave text-[8.5px]"></i> ₦${Number(order.codAmount).toLocaleString()} COD
           </span>
         ` : `
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-emerald-950/40 text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
-            <i class="fa-regular fa-credit-card text-[9px] text-emerald-400"></i> Prepaid
+          <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-md bg-emerald-950/40 text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
+            <i class="fa-regular fa-credit-card text-[8.5px] text-emerald-400"></i> Prepaid
+          </span>
+        `;
+
+        const eta = getEstimatedTimeOfArrival(idx, order.status === 'Delivered');
+        const etaBadge = eta ? `
+          <span class="eta-badge-glow text-[9.5px] font-black px-2 py-0.5 rounded-md text-emerald-300 flex items-center gap-1 shadow-sm" title="Estimated Arrival: Current time + 30-min buffer">
+            <i class="fa-regular fa-clock text-[8.5px] text-emerald-400"></i>
+            <span>${eta.badgeText}</span>
+          </span>
+        ` : `
+          <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-circle-check text-[8.5px] text-emerald-400"></i> Done
           </span>
         `;
 
         const { inTransitLink, deliveredLink } = buildWhatsAppTemplates(order);
         const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
         const displayName = order.merchant || "Standard Delivery";
+        const districtName = extractAbujaDistrictName(order.address, "Abuja");
+
+        const feeBadge = (order.deliveryFee && order.deliveryFee > 0) ? `
+          <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-receipt text-[8.5px] text-amber-400"></i> ₦${Number(order.deliveryFee).toLocaleString()}
+          </span>
+        ` : '';
+
+        const statusStyle = order.status === 'Delivered' 
+          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-sm shadow-emerald-950/50' 
+          : (order.status === 'In-Transit' 
+            ? 'bg-sky-500/20 text-sky-300 border-sky-500/30 shadow-sm shadow-sky-950/50' 
+            : 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-sm shadow-amber-950/50');
 
         return `
-          <div class="ios-card sheen-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} ${isSelected ? 'ios-card-selected' : ''} rounded-2xl p-4 space-y-3.5 transition-all shadow-xl">
+          <div class="ios-card sheen-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} ${isSelected ? 'ios-card-selected' : ''} rounded-2xl transition-all shadow-xl overflow-hidden border border-white/[0.08]">
             
-            <!-- Card Header: Checkbox, Stop Rank, Category Badge, COD Pill & Status -->
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex items-start gap-2.5 min-w-0">
-                <!-- Bulk Selection Checkbox -->
-                <div class="pt-0.5 shrink-0" onclick="event.stopPropagation()">
-                  <input
-                    type="checkbox"
-                    id="chk-${order.id}"
-                    onchange="toggleOrderSelection('${order.id}', this.checked)"
-                    ${isSelected ? 'checked' : ''}
-                    class="w-4 h-4 rounded border-amber-500/50 bg-slate-950 text-amber-500 focus:ring-0 cursor-pointer accent-amber-500 transition"
-                    title="Select order for bulk action"
-                  />
-                </div>
-
-                <div class="space-y-1.5 min-w-0">
-                  <div class="flex items-center flex-wrap gap-1.5">
-                    <span class="text-[10px] font-black px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 tracking-wider shadow-sm">
-                      STOP #${idx + 1}
-                    </span>
-                    
-                    ${isFragile ? `
-                      <span class="text-[10px] font-black px-2 py-0.5 rounded-lg bg-rose-500/25 text-rose-300 border border-rose-500/40 flex items-center gap-1 tracking-wider shadow-sm">
-                        <i class="fa-solid fa-wine-glass text-[9px]"></i> FRAGILE
-                      </span>
-                    ` : `
-                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-black/40 text-slate-300 border border-white/10 flex items-center gap-1">
-                        <i class="fa-solid fa-box text-[9px] text-slate-400"></i> STANDARD
-                      </span>
-                    `}
-
-                    ${codBadge}
+            <!-- Minimized Header Bar (Click anywhere to Expand/Dropdown) -->
+            <div onclick="toggleOrderExpand('${order.id}')" class="ios-card-header-btn p-3.5 space-y-2 cursor-pointer transition select-none">
+              
+              <!-- Top Row: Selection Checkbox, Stop Badge, Merchant/Title, Status & Dropdown Chevron -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <!-- Bulk Selection Checkbox -->
+                  <div class="shrink-0 pt-0.5" onclick="event.stopPropagation()">
+                    <input
+                      type="checkbox"
+                      id="chk-${order.id}"
+                      onchange="toggleOrderSelection('${order.id}', this.checked)"
+                      ${isSelected ? 'checked' : ''}
+                      class="w-4 h-4 rounded border-amber-500/50 bg-slate-950 text-amber-500 focus:ring-0 cursor-pointer accent-amber-500 transition"
+                      title="Select order for bulk action"
+                    />
                   </div>
 
-                  <h3 class="font-black text-white text-sm tracking-tight pt-0.5 truncate">${displayName}</h3>
+                  <span class="shrink-0 text-[10px] font-black px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 tracking-wider shadow-sm">
+                    STOP #${idx + 1}
+                  </span>
+
+                  <h3 class="font-black text-white text-sm tracking-tight truncate">${displayName}</h3>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded-full border ${statusStyle}">
+                    ${order.status}
+                  </span>
+
+                  <div class="w-6 h-6 rounded-lg bg-white/[0.06] border border-white/10 flex items-center justify-center text-slate-300 chevron-icon ${isExpanded ? 'is-expanded' : ''}">
+                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                  </div>
                 </div>
               </div>
 
-              <div class="flex flex-col items-end gap-1.5 shrink-0">
-                <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full ${
-                  order.status === 'Delivered' 
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm shadow-emerald-950/50' 
-                    : (order.status === 'In-Transit' 
-                      ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30 shadow-sm shadow-sky-950/50' 
-                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm shadow-amber-950/50')
-                }">
-                  ${order.status}
-                </span>
+              <!-- Summary Sub-Row: Destination District, ETA, COD & Quick Call -->
+              <div class="flex items-center justify-between gap-2 pt-0.5 text-xs">
+                <div class="flex items-center flex-wrap gap-1.5 min-w-0">
+                  <span class="text-[11px] text-slate-300 font-medium flex items-center gap-1 truncate max-w-[130px] sm:max-w-[220px]" title="${order.address}">
+                    <i class="fa-solid fa-location-dot text-amber-400 text-[10px] shrink-0"></i>
+                    <span class="truncate">${districtName}</span>
+                  </span>
 
-                <div class="flex items-center gap-1">
-                  <a href="tel:${order.phone}" class="tactile-btn text-[11px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 transition">
-                    <i class="fa-solid fa-phone text-[9px] text-amber-400"></i> +${order.phone}
+                  ${etaBadge}
+                  ${codBadge}
+                </div>
+
+                <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
+                  <a href="tel:${order.phone}" class="tactile-btn text-[10px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 transition">
+                    <i class="fa-solid fa-phone text-[9px] text-amber-400"></i>
+                    <span>Call</span>
                   </a>
-                  <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="tactile-btn w-6 h-6 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-slate-400 hover:text-white text-[10px] transition border border-white/10">
-                    <i class="fa-regular fa-copy"></i>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Maximized Details Tray (Appears on click/dropdown) -->
+            ${isExpanded ? `
+              <div class="px-3.5 pb-3.5 pt-2 space-y-3 border-t border-white/[0.08] bg-black/25 animate-fade-in">
+                
+                <!-- Full Destination Address & Landmark Details -->
+                <div class="bg-black/40 p-2.5 rounded-xl border border-white/[0.06] space-y-1.5">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="space-y-1 min-w-0">
+                      <div class="flex items-start gap-1.5 text-xs text-slate-200 font-medium">
+                        <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                        <span class="leading-snug">${order.address}</span>
+                      </div>
+                      ${order.landmark ? `
+                        <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-4 font-medium">
+                          <i class="fa-solid fa-signs-post text-[9.5px] text-amber-400"></i>
+                          <span>Landmark: ${order.landmark}</span>
+                        </div>
+                      ` : ''}
+                    </div>
+                    <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" title="Copy Address" class="tactile-btn shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-1 rounded-lg bg-white/[0.05] border border-white/10 transition">
+                      <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                  </div>
+
+                  <!-- Details Row: Phone + Copy, Category, Delivery Fee -->
+                  <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-white/[0.05] text-[11px]">
+                    <div class="flex items-center gap-1.5 text-slate-300 font-medium">
+                      <i class="fa-solid fa-phone text-amber-400 text-[9px]"></i>
+                      <span>+${order.phone}</span>
+                      <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="text-slate-400 hover:text-white ml-0.5">
+                        <i class="fa-regular fa-copy text-[9.5px]"></i>
+                      </button>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                      ${isFragile ? `
+                        <span class="text-[9.5px] font-black px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">🍷 Fragile</span>
+                      ` : `
+                        <span class="text-[9.5px] font-medium px-1.5 py-0.5 rounded bg-white/[0.05] text-slate-400 border border-white/10">📦 Standard</span>
+                      `}
+                      ${feeBadge}
+                    </div>
+                  </div>
+                </div>
+
+                ${order.proofUrl ? `
+                  <div class="text-[11px] text-slate-300 flex items-center gap-1.5 truncate bg-sky-950/30 p-2 rounded-xl border border-sky-500/20">
+                    <i class="fa-solid fa-camera text-sky-400 text-xs"></i>
+                    <span class="text-slate-400">Proof:</span>
+                    <a href="${order.proofUrl}" target="_blank" class="text-sky-300 hover:underline truncate">${order.proofUrl}</a>
+                  </div>
+                ` : ''}
+
+                <!-- Navigation & CEO Direct Status Controller -->
+                <div class="grid grid-cols-3 gap-1.5 pt-0.5">
+                  <a href="${singleMapsLink}" target="_blank" class="tactile-btn text-center text-[11px] font-bold py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
+                    <i class="fa-solid fa-location-arrow text-[10px]"></i> Navigate
+                  </a>
+                  
+                  <button onclick="setStatus('${order.id}', 'In-Transit')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1 transition ${order.status === 'In-Transit' ? 'ring-1 ring-sky-400/40 bg-sky-500/15' : ''}">
+                    ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-truck-fast text-[10px]"></i>'}
+                    <span>Transit</span>
+                  </button>
+
+                  <button onclick="setStatus('${order.id}', 'Delivered')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-emerald-300 border border-emerald-500/20 flex items-center justify-center gap-1 transition ${order.status === 'Delivered' ? 'ring-1 ring-emerald-400/40 bg-emerald-500/15' : ''}">
+                    ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-circle-check text-[10px]"></i>'}
+                    <span>Delivered</span>
                   </button>
                 </div>
-              </div>
-            </div>
 
-            <!-- Address Row with Copy & Direct Google Maps Navigation -->
-            <div class="bg-black/30 p-2.5 rounded-xl border border-white/[0.06] space-y-1">
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex items-start gap-2 min-w-0">
-                  <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
-                  <p class="text-xs text-slate-200 font-medium leading-tight">
-                    ${order.address}
-                  </p>
+                <!-- WhatsApp Direct Dispatch Notification Actions -->
+                <div class="grid grid-cols-2 gap-2 pt-0.5">
+                  <a href="${inTransitLink}" target="_blank" class="tactile-btn text-center text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 border border-sky-500/20">
+                    <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
+                    <span>Alert Transit</span>
+                  </a>
+                  
+                  <a href="${deliveredLink}" target="_blank" class="tactile-btn text-center text-xs bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white py-2.5 rounded-xl font-extrabold transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/50">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span>Send POD Proof</span>
+                  </a>
                 </div>
-                <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" title="Copy Address" class="tactile-btn shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-1 rounded-lg bg-white/[0.05] border border-white/10 transition">
-                  <i class="fa-regular fa-copy"></i> Copy
-                </button>
-              </div>
 
-              ${order.landmark ? `
-                <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-5">
-                  <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i>
-                  <span>Landmark: ${order.landmark}</span>
-                </div>
-              ` : ''}
-            </div>
-
-            ${order.proofUrl ? `
-              <div class="text-[11px] text-slate-400 flex items-center gap-1.5 truncate">
-                <i class="fa-solid fa-camera text-sky-400 text-xs"></i>
-                <span class="text-slate-500">Proof:</span>
-                <a href="${order.proofUrl}" target="_blank" class="text-sky-400 hover:underline truncate">${order.proofUrl}</a>
               </div>
             ` : ''}
-
-            <!-- Navigation & CEO Direct Status Controller -->
-            <div class="grid grid-cols-3 gap-1.5 pt-0.5">
-              <a href="${singleMapsLink}" target="_blank" class="tactile-btn text-center text-[11px] font-bold py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
-                <i class="fa-solid fa-location-arrow text-[10px]"></i> Navigate
-              </a>
-              
-              <button onclick="setStatus('${order.id}', 'In-Transit')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1 transition ${order.status === 'In-Transit' ? 'ring-1 ring-sky-400/40 bg-sky-500/15' : ''}">
-                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-truck-fast text-[10px]"></i>'}
-                <span>Transit</span>
-              </button>
-
-              <button onclick="setStatus('${order.id}', 'Delivered')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-emerald-300 border border-emerald-500/20 flex items-center justify-center gap-1 transition ${order.status === 'Delivered' ? 'ring-1 ring-emerald-400/40 bg-emerald-500/15' : ''}">
-                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-circle-check text-[10px]"></i>'}
-                <span>Delivered</span>
-              </button>
-            </div>
-
-            <!-- WhatsApp Direct Dispatch Notification Actions -->
-            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-white/[0.05]">
-              <a href="${inTransitLink}" target="_blank" class="tactile-btn text-center text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 border border-sky-500/20">
-                <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
-                <span>Alert Transit</span>
-              </a>
-              
-              <a href="${deliveredLink}" target="_blank" class="tactile-btn text-center text-xs bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white py-2.5 rounded-xl font-extrabold transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/50">
-                <i class="fa-brands fa-whatsapp text-sm"></i>
-                <span>Send POD Proof</span>
-              </a>
-            </div>
 
           </div>
         `;
       }).join("");
     }
 
-    // Render Rider View Orders (Active stops only, with COD Badges)
+    // Render Rider View Orders (Active stops only, collapsible accordion dropdowns)
     function renderRiderOrders() {
       const container = document.getElementById("riderOrdersContainer");
       if (!container) return;
@@ -2406,95 +3306,148 @@
       container.innerHTML = activeStops.map((order, idx) => {
         const isFragile = (order.category || "").toLowerCase().includes("fragile");
         const isUpdating = updatingStatusIds.has(order.id);
+        const isExpanded = expandedOrderIds.has(order.id);
         const hasCod = order.codAmount && order.codAmount > 0;
 
         const codBadge = hasCod ? `
-          <span class="badge-cod-liquid text-[10px] font-black px-2.5 py-0.5 rounded-lg flex items-center gap-1 shadow-md animate-pulse">
-            <i class="fa-solid fa-money-bill-wave text-[9px]"></i> COLLECT ₦${Number(order.codAmount).toLocaleString()}
+          <span class="badge-cod-liquid text-[9.5px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm animate-pulse">
+            <i class="fa-solid fa-money-bill-wave text-[8.5px]"></i> ₦${Number(order.codAmount).toLocaleString()} COD
           </span>
         ` : `
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-emerald-950/40 text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
-            <i class="fa-regular fa-credit-card text-[9px] text-emerald-400"></i> Prepaid
+          <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-md bg-emerald-950/40 text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
+            <i class="fa-regular fa-credit-card text-[8.5px] text-emerald-400"></i> Prepaid
           </span>
         `;
 
         const { inTransitLink } = buildWhatsAppTemplates(order);
         const alertLink = inTransitLink;
         const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
+        const displayName = order.merchant || "Standard Delivery";
+        const districtName = extractAbujaDistrictName(order.address, "Abuja");
+
+        const eta = getEstimatedTimeOfArrival(idx, false);
+        const etaBadge = eta ? `
+          <span class="eta-badge-glow text-[9.5px] font-black px-2 py-0.5 rounded-md text-emerald-300 flex items-center gap-1 shadow-sm" title="Estimated Arrival: Current time + 30-min buffer">
+            <i class="fa-regular fa-clock text-[8.5px] text-emerald-400"></i>
+            <span>${eta.badgeText}</span>
+          </span>
+        ` : '';
+
+        const feeBadge = (order.deliveryFee && order.deliveryFee > 0) ? `
+          <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-receipt text-[8.5px] text-amber-400"></i> ₦${Number(order.deliveryFee).toLocaleString()}
+          </span>
+        ` : '';
 
         return `
-          <div class="ios-card sheen-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} rounded-2xl p-4 space-y-3.5 transition shadow-xl">
+          <div class="ios-card sheen-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} rounded-2xl transition shadow-xl overflow-hidden border border-white/[0.08]">
             
-            <!-- Stop Rank, Category & COD Badge -->
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center flex-wrap gap-1.5">
-                <span class="text-[10px] font-black px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 tracking-wider shadow-sm">
-                  STOP #${idx + 1}
-                </span>
+            <!-- Minimized Header Bar (Click anywhere to Dropdown / Maximize) -->
+            <div onclick="toggleOrderExpand('${order.id}')" class="ios-card-header-btn p-3.5 space-y-2 cursor-pointer transition select-none">
+              
+              <!-- Top Row: Stop Badge, Merchant/Title, ETA & Dropdown Chevron -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="shrink-0 text-[10px] font-black px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 tracking-wider shadow-sm">
+                    STOP #${idx + 1}
+                  </span>
+                  
+                  <h3 class="font-black text-white text-sm tracking-tight truncate">${displayName}</h3>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                  ${etaBadge}
+                  
+                  <div class="w-6 h-6 rounded-lg bg-white/[0.06] border border-white/10 flex items-center justify-center text-slate-300 chevron-icon ${isExpanded ? 'is-expanded' : ''}">
+                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Summary Sub-Row: Destination District, COD, and Fast Phone Call -->
+              <div class="flex items-center justify-between gap-2 pt-0.5 text-xs">
+                <div class="flex items-center flex-wrap gap-1.5 min-w-0">
+                  <span class="text-[11px] text-slate-300 font-medium flex items-center gap-1 truncate max-w-[140px] sm:max-w-[220px]" title="${order.address}">
+                    <i class="fa-solid fa-location-dot text-amber-400 text-[10px] shrink-0"></i>
+                    <span class="truncate">${districtName}</span>
+                  </span>
+
+                  ${codBadge}
+                  ${isFragile ? `
+                    <span class="text-[9.5px] font-black px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-300 border border-rose-500/40">🍷 FRAGILE</span>
+                  ` : ''}
+                </div>
+
+                <!-- Customer Phone Quick Call & Copy -->
+                <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
+                  <a href="tel:${order.phone}" class="tactile-btn text-[10px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 transition">
+                    <i class="fa-solid fa-phone text-[9px] text-amber-400"></i> Call
+                  </a>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Maximized Details Tray (Appears on click/dropdown) -->
+            ${isExpanded ? `
+              <div class="px-3.5 pb-3.5 pt-2 space-y-3 border-t border-white/[0.08] bg-black/25 animate-fade-in">
                 
-                ${isFragile ? `
-                  <span class="text-[10px] font-black px-2 py-0.5 rounded-lg bg-rose-500/25 text-rose-300 border border-rose-500/40 flex items-center gap-1 tracking-wider shadow-sm">
-                    <i class="fa-solid fa-wine-glass text-[9px]"></i> FRAGILE
-                  </span>
-                ` : `
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-black/40 text-slate-300 border border-white/10 flex items-center gap-1">
-                    <i class="fa-solid fa-box text-[9px] text-slate-400"></i> STANDARD
-                  </span>
-                `}
+                <!-- Full Destination Address & Landmark Block -->
+                <div class="bg-black/40 p-3 rounded-xl border border-white/[0.06] space-y-2">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="space-y-1 min-w-0">
+                      <div class="flex items-start gap-2 text-xs text-slate-200 font-semibold leading-relaxed">
+                        <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                        <span>${order.address}</span>
+                      </div>
+                      ${order.landmark ? `
+                        <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-4 font-medium">
+                          <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i>
+                          <span>Landmark: ${order.landmark}</span>
+                        </div>
+                      ` : ''}
+                    </div>
+                    <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" class="tactile-btn shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-1 rounded-lg bg-white/[0.05] border border-white/10 transition">
+                      <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                  </div>
 
-                ${codBadge}
-              </div>
+                  <!-- Customer Phone & Details Row -->
+                  <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.05] text-[11px]">
+                    <div class="flex items-center gap-1.5 text-slate-300 font-medium">
+                      <i class="fa-solid fa-phone text-amber-400 text-[10px]"></i>
+                      <span>+${order.phone}</span>
+                      <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="text-slate-400 hover:text-white ml-0.5">
+                        <i class="fa-regular fa-copy text-[10px]"></i>
+                      </button>
+                    </div>
 
-              <!-- Customer Phone Quick Call & Copy -->
-              <div class="flex items-center gap-1 shrink-0">
-                <a href="tel:${order.phone}" class="tactile-btn text-[11px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2.5 py-1 rounded-lg border border-white/10 flex items-center gap-1.5 transition">
-                  <i class="fa-solid fa-phone text-[10px] text-amber-400"></i> +${order.phone}
-                </a>
-                <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="tactile-btn w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-slate-400 hover:text-white text-xs transition border border-white/10">
-                  <i class="fa-regular fa-copy"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Delivery Address & Landmark Block -->
-            <div class="bg-black/30 p-3 rounded-xl border border-white/[0.06] space-y-1.5">
-              <div class="flex items-start justify-between gap-2">
-                <div class="flex items-start gap-2 min-w-0">
-                  <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
-                  <p class="text-xs text-slate-200 font-semibold leading-relaxed">
-                    ${order.address}
-                  </p>
+                    <div class="flex items-center gap-1.5">
+                      ${feeBadge}
+                    </div>
+                  </div>
                 </div>
-                <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" class="tactile-btn shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-0.5 rounded-lg bg-white/[0.05] border border-white/10 transition">
-                  <i class="fa-regular fa-copy"></i> Copy
-                </button>
-              </div>
 
-              ${order.landmark ? `
-                <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-5 font-medium">
-                  <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i>
-                  <span>Landmark: ${order.landmark}</span>
+                <!-- Action Controls: Direct Turn-by-Turn Navigate, WhatsApp Dispatch Alert, Mark Delivered -->
+                <div class="grid grid-cols-3 gap-2 pt-0.5">
+                  <a href="${singleMapsLink}" target="_blank" class="tactile-btn text-center text-xs font-black py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
+                    <i class="fa-solid fa-location-arrow text-xs"></i>
+                    <span>Navigate</span>
+                  </a>
+
+                  <a href="${alertLink}" target="_blank" class="tactile-btn text-center text-xs font-bold py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
+                    <span>WhatsApp</span>
+                  </a>
+
+                  <button onclick="setStatus('${order.id}', 'Delivered')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-center text-xs font-black py-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 active:scale-95 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1.5 transition">
+                    ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>' : '<i class="fa-solid fa-check text-xs"></i>'}
+                    <span>Delivered</span>
+                  </button>
                 </div>
-              ` : ''}
-            </div>
 
-            <!-- Action Controls: Navigate, WhatsApp Alert, Mark Delivered -->
-            <div class="grid grid-cols-3 gap-2 pt-0.5">
-              <a href="${singleMapsLink}" target="_blank" class="tactile-btn text-center text-xs font-black py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
-                <i class="fa-solid fa-location-arrow text-xs"></i>
-                <span>Navigate</span>
-              </a>
-
-              <a href="${alertLink}" target="_blank" class="tactile-btn text-center text-xs font-bold py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1.5 transition">
-                <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
-                <span>WhatsApp</span>
-              </a>
-
-              <button onclick="setStatus('${order.id}', 'Delivered')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-center text-xs font-black py-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 active:scale-95 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1.5 transition">
-                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>' : '<i class="fa-solid fa-check text-xs"></i>'}
-                <span>Delivered</span>
-              </button>
-            </div>
+              </div>
+            ` : ''}
 
           </div>
         `;
@@ -2518,6 +3471,8 @@
       const catVal = document.getElementById("itemCategory").value;
       const proofVal = document.getElementById("proofUrl").value.trim();
       const codVal = Number(document.getElementById("codAmount")?.value) || 0;
+      const feeInputVal = Number(document.getElementById("deliveryFee")?.value);
+      const feeVal = (!isNaN(feeInputVal) && feeInputVal > 0) ? feeInputVal : currentCalculatedFare;
 
       const payload = {
         parent: { database_id: DATABASE_ID },
@@ -2527,6 +3482,7 @@
           "Customer Phone": { phone_number: phoneVal },
           "Item Category": { select: { name: catVal } },
           "COD Amount": { number: codVal },
+          "Delivery Fee": { number: feeVal },
           "Status": { status: { name: "Pending" } }
         }
       };
@@ -2537,16 +3493,40 @@
       }
 
       try {
-        const res = await fetch(`/api/notion?path=v1/pages`, {
+        let res = await fetch(`/api/notion?path=v1/pages`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
+        // Graceful fallback if database schema does not yet have a 'Delivery Fee' column
+        if (!res.ok) {
+          const firstErr = await res.json().catch(() => ({}));
+          if (firstErr.message && firstErr.message.toLowerCase().includes("delivery fee")) {
+            delete payload.properties["Delivery Fee"];
+            res = await fetch(`/api/notion?path=v1/pages`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+          } else {
+            throw new Error(firstErr.message || `Error ${res.status}`);
+          }
+        }
+
         const responseData = await res.json();
         if (!res.ok) throw new Error(responseData.message || `Error ${res.status}`);
 
         document.getElementById("orderForm").reset();
+        const pickupInput = document.getElementById("pickupAddress");
+        if (pickupInput) pickupInput.value = "Galadimawa Hub, Abuja";
+        isManualFareOverride = false;
+        const overrideBadge = document.getElementById("overrideIndicator");
+        if (overrideBadge) {
+          overrideBadge.classList.add("hidden");
+          overrideBadge.classList.remove("flex");
+        }
+        calculateIntakeFare();
         showToast("Package saved to fleet!");
         await fetchOrders(true);
       } catch (err) {

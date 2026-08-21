@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import handler from "./api/notion.js";
 import optimizeHandler from "./api/optimize-route.js";
 import trackHandler from "./api/track.js";
+import distanceHandler from "./api/distance.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +21,18 @@ app.all("/api/notion", async (req, res) => {
     await handler(req, res);
   } catch (error) {
     console.error("API error:", error);
+    if (!res.headersSent) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+});
+
+// Dynamic Fare Calculation & Distance Routing Route
+app.all("/api/distance", async (req, res) => {
+  try {
+    await distanceHandler(req, res);
+  } catch (error) {
+    console.error("Distance API error:", error);
     if (!res.headersSent) {
       res.status(500).json({ message: error.message });
     }

@@ -66,10 +66,43 @@
       background: #111726;
       border: 1px solid rgba(255, 255, 255, 0.07);
       box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
     }
     .ios-card-fragile {
       background: linear-gradient(180deg, #191428 0%, #111726 100%);
       border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+    .eta-badge-glow {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 78, 59, 0.5) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.18);
+      transition: all 0.2s ease;
+    }
+    .ios-card-header-btn {
+      transition: background-color 0.2s ease;
+    }
+    .ios-card-header-btn:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .chevron-icon {
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .chevron-icon.is-expanded {
+      transform: rotate(180deg);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes cardEntry {
+      0% { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .animate-card-entry {
+      animation: cardEntry 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     /* Toast Animation */
     @keyframes toastIn {
@@ -172,13 +205,25 @@
       </button>
     </div>
 
-    <!-- Active Stops Header -->
+    <!-- Active Stops Header with Accordion Controls -->
     <div class="flex items-center justify-between px-1">
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
         <h2 class="text-xs font-black uppercase tracking-wider text-slate-300">Deliveries To Complete</h2>
+        <span class="text-[10px] text-slate-500 hidden sm:inline">(Tap card to expand)</span>
       </div>
-      <span id="queueCount" class="text-[10px] text-slate-400 font-bold">0 Remaining</span>
+      <div class="flex items-center gap-2.5">
+        <span id="queueCount" class="text-[10px] text-slate-400 font-bold">0 Remaining</span>
+        <span class="text-slate-600">•</span>
+        <button type="button" onclick="expandAllOrders()" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition cursor-pointer">
+          <i class="fa-solid fa-up-right-and-down-left-from-center text-[9px]"></i>
+          <span>Expand</span>
+        </button>
+        <button type="button" onclick="collapseAllOrders()" class="text-[10px] text-slate-400 hover:text-slate-200 font-bold flex items-center gap-1 transition cursor-pointer">
+          <i class="fa-solid fa-down-left-and-up-right-to-center text-[9px]"></i>
+          <span>Collapse</span>
+        </button>
+      </div>
     </div>
 
     <!-- Active Stops Card Container -->
@@ -197,6 +242,28 @@
     const DATABASE_ID = "3c1c21a6f4768049a840d9ed8972b630";
     let activeOrders = [];
     let updatingStatusIds = new Set();
+    let expandedOrderIds = new Set(); // Accordion dropdown state - minimized by default
+
+    function toggleOrderExpand(orderId) {
+      if (expandedOrderIds.has(orderId)) {
+        expandedOrderIds.delete(orderId);
+      } else {
+        expandedOrderIds.add(orderId);
+      }
+      renderRiderOrders();
+    }
+
+    function expandAllOrders() {
+      activeOrders.forEach(o => expandedOrderIds.add(o.id));
+      renderRiderOrders();
+      showToast("Expanded all delivery stops");
+    }
+
+    function collapseAllOrders() {
+      expandedOrderIds.clear();
+      renderRiderOrders();
+      showToast("Minimized all delivery stops");
+    }
 
     function showToast(message, isSuccess = true) {
       const hud = document.getElementById("toastHUD");
@@ -614,6 +681,14 @@
             codAmount = Number(rawText.replace(/[^0-9.]/g, "")) || 0;
           }
 
+          let deliveryFee = 0;
+          if (props["Delivery Fee"]?.type === "number") {
+            deliveryFee = Number(props["Delivery Fee"]?.number || 0);
+          } else if (props["Delivery Fee"]?.type === "rich_text") {
+            const rawText = props["Delivery Fee"]?.rich_text?.[0]?.plain_text || "";
+            deliveryFee = Number(rawText.replace(/[^0-9.]/g, "")) || 0;
+          }
+
           let address = rawAddressText;
           let landmark = "";
           const lmMatch = rawAddressText.match(/\(Landmark:\s*(.*?)\)/i);
@@ -638,6 +713,7 @@
             category,
             status,
             codAmount,
+            deliveryFee,
             proofUrl,
             orderIndex: index
           };
@@ -915,6 +991,25 @@
       };
     }
 
+    // Estimated Time of Arrival (ETA) Helper: Calculates current time + 30-minute buffer
+    function getEstimatedTimeOfArrival(stopIndex = 0) {
+      const baseBufferMinutes = 30;
+      const totalMinutes = baseBufferMinutes + (Math.max(0, stopIndex) * 8);
+      const etaDate = new Date(Date.now() + totalMinutes * 60 * 1000);
+      
+      const timeStr = etaDate.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      return {
+        time: timeStr,
+        bufferMinutes: totalMinutes,
+        badgeText: `~${timeStr}`
+      };
+    }
+
     function renderRiderOrders() {
       const container = document.getElementById("riderOrdersContainer");
 
@@ -937,6 +1032,7 @@
         const isFragile = (order.category || "").toLowerCase().includes("fragile");
         const isUpdating = updatingStatusIds.has(order.id);
         const hasCod = order.codAmount && order.codAmount > 0;
+        const isExpanded = expandedOrderIds.has(order.id);
 
         const codBadge = hasCod ? `
           <span class="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 flex items-center gap-1 shadow-sm animate-pulse">
@@ -948,17 +1044,36 @@
           </span>
         `;
 
+        const eta = getEstimatedTimeOfArrival(idx);
+        const etaBadge = `
+          <span class="eta-badge-glow text-[10px] font-black px-2.5 py-0.5 rounded-md text-emerald-300 flex items-center gap-1 shadow-sm" title="Estimated Arrival: Current time + 30-min buffer">
+            <i class="fa-regular fa-clock text-[9px] text-emerald-400 animate-pulse"></i>
+            <span>ETA: ${eta.badgeText}</span>
+            <span class="text-[8.5px] text-emerald-400/80 font-semibold">(+30m)</span>
+          </span>
+        `;
+
         const { inTransitLink } = buildWhatsAppTemplates(order);
         const alertLink = inTransitLink;
         const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
         const displayName = order.merchant || "Standard Delivery";
 
+        const feeBadge = (order.deliveryFee && order.deliveryFee > 0) ? `
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+            <i class="fa-solid fa-receipt text-[9px] text-amber-400"></i> ₦${Number(order.deliveryFee).toLocaleString()}
+          </span>
+        ` : '';
+
         return `
-          <div class="ios-card ${isFragile ? 'ios-card-fragile' : ''} rounded-2xl p-4 space-y-3.5 transition">
+          <div class="ios-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} rounded-2xl transition overflow-hidden">
             
-            <!-- Stop Rank & Category Badge & COD -->
-            <div class="flex items-start justify-between gap-2">
-              <div class="space-y-1.5 min-w-0">
+            <!-- Minimized Card Header (Always Visible & Clickable) -->
+            <div 
+              onclick="toggleOrderExpand('${order.id}')"
+              class="ios-card-header-btn p-4 cursor-pointer select-none flex items-center justify-between gap-3 border-b ${isExpanded ? 'border-white/[0.08]' : 'border-transparent'}"
+            >
+              <div class="space-y-1.5 min-w-0 flex-1">
+                <!-- Badges Row -->
                 <div class="flex items-center flex-wrap gap-1.5">
                   <span class="text-[10px] font-black px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 tracking-wider">
                     STOP #${idx + 1}
@@ -974,61 +1089,92 @@
                     </span>
                   `}
 
+                  ${feeBadge}
                   ${codBadge}
+                  ${etaBadge}
                 </div>
-                <h3 class="font-black text-white text-sm tracking-tight pt-0.5 truncate">${displayName}</h3>
+
+                <div class="flex items-center justify-between gap-2 pt-0.5">
+                  <h3 class="font-black text-white text-sm tracking-tight truncate">${displayName}</h3>
+                </div>
+
+                <!-- Brief Address Preview when minimized -->
+                <p class="text-xs text-slate-300 truncate font-medium flex items-center gap-1.5 pt-0.5">
+                  <i class="fa-solid fa-location-dot text-amber-400 text-[10px] shrink-0"></i>
+                  <span class="truncate">${order.address}</span>
+                </p>
               </div>
 
-              <!-- Customer Phone Quick Call & Copy -->
-              <div class="flex items-center gap-1 shrink-0 pt-0.5">
-                <a href="tel:${order.phone}" class="text-[11px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2.5 py-1 rounded-lg border border-white/10 flex items-center gap-1.5 transition">
-                  <i class="fa-solid fa-phone text-[10px] text-amber-400"></i> +${order.phone}
-                </a>
-                <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-slate-400 hover:text-white text-xs transition border border-white/10">
-                  <i class="fa-regular fa-copy"></i>
-                </button>
+              <!-- Chevron Expansion Indicator -->
+              <div class="flex items-center gap-2 shrink-0">
+                <div class="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center text-slate-300 hover:text-amber-400 border border-white/10 transition">
+                  <i class="fa-solid fa-chevron-down text-xs chevron-icon ${isExpanded ? 'is-expanded' : ''}"></i>
+                </div>
               </div>
             </div>
 
-            <!-- Delivery Address & Landmark Block -->
-            <div class="bg-black/30 p-3 rounded-xl border border-white/[0.06] space-y-1.5">
-              <div class="flex items-start justify-between gap-2">
-                <div class="flex items-start gap-2 min-w-0">
-                  <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
-                  <p class="text-xs text-slate-200 font-semibold leading-relaxed">
-                    ${order.address}
-                  </p>
+            <!-- Maximized Details (Collapsible Area) -->
+            ${isExpanded ? `
+              <div class="p-4 pt-3.5 space-y-3.5 bg-black/15 animate-fade-in border-t border-white/[0.04]">
+                
+                <!-- Quick Contact Bar -->
+                <div class="flex items-center justify-between gap-2 bg-black/25 p-2.5 rounded-xl border border-white/[0.05]">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <i class="fa-solid fa-phone text-amber-400 text-xs"></i>
+                    <span class="text-xs font-bold text-slate-200 truncate">+${order.phone}</span>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <a href="tel:${order.phone}" class="text-[11px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2.5 py-1 rounded-lg border border-white/10 flex items-center gap-1 transition">
+                      <i class="fa-solid fa-phone text-[10px] text-amber-400"></i> Call
+                    </a>
+                    <button onclick="event.stopPropagation(); copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-slate-400 hover:text-white text-xs transition border border-white/10">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                  </div>
                 </div>
-                <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" class="shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-0.5 rounded bg-white/[0.05] border border-white/10 transition">
-                  <i class="fa-regular fa-copy"></i> Copy
-                </button>
+
+                <!-- Full Delivery Address & Landmark Block -->
+                <div class="bg-black/30 p-3 rounded-xl border border-white/[0.06] space-y-1.5">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="flex items-start gap-2 min-w-0">
+                      <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                      <p class="text-xs text-slate-200 font-semibold leading-relaxed">
+                        ${order.address}
+                      </p>
+                    </div>
+                    <button onclick="event.stopPropagation(); copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" class="shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-0.5 rounded bg-white/[0.05] border border-white/10 transition">
+                      <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                  </div>
+
+                  ${order.landmark ? `
+                    <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-5 font-medium">
+                      <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i>
+                      <span>Landmark: ${order.landmark}</span>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <!-- Action Controls: Navigate, WhatsApp Alert, Mark Delivered -->
+                <div class="grid grid-cols-3 gap-2 pt-0.5">
+                  <a href="${singleMapsLink}" target="_blank" onclick="event.stopPropagation()" class="text-center text-xs font-black py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
+                    <i class="fa-solid fa-location-arrow text-xs"></i>
+                    <span>Navigate</span>
+                  </a>
+
+                  <a href="${alertLink}" target="_blank" onclick="event.stopPropagation()" class="text-center text-xs font-bold py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
+                    <span>WhatsApp</span>
+                  </a>
+
+                  <button onclick="event.stopPropagation(); markAsDelivered('${order.id}')" ${isUpdating ? 'disabled' : ''} class="text-center text-xs font-black py-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 active:scale-95 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1.5 transition">
+                    ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>' : '<i class="fa-solid fa-check text-xs"></i>'}
+                    <span>Delivered</span>
+                  </button>
+                </div>
+
               </div>
-
-              ${order.landmark ? `
-                <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-5 font-medium">
-                  <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i>
-                  <span>Landmark: ${order.landmark}</span>
-                </div>
-              ` : ''}
-            </div>
-
-            <!-- Action Controls: Navigate, WhatsApp Alert, Mark Delivered -->
-            <div class="grid grid-cols-3 gap-2 pt-0.5">
-              <a href="${singleMapsLink}" target="_blank" class="text-center text-xs font-black py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
-                <i class="fa-solid fa-location-arrow text-xs"></i>
-                <span>Navigate</span>
-              </a>
-
-              <a href="${alertLink}" target="_blank" class="text-center text-xs font-bold py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1.5 transition">
-                <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
-                <span>WhatsApp</span>
-              </a>
-
-              <button onclick="markAsDelivered('${order.id}')" ${isUpdating ? 'disabled' : ''} class="text-center text-xs font-black py-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 active:scale-95 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1.5 transition">
-                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>' : '<i class="fa-solid fa-check text-xs"></i>'}
-                <span>Delivered</span>
-              </button>
-            </div>
+            ` : ''}
 
           </div>
         `;

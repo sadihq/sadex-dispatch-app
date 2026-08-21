@@ -33,7 +33,11 @@ const ABUJA_DISTRICT_COORDS = {
   kado: { lat: 9.0820, lng: 7.4350 },
   durumi: { lat: 9.0180, lng: 7.4650 },
   lokogoma: { lat: 8.9850, lng: 7.4420 },
-  galadimawa: { lat: 8.9920, lng: 7.4280 },
+  galadimawa: { lat: 9.0016, lng: 7.4278 },
+  "galadimawa hub": { lat: 9.0016, lng: 7.4278 },
+  "sadex central hub": { lat: 9.0016, lng: 7.4278 },
+  "sadex hub": { lat: 9.0016, lng: 7.4278 },
+  "central hub": { lat: 9.0016, lng: 7.4278 },
   "games village": { lat: 9.0120, lng: 7.4520 },
   kubwa: { lat: 9.1538, lng: 7.3340 },
   lugbe: { lat: 8.9772, lng: 7.3688 },
@@ -57,8 +61,8 @@ function estimateAbujaCoordinates(address) {
       return coords;
     }
   }
-  // Default Central Abuja coordinates
-  return { lat: 9.0579, lng: 7.4951 };
+  // Default Galadimawa Central Hub coordinates
+  return { lat: 9.0016, lng: 7.4278 };
 }
 
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
