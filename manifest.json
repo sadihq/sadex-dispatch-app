@@ -1,0 +1,16 @@
+{
+  "name": "SADEX Express Logistics",
+  "short_name": "SADEX",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#061810",
+  "theme_color": "#0E3B28",
+  "icons": [
+    {
+      "src": "/IMG_7852.jpeg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
