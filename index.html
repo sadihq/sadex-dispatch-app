@@ -1,120 +1,278 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SADEX Dispatch Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>SADEX Dispatch & Navigation Engine</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#090d16" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+            },
+            ios: {
+              card: '#121826',
+              elevated: '#1a2234',
+              border: 'rgba(255, 255, 255, 0.08)',
+              subtext: '#8e9bb2'
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    * {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #090d16;
+      color: #f1f5f9;
+    }
+    .ios-blur {
+      background: rgba(14, 20, 33, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .ios-card {
+      background: #111726;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+    }
+    .ios-card:active {
+      transform: scale(0.995);
+    }
+    .ios-card-fragile {
+      background: linear-gradient(180deg, #191428 0%, #111726 100%);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Toast Animation */
+    @keyframes toastIn {
+      from { transform: translate(-50%, 100%); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+    @keyframes toastOut {
+      from { transform: translate(-50%, 0); opacity: 1; }
+      to { transform: translate(-50%, 100%); opacity: 0; }
+    }
+    .toast-animate-in {
+      animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .toast-animate-out {
+      animation: toastOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-20 selection:bg-amber-500 selection:text-black">
+<body class="min-h-screen pb-28 selection:bg-amber-500 selection:text-black antialiased">
 
-  <!-- Header -->
-  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3.5 flex items-center justify-between shadow-lg">
-    <div class="flex items-center space-x-2.5">
-      <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 font-black text-sm">
-        S
+  <!-- iOS Dynamic Toast HUD -->
+  <div id="toastHUD" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none hidden max-w-[90vw]">
+    <div id="toastContent" class="ios-blur px-4 py-2.5 rounded-full border border-white/15 text-xs font-semibold text-white shadow-2xl flex items-center gap-2.5">
+      <i id="toastIcon" class="fa-solid fa-check text-amber-400 text-sm"></i>
+      <span id="toastMessage">Action completed</span>
+    </div>
+  </div>
+
+  <!-- iOS Sticky Header -->
+  <header class="sticky top-0 z-40 ios-blur border-b border-white/[0.08] px-4 py-3 shadow-md">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-9 h-9 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-sm tracking-tighter shadow-inner">
+          S
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-extrabold text-sm tracking-tight text-white">
+              SADEX <span class="text-amber-400 font-black">EXPRESS</span>
+            </h1>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              ABUJA
+            </span>
+          </div>
+          <p class="text-[10px] text-slate-400 font-medium">Dynamic GPS Dispatch & Navigation</p>
+        </div>
       </div>
-      <div>
-        <h1 class="font-bold text-sm tracking-tight text-white flex items-center gap-1.5">
-          SADEX <span class="text-amber-500 font-semibold">EXPRESS</span>
-        </h1>
-        <p class="text-[10px] text-slate-400 font-medium tracking-wide">Abuja Dispatch Console</p>
+      
+      <div class="flex items-center gap-2">
+        <button id="refreshButton" onclick="fetchOrders()" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 px-3 py-1.5 rounded-full font-semibold border border-white/10 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate text-[11px]" id="refreshIcon"></i>
+          <span class="text-[11px]">Sync</span>
+        </button>
       </div>
     </div>
-    <button onclick="fetchOrders()" class="text-xs bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-200 px-3 py-1.5 rounded-xl font-semibold border border-slate-700 transition flex items-center gap-1.5">
-      <i class="fa-solid fa-arrows-rotate text-[10px]" id="refreshIcon"></i> Sync
-    </button>
   </header>
 
-  <main class="max-w-md mx-auto p-4 space-y-5">
+  <main class="max-w-md mx-auto p-4 space-y-4">
 
-    <!-- Operational Metrics -->
-    <div class="grid grid-cols-3 gap-2">
-      <div class="glass-card rounded-2xl p-3 text-center border-l-2 border-l-amber-500">
-        <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Pending</p>
-        <h3 id="statPending" class="text-xl font-bold text-amber-400 mt-0.5">0</h3>
+    <!-- Operational Metrics Banner -->
+    <div class="grid grid-cols-3 gap-2.5">
+      <div class="ios-card rounded-2xl p-3 text-center border-t-2 border-t-amber-500 transition">
+        <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Pending</p>
+        <div class="flex items-baseline justify-center gap-1 mt-0.5">
+          <h3 id="statPending" class="text-2xl font-black text-amber-400 tracking-tight">0</h3>
+          <span class="text-[10px] text-slate-500 font-medium">pkgs</span>
+        </div>
       </div>
-      <div class="glass-card rounded-2xl p-3 text-center border-l-2 border-l-sky-500">
-        <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Transit</p>
-        <h3 id="statTransit" class="text-xl font-bold text-sky-400 mt-0.5">0</h3>
+      <div class="ios-card rounded-2xl p-3 text-center border-t-2 border-t-sky-400 transition">
+        <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Transit</p>
+        <div class="flex items-baseline justify-center gap-1 mt-0.5">
+          <h3 id="statTransit" class="text-2xl font-black text-sky-400 tracking-tight">0</h3>
+          <span class="text-[10px] text-slate-500 font-medium">on route</span>
+        </div>
       </div>
-      <div class="glass-card rounded-2xl p-3 text-center border-l-2 border-l-emerald-500">
-        <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Delivered</p>
-        <h3 id="statDelivered" class="text-xl font-bold text-emerald-400 mt-0.5">0</h3>
+      <div class="ios-card rounded-2xl p-3 text-center border-t-2 border-t-emerald-400 transition">
+        <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Delivered</p>
+        <div class="flex items-baseline justify-center gap-1 mt-0.5">
+          <h3 id="statDelivered" class="text-2xl font-black text-emerald-400 tracking-tight">0</h3>
+          <span class="text-[10px] text-slate-500 font-medium">done</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master Dynamic GPS Multi-Stop Route Hero Action -->
+    <div id="masterRouteCard" class="ios-card rounded-2xl p-3.5 border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-900 shadow-lg space-y-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+            <i class="fa-solid fa-location-crosshairs"></i>
+          </div>
+          <div>
+            <h2 class="text-xs font-bold text-white tracking-tight">AI Shortest-Path Master Route</h2>
+            <p id="routeSubtext" class="text-[10px] text-slate-400">Optimizes stop order from rider's live coordinates across Abuja</p>
+          </div>
+        </div>
+        <span id="activeCountBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
+          0 Stops
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <button id="masterRouteBtn" onclick="launchMasterRoute()" class="sm:col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-3 px-3.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-[0.98] transition">
+          <i class="fa-solid fa-route text-sm"></i>
+          <span>Launch Optimized GPS Route</span>
+        </button>
+        <button id="optimizeOrderBtn" onclick="optimizeStopOrderOnly()" class="bg-white/[0.08] hover:bg-white/[0.14] active:scale-[0.98] text-slate-200 font-bold py-3 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-white/10 transition">
+          <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-xs"></i>
+          <span>Sort Sequence</span>
+        </button>
       </div>
     </div>
 
     <!-- Intake Logger Accordion Card -->
-    <details class="group glass-card rounded-2xl border border-slate-800 transition">
-      <summary class="list-none p-4 flex items-center justify-between cursor-pointer select-none">
+    <details class="group ios-card rounded-2xl border border-white/[0.08] transition overflow-hidden">
+      <summary class="list-none p-3.5 flex items-center justify-between cursor-pointer select-none hover:bg-white/[0.02] transition">
         <div class="flex items-center space-x-2.5">
-          <span class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs">
+          <span class="w-7 h-7 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs font-bold">
             <i class="fa-solid fa-plus"></i>
           </span>
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-200">Log New Package</span>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-200 block">Log New Package</span>
+            <span class="text-[10px] text-slate-400 font-normal">Add sender, delivery address, landmark & contact</span>
+          </div>
         </div>
-        <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform group-open:rotate-180"></i>
+        <div class="w-6 h-6 rounded-full bg-white/[0.05] flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">
+          <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </div>
       </summary>
       
-      <form id="orderForm" onsubmit="handleCreateOrder(event)" class="p-4 pt-0 space-y-3">
+      <form id="orderForm" onsubmit="handleCreateOrder(event)" class="p-4 pt-1 space-y-3.5 border-t border-white/[0.06] bg-black/20">
         <div>
-          <label class="text-[11px] text-slate-400 font-semibold tracking-wide">Merchant / Sender</label>
-          <input id="merchantName" required placeholder="e.g. Apex Attire" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+          <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+            <i class="fa-solid fa-store text-[10px] text-amber-400"></i> Merchant / Sender
+          </label>
+          <input id="merchantName" required placeholder="e.g. Apex Attire / Zara Store" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
         </div>
         
         <div>
-          <label class="text-[11px] text-slate-400 font-semibold tracking-wide">Delivery Address</label>
-          <input id="deliveryAddress" required placeholder="e.g. 14 Aguiyi Ironsi St, Maitama" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+          <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+            <i class="fa-solid fa-location-dot text-[10px] text-amber-400"></i> Delivery Address
+          </label>
+          <input id="deliveryAddress" required placeholder="e.g. 14 Aguiyi Ironsi St, Maitama" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+          <p class="text-[10px] text-slate-500 mt-1">Accepts any delivery location anywhere across Abuja and surrounding districts.</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+            <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i> Landmark / Nearest Junction <span class="text-slate-500 font-normal">(Optional)</span>
+          </label>
+          <input id="landmark" placeholder="e.g. Opp Transcorp Hilton, Beside Banex Plaza" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label class="text-[11px] text-slate-400 font-semibold tracking-wide">Customer Phone</label>
-            <input id="customerPhone" required placeholder="08012345678" type="tel" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+            <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-phone text-[10px] text-amber-400"></i> Customer Phone
+            </label>
+            <input id="customerPhone" required placeholder="08012345678" type="tel" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
           </div>
           <div>
-            <label class="text-[11px] text-slate-400 font-semibold tracking-wide">Category</label>
-            <select id="itemCategory" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 text-white transition">
-              <option value="Standard">Standard Box</option>
-              <option value="Fragile">Fragile / Sensitive</option>
+            <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-box-archive text-[10px] text-amber-400"></i> Package Category
+            </label>
+            <select id="itemCategory" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white transition">
+              <option value="Standard">📦 Standard Box</option>
+              <option value="Fragile">⚠️ Fragile / Sensitive</option>
             </select>
           </div>
         </div>
 
         <div>
-          <label class="text-[11px] text-slate-400 font-semibold tracking-wide">Photo Proof URL (Optional)</label>
-          <input id="proofUrl" placeholder="https://..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
+          <label class="text-[11px] text-slate-300 font-semibold tracking-wide flex items-center gap-1.5 mb-1">
+            <i class="fa-solid fa-camera text-[10px] text-amber-400"></i> Photo Proof of Delivery URL <span class="text-slate-500 font-normal">(Optional)</span>
+          </label>
+          <input id="proofUrl" placeholder="https://..." class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-600 transition" />
         </div>
 
-        <button type="submit" id="submitBtn" class="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-amber-500/20">
-          Save Package to Fleet
+        <button type="submit" id="submitBtn" class="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span>Save Package to Fleet</span>
         </button>
       </form>
     </details>
 
-    <!-- Tab View Switcher -->
-    <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-      <button onclick="switchTab('active')" id="tabActive" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition bg-amber-500 text-slate-950">
-        Active Route
+    <!-- iOS Segmented Control Tabs -->
+    <div class="bg-slate-900/90 p-1 rounded-2xl border border-white/[0.08] flex items-center shadow-inner">
+      <button onclick="switchTab('active')" id="tabActive" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
+        <i class="fa-solid fa-motorcycle text-xs"></i>
+        <span>Active Route</span>
+        <span id="activeTabBadge" class="text-[10px] px-1.5 py-0.2 rounded-full bg-black/20 text-slate-950 font-extrabold">0</span>
       </button>
-      <button onclick="switchTab('completed')" id="tabCompleted" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200">
-        Completed
+      <button onclick="switchTab('completed')" id="tabCompleted" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200">
+        <i class="fa-solid fa-circle-check text-xs"></i>
+        <span>Completed</span>
+        <span id="completedTabBadge" class="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 text-slate-300 font-extrabold">0</span>
       </button>
     </div>
 
     <!-- Active Orders / Dispatch Sequence -->
     <section class="space-y-3">
       <div id="ordersContainer" class="space-y-3">
-        <div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center gap-2">
-          <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-base"></i>
-          <span>Syncing live orders...</span>
+        <div class="ios-card rounded-2xl py-14 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-amber-400 text-lg"></i>
+          </div>
+          <span class="font-medium tracking-wide">Syncing live Abuja deliveries from Notion...</span>
         </div>
       </div>
     </section>
@@ -125,17 +283,34 @@
     const DATABASE_ID = "3c1c21a6f4768049a840d9ed8972b630";
     let currentTab = "active";
     let globalOrders = [];
+    let updatingStatusIds = new Set();
 
-    const ZONE_PRIORITIES = {
-      "maitama": 1,
-      "wuse 2": 2,
-      "wuse": 3,
-      "central area": 4,
-      "area 11": 5,
-      "garki": 6,
-      "utako": 7,
-      "jabi": 8
-    };
+    function showToast(message, isSuccess = true) {
+      const hud = document.getElementById("toastHUD");
+      const text = document.getElementById("toastMessage");
+      const icon = document.getElementById("toastIcon");
+      
+      if (!hud || !text) return;
+
+      text.textContent = message;
+      if (isSuccess) {
+        icon.className = "fa-solid fa-circle-check text-amber-400 text-sm";
+      } else {
+        icon.className = "fa-solid fa-circle-exclamation text-rose-400 text-sm";
+      }
+
+      hud.classList.remove("hidden", "toast-animate-out");
+      hud.classList.add("toast-animate-in");
+
+      clearTimeout(window.__toastTimeout);
+      window.__toastTimeout = setTimeout(() => {
+        hud.classList.remove("toast-animate-in");
+        hud.classList.add("toast-animate-out");
+        setTimeout(() => {
+          hud.classList.add("hidden");
+        }, 200);
+      }, 2500);
+    }
 
     function cleanPhone(raw) {
       let d = (raw || "").toString().replace(/\D/g, "");
@@ -144,12 +319,29 @@
       return d || "2347045750528";
     }
 
-    function getZone(address) {
-      const lower = (address || "").toLowerCase();
-      for (const [zone, rank] of Object.entries(ZONE_PRIORITIES)) {
-        if (lower.includes(zone)) return { name: zone.toUpperCase(), rank };
+    function formatAbujaAddress(addr) {
+      const clean = (addr || "").trim();
+      if (!clean) return "Abuja, Nigeria";
+      if (/abuja/i.test(clean)) return clean;
+      return `${clean}, Abuja`;
+    }
+
+    function copyToClipboard(text, label) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(`Copied ${label}!`);
+        }).catch(() => {
+          showToast(`Copied ${label}!`);
+        });
+      } else {
+        const temp = document.createElement("textarea");
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+        showToast(`Copied ${label}!`);
       }
-      return { name: "CENTRAL", rank: 99 };
     }
 
     function switchTab(tab) {
@@ -158,11 +350,11 @@
       const tabCompleted = document.getElementById("tabCompleted");
 
       if (tab === "active") {
-        tabActive.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition bg-amber-500 text-slate-950";
-        tabCompleted.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
+        tabActive.className = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md";
+        tabCompleted.className = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200";
       } else {
-        tabCompleted.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition bg-amber-500 text-slate-950";
-        tabActive.className = "flex-1 py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
+        tabCompleted.className = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md";
+        tabActive.className = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200";
       }
       renderOrders();
     }
@@ -181,7 +373,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || `Status ${res.status}`);
 
-        globalOrders = (data.results || []).map(page => {
+        globalOrders = (data.results || []).map((page, index) => {
           const props = page.properties;
           const merchant = props["Merchant Name"]?.title?.[0]?.plain_text || "Merchant";
           const address = props["Delivery Address"]?.rich_text?.[0]?.plain_text || "Abuja";
@@ -196,8 +388,6 @@
             phone = props["Customer Phone"]?.rich_text?.[0]?.plain_text || "";
           }
 
-          const zoneInfo = getZone(address);
-
           return {
             id: page.id,
             merchant,
@@ -206,16 +396,21 @@
             category,
             status,
             proofUrl,
-            zone: zoneInfo.name,
-            rank: zoneInfo.rank
+            orderIndex: index
           };
         });
 
-        globalOrders.sort((a, b) => a.rank - b.rank);
         updateStats();
         renderOrders();
       } catch (err) {
-        document.getElementById("ordersContainer").innerHTML = `<div class="text-center py-6 text-red-400 text-xs font-semibold">Failed to load: ${err.message}</div>`;
+        document.getElementById("ordersContainer").innerHTML = `
+          <div class="ios-card rounded-2xl p-6 text-center text-rose-400 text-xs font-semibold space-y-2">
+            <i class="fa-solid fa-triangle-exclamation text-xl text-rose-500"></i>
+            <p>Failed to load orders: ${err.message}</p>
+            <button onclick="fetchOrders()" class="mt-2 px-3 py-1.5 rounded-lg bg-white/10 text-white font-bold text-xs">Retry</button>
+          </div>
+        `;
+        showToast("Sync failed: " + err.message, false);
       } finally {
         if (icon) icon.classList.remove("fa-spin");
       }
@@ -225,13 +420,328 @@
       const pending = globalOrders.filter(o => o.status === "Pending").length;
       const transit = globalOrders.filter(o => o.status === "In-Transit").length;
       const delivered = globalOrders.filter(o => o.status === "Delivered").length;
+      const activeTotal = pending + transit;
 
-      document.getElementById("statPending").innerText = pending;
-      document.getElementById("statTransit").innerText = transit;
-      document.getElementById("statDelivered").innerText = delivered;
+      const statPending = document.getElementById("statPending");
+      const statTransit = document.getElementById("statTransit");
+      const statDelivered = document.getElementById("statDelivered");
+      const activeCountBadge = document.getElementById("activeCountBadge");
+      const activeTabBadge = document.getElementById("activeTabBadge");
+      const completedTabBadge = document.getElementById("completedTabBadge");
+
+      if (statPending) statPending.innerText = pending;
+      if (statTransit) statTransit.innerText = transit;
+      if (statDelivered) statDelivered.innerText = delivered;
+      if (activeCountBadge) activeCountBadge.innerText = `${activeTotal} Stop${activeTotal === 1 ? '' : 's'}`;
+      if (activeTabBadge) activeTabBadge.innerText = activeTotal;
+      if (completedTabBadge) completedTabBadge.innerText = delivered;
+    }
+
+    // Zero-Key Abuja Coordinates Map for instant browser-level optimization
+    const ABUJA_CLIENT_COORDS = {
+      maitama: { lat: 9.0882, lng: 7.4933 },
+      "wuse 2": { lat: 9.0754, lng: 7.4728 },
+      "wuse ii": { lat: 9.0754, lng: 7.4728 },
+      wuse: { lat: 9.0680, lng: 7.4650 },
+      "central area": { lat: 9.0579, lng: 7.4951 },
+      cbd: { lat: 9.0579, lng: 7.4951 },
+      "area 11": { lat: 9.0430, lng: 7.4990 },
+      "area 1": { lat: 9.0320, lng: 7.4680 },
+      "area 2": { lat: 9.0350, lng: 7.4750 },
+      "area 3": { lat: 9.0380, lng: 7.4820 },
+      "area 7": { lat: 9.0410, lng: 7.4890 },
+      "area 8": { lat: 9.0420, lng: 7.4930 },
+      "area 10": { lat: 9.0450, lng: 7.4960 },
+      garki: { lat: 9.0305, lng: 7.4855 },
+      utako: { lat: 9.0625, lng: 7.4425 },
+      jabi: { lat: 9.0734, lng: 7.4253 },
+      mabushi: { lat: 9.0810, lng: 7.4560 },
+      katampe: { lat: 9.1050, lng: 7.4620 },
+      "katampe extension": { lat: 9.1120, lng: 7.4780 },
+      guzape: { lat: 9.0286, lng: 7.5312 },
+      asokoro: { lat: 9.0497, lng: 7.5255 },
+      apo: { lat: 8.9950, lng: 7.4930 },
+      "apo mechanic": { lat: 8.9880, lng: 7.4900 },
+      gwarinpa: { lat: 9.1099, lng: 7.3917 },
+      "life camp": { lat: 9.0680, lng: 7.3980 },
+      kado: { lat: 9.0820, lng: 7.4350 },
+      durumi: { lat: 9.0180, lng: 7.4650 },
+      lokogoma: { lat: 8.9850, lng: 7.4420 },
+      galadimawa: { lat: 8.9920, lng: 7.4280 },
+      "games village": { lat: 9.0120, lng: 7.4520 },
+      kubwa: { lat: 9.1538, lng: 7.3340 },
+      lugbe: { lat: 8.9772, lng: 7.3688 },
+      karu: { lat: 9.0080, lng: 7.5750 },
+      nyanya: { lat: 9.0250, lng: 7.6050 },
+      mararaba: { lat: 9.0350, lng: 7.6320 },
+      airport: { lat: 8.9959, lng: 7.2632 },
+      gwagwalada: { lat: 8.9430, lng: 7.0860 },
+      bwari: { lat: 9.2780, lng: 7.3820 },
+      kuje: { lat: 8.8890, lng: 7.2340 },
+      mpape: { lat: 9.1350, lng: 7.4920 },
+      dawaki: { lat: 9.1380, lng: 7.3790 },
+      dutse: { lat: 9.1680, lng: 7.3650 }
+    };
+
+    function estimateClientAbujaCoords(address) {
+      const lower = (address || "").toLowerCase();
+      for (const [k, v] of Object.entries(ABUJA_CLIENT_COORDS)) {
+        if (lower.includes(k)) return v;
+      }
+      return { lat: 9.0579, lng: 7.4951 };
+    }
+
+    function calculateDistanceClient(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function clientTspSort(origin, stops) {
+      if (stops.length <= 1) return stops;
+      let originCoord = { lat: 9.0579, lng: 7.4951 };
+      if (origin && origin.latitude && origin.longitude) {
+        originCoord = { lat: Number(origin.latitude), lng: Number(origin.longitude) };
+      }
+
+      const unvisited = stops.map(s => ({
+        stop: s,
+        coord: estimateClientAbujaCoords(s.address)
+      }));
+
+      const result = [];
+      let current = originCoord;
+
+      while (unvisited.length > 0) {
+        let bestIdx = 0;
+        let minDist = Infinity;
+        for (let i = 0; i < unvisited.length; i++) {
+          const d = calculateDistanceClient(current.lat, current.lng, unvisited[i].coord.lat, unvisited[i].coord.lng);
+          if (d < minDist) {
+            minDist = d;
+            bestIdx = i;
+          }
+        }
+        const [chosen] = unvisited.splice(bestIdx, 1);
+        result.push(chosen.stop);
+        current = chosen.coord;
+      }
+      return result;
+    }
+
+    async function requestOptimizedStops(originCoords, activeStops) {
+      if (activeStops.length <= 1) {
+        return { optimizedStops: activeStops, provider: "single_stop" };
+      }
+
+      // Try free backend OSRM / Geodesic optimizer (Zero API Keys required)
+      try {
+        const response = await fetch("/api/optimize-route", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            origin: originCoords,
+            stops: activeStops
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && Array.isArray(data.optimizedStops) && data.optimizedStops.length > 0) {
+            return {
+              optimizedStops: data.optimizedStops,
+              provider: data.provider || "osrm_trip_api"
+            };
+          }
+        }
+      } catch (err) {
+        console.warn("Backend optimization endpoint unavailable, using client-side TSP solver:", err.message);
+      }
+
+      // In-browser zero-key TSP solver fallback
+      const clientSorted = clientTspSort(originCoords, activeStops);
+      return { optimizedStops: clientSorted, provider: "browser_shortest_path" };
+    }
+
+    function applyOptimizedOrderToState(optimizedActiveStops) {
+      const deliveredStops = globalOrders.filter(o => o.status === "Delivered");
+      globalOrders = [...optimizedActiveStops, ...deliveredStops];
+      renderOrders();
+    }
+
+    async function buildAndOpenRoute(originCoords = null) {
+      const activeStops = globalOrders.filter(o => o.status !== "Delivered");
+      if (activeStops.length === 0) {
+        showToast("No active deliveries to route!", false);
+        return;
+      }
+
+      showToast("Calculating zero-key shortest path...");
+
+      // Call zero-key route optimization service to calculate shortest path and reorder waypoints
+      const { optimizedStops, provider } = await requestOptimizedStops(originCoords, activeStops);
+      
+      // Update the local list so the UI displays the reordered stops
+      applyOptimizedOrderToState(optimizedStops);
+
+      // Format all addresses with Abuja suffix for accurate Google Maps geocoding
+      const formattedStops = optimizedStops.map(o => formatAbujaAddress(o.address));
+      const destination = encodeURIComponent(formattedStops[formattedStops.length - 1]);
+
+      let masterUrl = "https://www.google.com/maps/dir/?api=1";
+      
+      if (originCoords && originCoords.latitude && originCoords.longitude) {
+        masterUrl += `&origin=${originCoords.latitude},${originCoords.longitude}`;
+      }
+
+      masterUrl += `&destination=${destination}`;
+
+      if (formattedStops.length > 1) {
+        // Intermediary stops chained as waypoints in calculated shortest order
+        const waypoints = formattedStops
+          .slice(0, -1)
+          .map(addr => encodeURIComponent(addr))
+          .join('|');
+        masterUrl += `&waypoints=${waypoints}`;
+      }
+
+      masterUrl += `&travelmode=driving`;
+      
+      showToast("Shortest route sequenced: Launching Google Maps...");
+      window.open(masterUrl, '_blank');
+    }
+
+    async function optimizeStopOrderOnly() {
+      const activeStops = globalOrders.filter(o => o.status !== "Delivered");
+      if (activeStops.length <= 1) {
+        showToast("Need 2+ active stops to optimize sequence");
+        return;
+      }
+
+      const btn = document.getElementById("optimizeOrderBtn");
+      const originalHTML = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-amber-400 text-xs"></i> <span>Sorting...</span>`;
+        btn.disabled = true;
+      }
+
+      showToast("Computing shortest delivery sequence...");
+
+      let originCoords = null;
+      if (navigator.geolocation) {
+        try {
+          const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 4000,
+              maximumAge: 10000
+            });
+          });
+          originCoords = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          };
+        } catch (e) {
+          console.log("Using default origin for sequence sorting");
+        }
+      }
+
+      const { optimizedStops, provider } = await requestOptimizedStops(originCoords, activeStops);
+      applyOptimizedOrderToState(optimizedStops);
+
+      if (btn) {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+      }
+
+      showToast(`Stops sorted by shortest distance (${provider.replace(/_/g, ' ')})`);
+    }
+
+    function launchMasterRoute() {
+      const activeStops = globalOrders.filter(o => o.status !== "Delivered");
+      if (activeStops.length === 0) {
+        showToast("No active deliveries to route!", false);
+        return;
+      }
+
+      const btn = document.getElementById("masterRouteBtn");
+      const originalHTML = btn ? btn.innerHTML : "";
+
+      if (btn) {
+        btn.innerHTML = `<i class="fa-solid fa-location-crosshairs fa-spin text-sm"></i> <span>Acquiring Rider GPS...</span>`;
+        btn.disabled = true;
+      }
+
+      showToast("Acquiring rider GPS position...");
+
+      if (!navigator.geolocation) {
+        showToast("GPS unavailable — routing without live origin");
+        if (btn) {
+          btn.innerHTML = originalHTML;
+          btn.disabled = false;
+        }
+        buildAndOpenRoute(null);
+        return;
+      }
+
+      let hasHandled = false;
+      const fallbackTimeout = setTimeout(() => {
+        if (!hasHandled) {
+          hasHandled = true;
+          if (btn) {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+          }
+          showToast("GPS timeout — launching route fallback", false);
+          buildAndOpenRoute(null);
+        }
+      }, 6500);
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (hasHandled) return;
+          hasHandled = true;
+          clearTimeout(fallbackTimeout);
+          if (btn) {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+          }
+          showToast("GPS acquired! Launching Google Maps route...");
+          buildAndOpenRoute({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          });
+        },
+        (err) => {
+          if (hasHandled) return;
+          hasHandled = true;
+          clearTimeout(fallbackTimeout);
+          if (btn) {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+          }
+          console.warn("Geolocation warning:", err.message);
+          showToast("Location denied or unavailable — routing with default origin", false);
+          buildAndOpenRoute(null);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 6000,
+          maximumAge: 10000
+        }
+      );
     }
 
     async function setStatus(pageId, newStatus) {
+      if (updatingStatusIds.has(pageId)) return;
+      updatingStatusIds.add(pageId);
+      renderOrders();
+
       try {
         const payload = {
           properties: {
@@ -245,10 +755,18 @@
           body: JSON.stringify(payload)
         });
 
-        if (!res.ok) throw new Error("Could not update status");
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || "Could not update status");
+        }
+        
+        showToast(`Status updated to ${newStatus}`);
         await fetchOrders();
       } catch (e) {
-        alert("Status update failed: " + e.message);
+        showToast("Status update failed: " + e.message, false);
+      } finally {
+        updatingStatusIds.delete(pageId);
+        renderOrders();
       }
     }
 
@@ -258,73 +776,136 @@
 
       if (filtered.length === 0) {
         container.innerHTML = `
-          <div class="glass-card rounded-2xl py-12 text-center text-slate-500 text-xs">
-            <i class="fa-solid fa-box-open text-2xl mb-2 text-slate-600 block"></i>
-            No ${currentTab} orders found.
+          <div class="ios-card rounded-2xl py-12 px-4 text-center text-slate-400 text-xs">
+            <div class="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto mb-3 text-slate-500">
+              <i class="fa-solid fa-boxes-stacked text-xl"></i>
+            </div>
+            <p class="font-bold text-sm text-slate-200">No ${currentTab} orders found</p>
+            <p class="text-[11px] text-slate-500 mt-1">
+              ${currentTab === 'active' ? 'All Abuja packages have been completed or none logged yet.' : 'Delivered packages will appear here.'}
+            </p>
           </div>
         `;
         return;
       }
 
       container.innerHTML = filtered.map((order, idx) => {
+        const isFragile = (order.category || "").toLowerCase().includes("fragile");
+        const isUpdating = updatingStatusIds.has(order.id);
+
         const inTransitText = encodeURIComponent(
           `🚚 *SADEX Express Dispatch Alert*\n\n` +
-          `Hello, your package from *SADEX Express* is now *In-Transit* to: ${order.address}.\n` +
+          `Hello, your package from *${order.merchant}* is now *In-Transit* via SADEX Express to: ${order.address}.\n` +
           `📦 Category: ${order.category}\n` +
-          `Our dispatch rider is on the way.`
+          `Our dispatch rider is currently en route. Thank you for choosing SADEX Express!`
         );
         const inTransitLink = `https://wa.me/${order.phone}?text=${inTransitText}`;
 
         const proofSection = order.proofUrl ? `\n\n📷 Photo Proof: ${order.proofUrl}` : "";
         const deliveredText = encodeURIComponent(
           `🎉 *SADEX Express Delivery Completed*\n\n` +
-          `Hello, your package from *SADEX Express* has been safely *Delivered* to: ${order.address}!${proofSection}\n\n` +
+          `Hello, your package from *${order.merchant}* has been safely *Delivered* by SADEX Express to: ${order.address}!${proofSection}\n\n` +
           `⭐ How was your delivery experience today? Reply 1-5 to rate our service.`
         );
         const deliveredLink = `https://wa.me/${order.phone}?text=${deliveredText}`;
-        const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.address + ', Abuja')}`;
+        const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
 
         return `
-          <div class="glass-card rounded-2xl p-4 space-y-3 transition hover:border-slate-700">
-            <div class="flex items-start justify-between">
-              <div>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 tracking-wider">
-                  #${idx + 1} ${order.zone}
-                </span>
-                <h3 class="font-bold text-white text-sm mt-1.5">${order.merchant}</h3>
-                <a href="${mapsLink}" target="_blank" class="text-xs text-slate-400 hover:text-amber-400 flex items-center gap-1.5 mt-0.5 transition">
-                  <i class="fa-solid fa-location-dot text-[10px] text-amber-500"></i> ${order.address}
-                </a>
+          <div class="ios-card ${isFragile ? 'ios-card-fragile' : ''} rounded-2xl p-4 space-y-3.5 transition-all">
+            
+            <!-- Card Header: Stop Rank, Category Badge & Status Pill -->
+            <div class="flex items-start justify-between gap-2">
+              <div class="space-y-1">
+                <div class="flex items-center flex-wrap gap-1.5">
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30 tracking-wider">
+                    STOP #${idx + 1}
+                  </span>
+                  
+                  ${isFragile ? `
+                    <span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center gap-1 tracking-wider shadow-sm">
+                      <i class="fa-solid fa-wine-glass text-[9px]"></i> FRAGILE
+                    </span>
+                  ` : `
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-white/10 flex items-center gap-1">
+                      <i class="fa-solid fa-box text-[9px] text-slate-400"></i> STANDARD
+                    </span>
+                  `}
+                </div>
+
+                <h3 class="font-extrabold text-white text-sm tracking-tight pt-0.5">${order.merchant}</h3>
               </div>
-              <div class="flex flex-col items-end gap-1.5">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${order.status === 'Delivered' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : (order.status === 'In-Transit' ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' : 'bg-amber-500/10 text-amber-300 border border-amber-500/20')}">
+
+              <div class="flex flex-col items-end gap-1.5 shrink-0">
+                <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full ${
+                  order.status === 'Delivered' 
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                    : (order.status === 'In-Transit' 
+                      ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' 
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30')
+                }">
                   ${order.status}
                 </span>
-                <a href="tel:${order.phone}" class="text-[11px] text-slate-400 hover:text-slate-200 flex items-center gap-1">
-                  <i class="fa-solid fa-phone text-[9px]"></i> +${order.phone}
-                </a>
+
+                <div class="flex items-center gap-1">
+                  <a href="tel:${order.phone}" class="text-[11px] font-medium text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1 transition">
+                    <i class="fa-solid fa-phone text-[9px] text-amber-400"></i> +${order.phone}
+                  </a>
+                  <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="w-6 h-6 rounded-md bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-slate-400 hover:text-white text-[10px] transition border border-white/10">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <!-- In-App Status Quick Toggle -->
-            <div class="flex items-center gap-1.5 pt-1">
-              <button onclick="setStatus('${order.id}', 'In-Transit')" class="flex-1 text-[10px] font-semibold py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 transition">
-                Set Transit
-              </button>
-              <button onclick="setStatus('${order.id}', 'Delivered')" class="flex-1 text-[10px] font-semibold py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition">
-                Set Delivered
+            <!-- Address Row with Copy & Direct Google Maps Navigation -->
+            <div class="bg-black/30 p-2.5 rounded-xl border border-white/[0.05] flex items-center justify-between gap-2">
+              <div class="flex items-start gap-2 min-w-0">
+                <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                <p class="text-xs text-slate-200 font-medium leading-tight truncate">
+                  ${order.address}
+                </p>
+              </div>
+              <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" title="Copy Address" class="shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-1 rounded bg-white/[0.05] border border-white/10 transition">
+                <i class="fa-regular fa-copy"></i> Copy
               </button>
             </div>
 
-            <!-- WhatsApp Actions -->
-            <div class="pt-2 border-t border-slate-800/80 grid grid-cols-2 gap-2">
-              <a href="${inTransitLink}" target="_blank" class="text-center text-xs bg-slate-800/90 hover:bg-slate-700 active:scale-95 text-slate-200 py-2 rounded-xl font-medium transition flex items-center justify-center gap-1.5">
-                <i class="fa-brands fa-whatsapp text-sky-400"></i> Dispatch Alert
+            ${order.proofUrl ? `
+              <div class="text-[11px] text-slate-400 flex items-center gap-1.5 truncate">
+                <i class="fa-solid fa-camera text-sky-400 text-xs"></i>
+                <span class="text-slate-500">Proof:</span>
+                <a href="${order.proofUrl}" target="_blank" class="text-sky-400 hover:underline truncate">${order.proofUrl}</a>
+              </div>
+            ` : ''}
+
+            <!-- Navigation & In-App Status Controller -->
+            <div class="grid grid-cols-3 gap-1.5 pt-0.5">
+              <a href="${singleMapsLink}" target="_blank" class="text-center text-[11px] font-bold py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
+                <i class="fa-solid fa-location-arrow text-[10px]"></i> Navigate
               </a>
-              <a href="${deliveredLink}" target="_blank" class="text-center text-xs bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white py-2 rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/40">
-                <i class="fa-brands fa-whatsapp"></i> Send POD Proof
+              
+              <button onclick="setStatus('${order.id}', 'In-Transit')" ${isUpdating ? 'disabled' : ''} class="text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1 transition ${order.status === 'In-Transit' ? 'ring-1 ring-sky-400/40 bg-sky-500/15' : ''}">
+                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-truck-fast text-[10px]"></i>'} Transit
+              </button>
+              
+              <button onclick="setStatus('${order.id}', 'Delivered')" ${isUpdating ? 'disabled' : ''} class="text-[11px] font-bold py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-emerald-300 border border-emerald-500/20 flex items-center justify-center gap-1 transition ${order.status === 'Delivered' ? 'ring-1 ring-emerald-400/40 bg-emerald-500/15' : ''}">
+                ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>' : '<i class="fa-solid fa-check-double text-[10px]"></i>'} Delivered
+              </button>
+            </div>
+
+            <!-- WhatsApp Customer Dispatch Triggers -->
+            <div class="pt-2 border-t border-white/[0.06] grid grid-cols-2 gap-2">
+              <a href="${inTransitLink}" target="_blank" class="text-center text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 py-2.5 rounded-xl font-semibold border border-white/10 transition flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
+                <span>Dispatch Alert</span>
+              </a>
+              
+              <a href="${deliveredLink}" target="_blank" class="text-center text-xs bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white py-2.5 rounded-xl font-extrabold transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/50">
+                <i class="fa-brands fa-whatsapp text-sm"></i>
+                <span>Send POD Proof</span>
               </a>
             </div>
+
           </div>
         `;
       }).join("");
@@ -333,12 +914,16 @@
     async function handleCreateOrder(e) {
       e.preventDefault();
       const btn = document.getElementById("submitBtn");
-      btn.innerText = "Saving to Fleet...";
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Saving to Fleet...</span>`;
       btn.disabled = true;
 
       const phoneVal = document.getElementById("customerPhone").value.trim();
       const merchantVal = document.getElementById("merchantName").value.trim();
-      const addressVal = document.getElementById("deliveryAddress").value.trim();
+      const rawAddress = document.getElementById("deliveryAddress").value.trim();
+      const landmarkVal = (document.getElementById("landmark")?.value || "").trim();
+      const fullAddress = landmarkVal ? `${rawAddress} (Landmark: ${landmarkVal})` : rawAddress;
+
       const catVal = document.getElementById("itemCategory").value;
       const proofVal = document.getElementById("proofUrl").value.trim();
 
@@ -346,7 +931,7 @@
         parent: { database_id: DATABASE_ID },
         properties: {
           "Merchant Name": { title: [{ text: { content: merchantVal } }] },
-          "Delivery Address": { rich_text: [{ text: { content: addressVal } }] },
+          "Delivery Address": { rich_text: [{ text: { content: fullAddress } }] },
           "Customer Phone": { phone_number: phoneVal },
           "Item Category": { select: { name: catVal } },
           "Status": { status: { name: "Pending" } }
@@ -369,15 +954,17 @@
         if (!res.ok) throw new Error(responseData.message || `Error ${res.status}`);
 
         document.getElementById("orderForm").reset();
+        showToast("Package saved to fleet!");
         await fetchOrders();
       } catch (err) {
-        alert("Notion Error: " + err.message);
+        showToast("Notion Error: " + err.message, false);
       } finally {
-        btn.innerText = "Save Package to Fleet";
+        btn.innerHTML = originalText;
         btn.disabled = false;
       }
     }
 
+    // Initial load
     fetchOrders();
   </script>
 </body>

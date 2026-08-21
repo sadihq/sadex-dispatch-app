@@ -16,10 +16,11 @@ export default async function handler(req, res) {
   }
 
   try {
+    const notionKey = process.env.NOTION_API_KEY || "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";
     const notionRes = await fetch(targetUrl, {
       method: req.method,
       headers: {
-        "Authorization": "Bearer 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",
+        "Authorization": `Bearer ${notionKey}`,
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28"
       },
