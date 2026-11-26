@@ -5,6 +5,7 @@ import handler from "./api/notion.js";
 import optimizeHandler from "./api/optimize-route.js";
 import trackHandler from "./api/track.js";
 import distanceHandler from "./api/distance.js";
+import loginHandler from "./api/login.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,14 +64,16 @@ app.all("/api/track", async (req, res) => {
   }
 });
 
-// CEO Passcode Verification Route
-app.post("/api/verify-pin", (req, res) => {
-  const { pin } = req.body || {};
-  const validPin = process.env.CEO_PIN || "0622";
-  if (String(pin).trim() === String(validPin).trim()) {
-    return res.status(200).json({ success: true, message: "CEO authenticated" });
+// PIN login for riders and the CEO console (same handler Vercel runs)
+app.post("/api/login", async (req, res) => {
+  try {
+    await loginHandler(req, res);
+  } catch (error) {
+    console.error("Login error:", error);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: "Login failed" });
+    }
   }
-  return res.status(401).json({ success: false, message: "Invalid CEO PIN" });
 });
 
 // Specific route mappings

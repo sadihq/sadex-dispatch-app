@@ -350,7 +350,7 @@
   <div class="relative z-10">
 
   <!-- ========================================== -->
-  <!-- CEO SECURITY AUTHENTICATION MODAL (PIN: 0622) -->
+  <!-- CEO SECURITY AUTHENTICATION MODAL (PIN checked on the server) -->
   <!-- ========================================== -->
   <div id="ceoSecurityModal" class="fixed inset-0 z-50 bg-[#061810]/95 backdrop-blur-2xl flex flex-col items-center justify-center p-4 hidden">
     <div class="max-w-xs w-full ios-card rounded-3xl p-6 text-center space-y-5 border border-amber-500/30 shadow-2xl">
@@ -360,7 +360,7 @@
         <img src="/IMG_7852.jpeg" alt="SADEX" class="w-16 h-16 rounded-3xl border border-amber-500/40 object-cover mx-auto shadow-2xl shadow-amber-950/40" />
         <div>
           <h2 class="text-lg font-black text-white tracking-tight">SADEX CEO Console</h2>
-          <p class="text-xs text-slate-300">Enter Master Passcode to unlock executive controls</p>
+          <p class="text-xs text-slate-300">Enter your 6-digit CEO PIN</p>
         </div>
       </div>
 
@@ -370,6 +370,8 @@
         <div class="w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-200" id="dot2"></div>
         <div class="w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-200" id="dot3"></div>
         <div class="w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-200" id="dot4"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-200" id="dot5"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-white/25 transition-all duration-200" id="dot6"></div>
       </div>
 
       <div id="gateError" class="text-xs font-bold text-rose-400 hidden h-4">
@@ -615,7 +617,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- CEO DASHBOARD (UNLOCKED WITH PASSCODE 0622) -->
+  <!-- CEO DASHBOARD (UNLOCKED WITH CEO PIN) -->
   <!-- ========================================== -->
   <div id="ceoDashboardSection" class="hidden">
     <!-- CEO Header -->
@@ -1132,10 +1134,11 @@
     </main>
   </div>
 
+  <script src="/auth-client.js"></script>
   <script>
     const DATABASE_ID = "3c1c21a6f4768049a840d9ed8972b630";
-    const CEO_MASTER_PASSCODE = "0622";
-    const RIDER_PHONE = "2347045750528";
+    // Rider WhatsApp number comes from the RIDER_PHONE setting in Vercel, sent at login.
+    let RIDER_PHONE = (window.SadexAuth && SadexAuth.load() && SadexAuth.load().riderPhone) || "";
     
     let currentTab = "active";
     let searchQuery = "";
@@ -1705,7 +1708,7 @@
             ${order.landmark ? `<p class="text-[10px] text-amber-300"><strong>Landmark:</strong> ${order.landmark}</p>` : ''}
             <div class="flex items-center justify-between text-[10px] pt-1 text-slate-300 border-t border-white/10 mt-1">
               <span>COD: ${order.codAmount > 0 ? `₦${order.codAmount.toLocaleString()}` : 'Prepaid'}</span>
-              <a href="tel:${order.phone}" class="text-amber-400 font-bold">+${order.phone}</a>
+              <a href="tel:+${order.phone}" class="text-amber-400 font-bold">+${order.phone}</a>
             </div>
           </div>
         `;
@@ -1754,11 +1757,15 @@
 
     // View switcher & Session Management
     function initViewAndAuth() {
-      isCeoAuthenticated = localStorage.getItem("sadex_ceo_auth") === "true";
-      renderViewStructure();
-      fetchOrders(true);
-      startBackgroundPolling();
-      initRiderGpsTracker();
+      // Nothing loads until this device has a rider (or CEO) session.
+      SadexAuth.requireRider((session) => {
+        RIDER_PHONE = (session && session.riderPhone) || RIDER_PHONE;
+        isCeoAuthenticated = !!SadexAuth.loadRole("ceo");
+        renderViewStructure();
+        fetchOrders(true);
+        startBackgroundPolling();
+        initRiderGpsTracker();
+      });
     }
 
     function renderViewStructure() {
@@ -1792,7 +1799,7 @@
     }
 
     function logoutCeo() {
-      localStorage.removeItem("sadex_ceo_auth");
+      SadexAuth.dropToRider();
       isCeoAuthenticated = false;
       selectedOrderIds.clear();
       const floatingBar = document.getElementById("floatingBulkBar");
@@ -1803,10 +1810,10 @@
     }
 
     function pressPin(digit) {
-      if (enteredPin.length < 4) {
+      if (enteredPin.length < SadexAuth.PIN_LENGTH) {
         enteredPin += digit;
         updatePinDots();
-        if (enteredPin.length === 4) {
+        if (enteredPin.length === SadexAuth.PIN_LENGTH) {
           verifyPinAttempt();
         }
       }
@@ -1825,7 +1832,7 @@
     }
 
     function updatePinDots() {
-      for (let i = 1; i <= 4; i++) {
+      for (let i = 1; i <= SadexAuth.PIN_LENGTH; i++) {
         const dot = document.getElementById(`dot${i}`);
         if (!dot) continue;
         if (i <= enteredPin.length) {
@@ -1838,29 +1845,11 @@
 
     async function verifyPinAttempt() {
       const candidatePin = enteredPin;
-      let isValid = false;
-
-      try {
-        const res = await fetch("/api/verify-pin", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pin: candidatePin })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          isValid = data.success === true;
-        }
-      } catch (err) {
-        // Fallback local check
-        isValid = candidatePin === CEO_MASTER_PASSCODE;
-      }
-
-      if (candidatePin === CEO_MASTER_PASSCODE) {
-        isValid = true;
-      }
+      const result = await SadexAuth.login("ceo", candidatePin);
+      const isValid = result.ok;
+      if (isValid && result.session.riderPhone) RIDER_PHONE = result.session.riderPhone;
 
       if (isValid) {
-        localStorage.setItem("sadex_ceo_auth", "true");
         isCeoAuthenticated = true;
         closeCeoModal();
         renderViewStructure();
@@ -1872,7 +1861,7 @@
         const errorEl = document.getElementById("gateError");
         if (pinContainer) pinContainer.classList.add("pin-shake");
         if (errorEl) {
-          errorEl.textContent = "Incorrect Passcode";
+          errorEl.textContent = result.message || "Incorrect PIN";
           errorEl.classList.remove("hidden");
         }
 
@@ -1936,7 +1925,7 @@
       let d = (raw || "").toString().replace(/\D/g, "");
       if (d.startsWith("0") && d.length === 11) return "234" + d.slice(1);
       if (d.length === 10) return "234" + d;
-      return d || "2347045750528";
+      return d;
     }
 
     function formatAbujaAddress(addr) {
@@ -2181,6 +2170,13 @@
           };
         });
 
+        // Put active stops in a sensible driving order (nearest next) instead of Notion's order.
+        {
+          const active = globalOrders.filter(o => o.status !== "Delivered");
+          const done = globalOrders.filter(o => o.status === "Delivered");
+          globalOrders = [...clientTspSort(currentDeviceLocation, active), ...done];
+        }
+
         // 1. Local Manifest Caching: Cache full manifest in localStorage
         try {
           localStorage.setItem("sadex_cached_manifest", JSON.stringify(globalOrders));
@@ -2306,6 +2302,9 @@
       "apo resettlement": { lat: 8.9830, lng: 7.5120 },
       gwarinpa: { lat: 9.1099, lng: 7.3917 },
       "life camp": { lat: 9.0680, lng: 7.3980 },
+      lifecamp: { lat: 9.0680, lng: 7.3980 },
+      citec: { lat: 9.0870, lng: 7.4120 },
+      mbora: { lat: 9.0870, lng: 7.4120 },
       kado: { lat: 9.0820, lng: 7.4350 },
       durumi: { lat: 9.0180, lng: 7.4650 },
       lokogoma: { lat: 8.9850, lng: 7.4420 },
@@ -2360,7 +2359,8 @@
       if (lower.includes("apo")) return "Apo";
       if (lower.includes("lugbe")) return "Lugbe";
       if (lower.includes("kubwa")) return "Kubwa";
-      if (lower.includes("life camp")) return "Life Camp";
+      if (lower.includes("life camp") || lower.includes("lifecamp")) return "Life Camp";
+      if (lower.includes("citec") || lower.includes("mbora")) return "Citec";
       if (lower.includes("lokogoma")) return "Lokogoma";
       if (lower.includes("katampe")) return "Katampe";
       if (lower.includes("mabushi")) return "Mabushi";
@@ -2953,6 +2953,7 @@
       manifestText += `🚀 *Drive safely & update delivery status upon drop-off!*`;
 
       const encoded = encodeURIComponent(manifestText);
+      if (!RIDER_PHONE) { showToast("Add RIDER_PHONE in Vercel settings first", false); return; }
       const waUrl = `https://wa.me/${RIDER_PHONE}?text=${encoded}`;
       
       showToast("Opening WhatsApp Manifest Dispatch...");
@@ -3051,6 +3052,7 @@
     function sendSummaryWhatsApp() {
       if (!currentReportText) return;
       const encoded = encodeURIComponent(currentReportText);
+      if (!RIDER_PHONE) { showToast("Add RIDER_PHONE in Vercel settings first", false); return; }
       const url = `https://wa.me/${RIDER_PHONE}?text=${encoded}`;
       showToast("Routing report to WhatsApp...");
       window.open(url, "_blank");
@@ -3387,24 +3389,37 @@
     }
 
     // Estimated Time of Arrival (ETA) Helper: Calculates current time + 30-minute buffer
-    function getEstimatedTimeOfArrival(stopIndex = 0, isDelivered = false) {
-      if (isDelivered) return null;
-      // Baseline 30-minute buffer from current time (+8 min routing cascade per subsequent stop)
-      const baseBufferMinutes = 30;
-      const totalMinutes = baseBufferMinutes + (Math.max(0, stopIndex) * 8);
-      const etaDate = new Date(Date.now() + totalMinutes * 60 * 1000);
-      
-      const timeStr = etaDate.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
+    // ETA = road distance (straight line x 1.4) at about 22 km/h in Abuja traffic, plus 6 min per handover.
+    // A stop that would land outside working hours (8am-7pm) shows "Next day" instead of a time.
+    const ETA_ROAD_FACTOR = 1.4, ETA_SPEED_KMH = 22, ETA_HANDOVER_MIN = 6;
+    function estimateRouteMinutes(stops, stopIndex, origin) {
+      let pos = origin && origin.latitude
+        ? { lat: Number(origin.latitude), lng: Number(origin.longitude) }
+        : { lat: 9.0016, lng: 7.4278 };
+      let minutes = 0;
+      for (let i = 0; i <= stopIndex && i < stops.length; i++) {
+        const c = estimateClientAbujaCoords(stops[i].address);
+        const km = calculateDistanceClient(pos.lat, pos.lng, c.lat, c.lng) * ETA_ROAD_FACTOR;
+        minutes += (km / ETA_SPEED_KMH) * 60 + ETA_HANDOVER_MIN;
+        pos = c;
+      }
+      return Math.round(minutes);
+    }
 
-      return {
-        time: timeStr,
-        bufferMinutes: totalMinutes,
-        badgeText: `~${timeStr}`
-      };
+    function formatEta(totalMinutes) {
+      const etaDate = new Date(Date.now() + totalMinutes * 60 * 1000);
+      const timeStr = etaDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const hour = etaDate.getHours();
+      const nextDay = hour >= 19 || hour < 8 || etaDate.toDateString() !== new Date().toDateString();
+      return { time: timeStr, bufferMinutes: totalMinutes, badgeText: nextDay ? "Next day" : `~${timeStr}` };
+    }
+
+    function getEstimatedTimeOfArrival(stopIndex = 0, isDelivered = false, order = null) {
+      if (isDelivered) return null;
+      const active = globalOrders.filter(o => o.status !== "Delivered");
+      const idx = order ? active.findIndex(o => o.id === order.id) : stopIndex;
+      if (idx < 0) return null;
+      return formatEta(estimateRouteMinutes(active, idx, currentDeviceLocation));
     }
 
     // Render CEO Console Orders
@@ -3475,7 +3490,7 @@
           </span>
         `;
 
-        const eta = getEstimatedTimeOfArrival(idx, order.status === 'Delivered');
+        const eta = getEstimatedTimeOfArrival(idx, order.status === 'Delivered', order);
         const etaBadge = eta ? `
           <span class="eta-badge-glow text-[9.5px] font-black px-2 py-0.5 rounded-md text-emerald-300 flex items-center gap-1 shadow-sm" title="Estimated Arrival: Current time + 30-min buffer">
             <i class="fa-regular fa-clock text-[8.5px] text-emerald-400"></i>
@@ -3556,7 +3571,7 @@
                 </div>
 
                 <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
-                  <a href="tel:${order.phone}" class="tactile-btn text-[10px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 transition">
+                  <a href="tel:+${order.phone}" class="tactile-btn text-[10px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 transition">
                     <i class="fa-solid fa-phone text-[9px] text-amber-400"></i>
                     <span>Call</span>
                   </a>
@@ -3700,7 +3715,7 @@
         const displayName = order.merchant || "Standard Delivery";
         const districtName = extractAbujaDistrictName(order.address, "Abuja");
 
-        const eta = getEstimatedTimeOfArrival(idx, false);
+        const eta = getEstimatedTimeOfArrival(idx, false, order);
         const etaBadge = eta ? `
           <span class="eta-badge-glow text-[9.5px] font-black px-2 py-0.5 rounded-md text-emerald-300 flex items-center gap-1 shadow-sm" title="Estimated Arrival: Current time + 30-min buffer">
             <i class="fa-regular fa-clock text-[8.5px] text-emerald-400"></i>
@@ -3755,7 +3770,7 @@
 
                 <!-- Customer Phone Quick Call & Copy -->
                 <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
-                  <a href="tel:${order.phone}" class="tactile-btn text-[10px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 transition">
+                  <a href="tel:+${order.phone}" class="tactile-btn text-[10px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 transition">
                     <i class="fa-solid fa-phone text-[9px] text-amber-400"></i> Call
                   </a>
                 </div>
