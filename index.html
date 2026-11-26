@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -7,10 +7,12 @@
   <link rel="apple-touch-icon" href="/IMG_7852.jpeg" />
   <link rel="icon" type="image/jpeg" href="/IMG_7852.jpeg" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="SADEX" />
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#061810" />
+  <meta name="theme-color" content="#1E5631" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   
@@ -44,6 +46,7 @@
       }
     }
   </script>
+  <script src="/tailwind-theme.js"></script>
   <style>
     * {
       -webkit-tap-highlight-color: transparent;
@@ -336,6 +339,7 @@
       100% { transform: scale(2.3); opacity: 0; }
     }
   </style>
+  <link rel="stylesheet" href="/sadex-theme.css" />
 </head>
 <body class="min-h-screen pb-28 selection:bg-amber-500 selection:text-black antialiased relative">
 
@@ -521,14 +525,9 @@
           <img src="/IMG_7852.jpeg" alt="SADEX" class="w-9 h-9 rounded-2xl border border-amber-500/40 object-cover shadow-inner" />
           <div>
             <div class="flex items-center gap-1.5">
-              <h1 class="font-extrabold text-sm tracking-tight text-white">
-                SADEX <span class="text-amber-400 font-black">RIDER</span>
-              </h1>
-              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                ABUJA FLEET
-              </span>
+              <h1 class="font-bold text-base tracking-tight text-white">SADEX Express</h1>
             </div>
-            <p class="text-[10px] text-slate-400 font-medium">Active Multi-Stop Delivery Queue</p>
+            <p class="text-xs text-slate-400 font-medium">Rider · today's run</p>
           </div>
         </div>
         
@@ -560,52 +559,19 @@
     </div>
 
     <main class="max-w-md mx-auto p-4 space-y-4">
-      <!-- Master Multi-Stop Route Action -->
-      <div class="ios-card rounded-2xl p-4 border border-amber-500/30 bg-gradient-to-br from-amber-500/15 via-slate-900 to-slate-900 shadow-xl space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <div class="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
-              <i class="fa-solid fa-location-crosshairs"></i>
-            </div>
-            <div>
-              <h2 class="text-xs font-bold text-white tracking-tight">Abuja Master Route</h2>
-              <p class="text-[10px] text-slate-400">Routes all active stops from your GPS</p>
-            </div>
-          </div>
-          <span id="riderActiveCountBadge" class="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950">
-            0 Stops
-          </span>
-        </div>
+      <!-- Run summary: progress, cash to collect, start route -->
+      <div id="riderRunSummary"></div>
 
-        <button id="riderMasterRouteBtn" onclick="launchMasterRoute()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] text-slate-950 font-black py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 transition">
-          <i class="fa-solid fa-route text-sm"></i>
-          <span>Launch Full Multi-Stop Google Route</span>
-        </button>
-      </div>
-
-      <!-- Active Stops Queue Header with Accordion Controls -->
       <div class="flex items-center justify-between px-1">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-          <h2 class="text-xs font-black uppercase tracking-wider text-slate-300">Deliveries To Complete</h2>
-          <span class="text-[10px] text-slate-500 hidden sm:inline">(Tap card to expand)</span>
-        </div>
-        <div class="flex items-center gap-2.5">
-          <span id="riderQueueCount" class="text-[10px] text-slate-400 font-bold">0 Remaining</span>
-          <span class="text-slate-600">•</span>
-          <button type="button" onclick="expandAllOrders()" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition cursor-pointer">
-            <i class="fa-solid fa-up-right-and-down-left-from-center text-[9px]"></i>
-            <span>Expand</span>
-          </button>
-          <button type="button" onclick="collapseAllOrders()" class="text-[10px] text-slate-400 hover:text-slate-200 font-bold flex items-center gap-1 transition cursor-pointer">
-            <i class="fa-solid fa-down-left-and-up-right-to-center text-[9px]"></i>
-            <span>Collapse</span>
-          </button>
+        <h2 class="text-sm font-semibold text-slate-400">Next stops</h2>
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="expandAllOrders()" class="text-sm text-emerald-400 font-semibold min-h-[44px]">Open all</button>
+          <button type="button" onclick="collapseAllOrders()" class="text-sm text-slate-400 font-semibold min-h-[44px]">Close all</button>
         </div>
       </div>
 
       <!-- Active Stops Card Container -->
-      <div id="riderOrdersContainer" class="space-y-3.5">
+      <div id="riderOrdersContainer">
         <div class="ios-card rounded-2xl py-14 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-3">
           <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
             <i class="fa-solid fa-circle-notch fa-spin text-amber-400 text-lg"></i>
@@ -628,27 +594,22 @@
             <img src="/IMG_7852.jpeg" alt="SADEX" class="w-9 h-9 rounded-2xl border border-amber-500/40 object-cover shadow-inner" />
             <div>
               <div class="flex items-center gap-1.5">
-                <h1 class="font-extrabold text-sm tracking-tight text-white">
-                  SADEX <span class="text-amber-400 font-black">CEO CONSOLE</span>
-                </h1>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                  ABUJA
-                </span>
+                <h1 class="font-bold text-base tracking-tight text-white whitespace-nowrap">SADEX Express</h1>
               </div>
-              <p class="text-[10px] text-slate-400 font-medium">Executive Logistics & Fleet Operations</p>
+              <p class="text-xs text-slate-400 font-medium">CEO console · Abuja</p>
             </div>
           </div>
           
           <div class="flex items-center gap-2">
-            <button onclick="fetchOrders(false)" title="Sync Notion" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 min-h-[44px] min-w-[44px] px-3.5 py-2.5 rounded-full font-semibold border border-white/10 transition flex items-center justify-center gap-1.5 cursor-pointer select-none">
+            <button onclick="fetchOrders(false)" title="Sync Notion" aria-label="Sync orders" class="text-xs bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-slate-200 min-h-[44px] min-w-[44px] px-3.5 py-2.5 rounded-full font-semibold border border-white/10 transition flex items-center justify-center gap-1.5 cursor-pointer select-none">
               <i class="fa-solid fa-arrows-rotate text-xs" id="ceoRefreshIcon"></i>
-              <span class="text-xs">Sync</span>
+              <span class="text-xs hidden sm:inline">Sync</span>
             </button>
 
             <!-- Functional CEO Logout Button with 44x44px touch target -->
-            <button onclick="logoutCeo()" title="Lock & Logout CEO Console" class="text-xs bg-rose-500/10 hover:bg-rose-500/20 active:scale-95 text-rose-300 border border-rose-500/30 min-h-[44px] min-w-[44px] px-3 py-2.5 rounded-full font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none">
+            <button onclick="logoutCeo()" title="Lock & Logout CEO Console" aria-label="Log out of CEO console" class="text-xs bg-rose-500/10 hover:bg-rose-500/20 active:scale-95 text-rose-300 border border-rose-500/30 min-h-[44px] min-w-[44px] px-3 py-2.5 rounded-full font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none">
               <i class="fa-solid fa-lock text-xs"></i>
-              <span class="text-xs">Logout</span>
+              <span class="text-xs hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>
@@ -657,17 +618,17 @@
         <div class="grid grid-cols-3 gap-2 pt-1">
           <button onclick="sendManifestToRider()" class="w-full bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 active:scale-[0.97] text-white font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-950/40 transition">
             <i class="fa-brands fa-whatsapp text-sm"></i>
-            <span class="truncate">📱 Rider</span>
+            <span class="truncate">Send to rider</span>
           </button>
 
           <button onclick="openSummaryModal()" class="w-full bg-white/[0.07] hover:bg-white/[0.12] active:scale-[0.97] text-amber-300 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-amber-500/30 transition">
             <i class="fa-solid fa-chart-column text-amber-400 text-xs"></i>
-            <span class="truncate">📊 Summary</span>
+            <span class="truncate">Summary</span>
           </button>
 
           <button onclick="exportOrdersToCSV()" title="Download current manifest as CSV for external records" class="w-full bg-gradient-to-r from-emerald-600/30 to-emerald-700/30 hover:from-emerald-600/40 hover:to-emerald-700/40 active:scale-[0.97] text-emerald-300 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-emerald-500/40 shadow-md shadow-emerald-950/30 transition cursor-pointer">
             <i class="fa-solid fa-file-csv text-emerald-400 text-sm"></i>
-            <span class="truncate">📥 CSV</span>
+            <span class="truncate">Export</span>
           </button>
         </div>
       </div>
@@ -676,7 +637,7 @@
     <main class="max-w-md mx-auto p-4 space-y-4">
       
       <!-- Operational Metrics Banner (with Liquid Glass & COD Financials) -->
-      <div class="grid grid-cols-4 gap-2">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <div class="ios-card rounded-2xl p-2.5 text-center border-t-2 border-t-amber-400 transition shadow-lg">
           <p class="text-[9px] text-slate-300 font-bold uppercase tracking-wider">Pending</p>
           <div class="flex items-baseline justify-center gap-0.5 mt-0.5">
@@ -1134,6 +1095,7 @@
     </main>
   </div>
 
+  <script src="/sadex-ui.js"></script>
   <script src="/auth-client.js"></script>
   <script>
     const DATABASE_ID = "3c1c21a6f4768049a840d9ed8972b630";
@@ -1514,12 +1476,12 @@
       if (!fleetMapInstance) {
         fleetMapInstance = L.map("fleetMap", {
           zoomControl: true,
-          attributionControl: false
+          attributionControl: true
         }).setView([9.05785, 7.49508], 13); // Default Abuja center
 
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 19,
-          subdomains: "abcd"
+          attribution: "&copy; OpenStreetMap contributors"
         }).addTo(fleetMapInstance);
       } else {
         setTimeout(() => {
@@ -2855,6 +2817,7 @@
         updateDeliveryStopMarkers();
         updateNetworkBadge();
         showToast(`📦 Marked ${newStatus} (Saved Offline) — Will auto-sync when online`);
+        if (newStatus === "Delivered") SadexUI.countDelivered();
       };
 
       // If offline, queue immediately without waiting for failed network roundtrip
@@ -2883,6 +2846,7 @@
         }
         
         showToast(`Status updated to ${newStatus}`);
+        if (newStatus === "Delivered") SadexUI.countDelivered();
         selectedOrderIds.delete(pageId);
 
         // Update local object immediately
@@ -3677,171 +3641,42 @@
       if (!container) return;
 
       const activeStops = globalOrders.filter(o => o.status !== "Delivered");
+      const summary = document.getElementById("riderRunSummary");
+      if (summary) {
+        const delivered = SadexUI.deliveredToday();
+        summary.innerHTML = SadexUI.runSummary({
+          delivered,
+          total: delivered + activeStops.length,
+          cashToCollect: activeStops.reduce((sum, o) => sum + (Number(o.codAmount) || 0), 0),
+          stops: activeStops.length,
+          routeBtnId: "riderMasterRouteBtn"
+        });
+      }
 
       if (activeStops.length === 0) {
-        container.innerHTML = `
-          <div class="ios-card rounded-2xl py-14 px-4 text-center text-slate-400 text-xs">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-3 text-emerald-400">
-              <i class="fa-solid fa-circle-check text-2xl"></i>
-            </div>
-            <p class="font-bold text-sm text-slate-200">All Abuja Deliveries Completed!</p>
-            <p class="text-[11px] text-slate-400 mt-1">
-              No pending stops in queue. Auto-sync checks every 60s.
-            </p>
-          </div>
-        `;
+        container.innerHTML = SadexUI.emptyState();
         return;
       }
 
-      container.innerHTML = activeStops.map((order, idx) => {
-        const isFragile = (order.category || "").toLowerCase().includes("fragile");
-        const isUpdating = updatingStatusIds.has(order.id);
-        const isExpanded = expandedOrderIds.has(order.id);
-        const hasCod = order.codAmount && order.codAmount > 0;
-
-        const codBadge = hasCod ? `
-          <span class="badge-cod-liquid text-[9.5px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm animate-pulse">
-            <i class="fa-solid fa-money-bill-wave text-[8.5px]"></i> ₦${Number(order.codAmount).toLocaleString()} COD
-          </span>
-        ` : `
-          <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-md bg-emerald-950/40 text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
-            <i class="fa-regular fa-credit-card text-[8.5px] text-emerald-400"></i> Prepaid
-          </span>
-        `;
-
+      const cards = activeStops.map((order, idx) => {
         const { inTransitLink } = buildWhatsAppTemplates(order);
-        const alertLink = inTransitLink;
-        const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
-        const displayName = order.merchant || "Standard Delivery";
-        const districtName = extractAbujaDistrictName(order.address, "Abuja");
-
+        const id = SadexUI.jsArg(order.id);
         const eta = getEstimatedTimeOfArrival(idx, false, order);
-        const etaBadge = eta ? `
-          <span class="eta-badge-glow text-[9.5px] font-black px-2 py-0.5 rounded-md text-emerald-300 flex items-center gap-1 shadow-sm" title="Estimated Arrival: Current time + 30-min buffer">
-            <i class="fa-regular fa-clock text-[8.5px] text-emerald-400"></i>
-            <span>${eta.badgeText}</span>
-          </span>
-        ` : '';
-
-        const feeBadge = (order.deliveryFee && order.deliveryFee > 0) ? `
-          <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1 shadow-sm">
-            <i class="fa-solid fa-receipt text-[8.5px] text-amber-400"></i> ₦${Number(order.deliveryFee).toLocaleString()}
-          </span>
-        ` : '';
-
-        return `
-          <div class="ios-card sheen-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} rounded-2xl transition shadow-xl overflow-hidden border border-white/[0.08]">
-            
-            <!-- Minimized Header Bar (Click anywhere to Dropdown / Maximize) -->
-            <div onclick="toggleOrderExpand('${order.id}')" class="ios-card-header-btn p-3.5 space-y-2 cursor-pointer transition select-none">
-              
-              <!-- Top Row: Stop Badge, Merchant/Title, ETA & Dropdown Chevron -->
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2 min-w-0">
-                  <span class="shrink-0 text-[10px] font-black px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 tracking-wider shadow-sm">
-                    STOP #${idx + 1}
-                  </span>
-                  
-                  <h3 class="font-black text-white text-sm tracking-tight truncate">${displayName}</h3>
-                </div>
-
-                <div class="flex items-center gap-1.5 shrink-0">
-                  ${etaBadge}
-                  
-                  <div class="w-6 h-6 rounded-lg bg-white/[0.06] border border-white/10 flex items-center justify-center text-slate-300 chevron-icon ${isExpanded ? 'is-expanded' : ''}">
-                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Summary Sub-Row: Destination District, COD, and Fast Phone Call -->
-              <div class="flex items-center justify-between gap-2 pt-0.5 text-xs">
-                <div class="flex items-center flex-wrap gap-1.5 min-w-0">
-                  <span class="text-[11px] text-slate-300 font-medium flex items-center gap-1 truncate max-w-[140px] sm:max-w-[220px]" title="${order.address}">
-                    <i class="fa-solid fa-location-dot text-amber-400 text-[10px] shrink-0"></i>
-                    <span class="truncate">${districtName}</span>
-                  </span>
-
-                  ${codBadge}
-                  ${isFragile ? `
-                    <span class="text-[9.5px] font-black px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-300 border border-rose-500/40">🍷 FRAGILE</span>
-                  ` : ''}
-                </div>
-
-                <!-- Customer Phone Quick Call & Copy -->
-                <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
-                  <a href="tel:+${order.phone}" class="tactile-btn text-[10px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 transition">
-                    <i class="fa-solid fa-phone text-[9px] text-amber-400"></i> Call
-                  </a>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Maximized Details Tray (Appears on click/dropdown) -->
-            ${isExpanded ? `
-              <div class="px-3.5 pb-3.5 pt-2 space-y-3 border-t border-white/[0.08] bg-black/25 animate-fade-in">
-                
-                <!-- Full Destination Address & Landmark Block -->
-                <div class="bg-black/40 p-3 rounded-xl border border-white/[0.06] space-y-2">
-                  <div class="flex items-start justify-between gap-2">
-                    <div class="space-y-1 min-w-0">
-                      <div class="flex items-start gap-2 text-xs text-slate-200 font-semibold leading-relaxed">
-                        <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
-                        <span>${order.address}</span>
-                      </div>
-                      ${order.landmark ? `
-                        <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-4 font-medium">
-                          <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i>
-                          <span>Landmark: ${order.landmark}</span>
-                        </div>
-                      ` : ''}
-                    </div>
-                    <button onclick="copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" class="tactile-btn shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-1 rounded-lg bg-white/[0.05] border border-white/10 transition">
-                      <i class="fa-regular fa-copy"></i> Copy
-                    </button>
-                  </div>
-
-                  <!-- Customer Phone & Details Row -->
-                  <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.05] text-[11px]">
-                    <div class="flex items-center gap-1.5 text-slate-300 font-medium">
-                      <i class="fa-solid fa-phone text-amber-400 text-[10px]"></i>
-                      <span>+${order.phone}</span>
-                      <button onclick="copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="text-slate-400 hover:text-white ml-0.5">
-                        <i class="fa-regular fa-copy text-[10px]"></i>
-                      </button>
-                    </div>
-
-                    <div class="flex items-center gap-1.5">
-                      ${feeBadge}
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Action Controls: Direct Turn-by-Turn Navigate, WhatsApp Dispatch Alert, Mark Delivered -->
-                <div class="grid grid-cols-3 gap-2 pt-0.5">
-                  <a href="${singleMapsLink}" target="_blank" class="tactile-btn text-center text-xs font-black py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
-                    <i class="fa-solid fa-location-arrow text-xs"></i>
-                    <span>Navigate</span>
-                  </a>
-
-                  <a href="${alertLink}" target="_blank" class="tactile-btn text-center text-xs font-bold py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
-                    <span>WhatsApp</span>
-                  </a>
-
-                  <button onclick="setStatus('${order.id}', 'Delivered')" ${isUpdating ? 'disabled' : ''} class="tactile-btn text-center text-xs font-black py-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 active:scale-95 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1.5 transition">
-                    ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>' : '<i class="fa-solid fa-check text-xs"></i>'}
-                    <span>Delivered</span>
-                  </button>
-                </div>
-
-              </div>
-            ` : ''}
-
-          </div>
-        `;
+        return SadexUI.stopCard(order, {
+          idx,
+          expanded: expandedOrderIds.has(order.id),
+          updating: updatingStatusIds.has(order.id),
+          etaText: eta ? eta.badgeText : "",
+          area: order.address,
+          mapsLink: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`,
+          chatLink: inTransitLink,
+          onToggle: `toggleOrderExpand('${id}')`,
+          onDeliver: `setStatus('${id}', 'Delivered')`,
+          onCopyPhone: `copyToClipboard('${SadexUI.jsArg(order.phone)}', 'Phone number')`,
+          onCopyAddress: `copyToClipboard('${SadexUI.jsArg(order.address)}', 'Address')`
+        });
       }).join("");
+      container.innerHTML = SadexUI.stopList(cards);
     }
 
     async function handleCreateOrder(e) {

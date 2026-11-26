@@ -79,14 +79,14 @@
     wrap.id = "sadexLoginGate";
     wrap.setAttribute("role", "dialog");
     wrap.setAttribute("aria-label", "SADEX rider login");
-    wrap.style.cssText = "position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(6,24,16,0.97);font-family:inherit;";
+    wrap.style.cssText = "position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;background:#F4F7F5;font-family:inherit;";
     wrap.innerHTML = `
-      <div style="width:100%;max-width:320px;background:#0d2a1b;border:1px solid rgba(212,175,55,0.35);border-radius:24px;padding:24px;text-align:center;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.5)">
-        <img src="/IMG_7852.jpeg" alt="SADEX" style="width:64px;height:64px;border-radius:20px;object-fit:cover;margin:0 auto 12px;border:1px solid rgba(212,175,55,.4)">
-        <h2 style="font-size:18px;font-weight:800;margin:0">SADEX Rider Login</h2>
-        <p style="font-size:12px;color:#cbd5e1;margin:4px 0 16px">Enter your 6-digit rider PIN</p>
+      <div style="width:100%;max-width:320px;background:#FFFFFF;border:1px solid #E2E9E5;border-radius:24px;padding:24px;text-align:center;color:#14201A;box-shadow:0 8px 30px rgba(20,32,26,.08)">
+        <img src="/IMG_7852.jpeg" alt="SADEX" style="width:64px;height:64px;border-radius:20px;object-fit:cover;margin:0 auto 12px;border:1px solid #E2E9E5">
+        <h2 style="font-size:19px;font-weight:700;margin:0">SADEX Express</h2>
+        <p style="font-size:14px;color:#526158;margin:4px 0 18px">Enter your 6-digit rider PIN</p>
         <div id="sadexGateDots" style="display:flex;gap:12px;justify-content:center;margin-bottom:8px"></div>
-        <div id="sadexGateError" style="min-height:18px;font-size:12px;font-weight:700;color:#fb7185;margin-bottom:8px"></div>
+        <div id="sadexGateError" style="min-height:18px;font-size:12px;font-weight:700;color:#9B2C2C;margin-bottom:8px"></div>
         <div id="sadexGatePad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
       </div>`;
     document.body.appendChild(wrap);
@@ -102,14 +102,14 @@
       for (let i = 0; i < PIN_LENGTH; i++) {
         const d = document.createElement("span");
         const on = i < pin.length;
-        d.style.cssText = `width:13px;height:13px;border-radius:50%;border:2px solid ${on ? "#d4af37" : "rgba(255,255,255,.25)"};background:${on ? "#d4af37" : "transparent"}`;
+        d.style.cssText = `width:13px;height:13px;border-radius:50%;border:2px solid ${on ? "#1E5631" : "#C7D1CB"};background:${on ? "#1E5631" : "transparent"}`;
         dots.appendChild(d);
       }
     }
 
     async function submit() {
       busy = true;
-      err.style.color = "#cbd5e1";
+      err.style.color = "#526158";
       err.textContent = "Checking…";
       const result = await login("rider", pin);
       busy = false;
@@ -118,7 +118,7 @@
         document.removeEventListener("keydown", onKey);
         onSuccess(result.session);
       } else {
-        err.style.color = "#fb7185";
+        err.style.color = "#9B2C2C";
         err.textContent = result.message;
         pin = "";
         drawDots();
@@ -141,7 +141,7 @@
       b.textContent = k === "del" ? "⌫" : k === "clr" ? "CLEAR" : k;
       b.setAttribute("aria-label", k === "del" ? "Delete" : k === "clr" ? "Clear" : k);
       const isKey = k !== "del" && k !== "clr";
-      b.style.cssText = `height:48px;border-radius:16px;font-size:${isKey ? "18px" : "12px"};font-weight:700;color:${isKey ? "#fff" : "#94a3b8"};background:${isKey ? "rgba(255,255,255,.06)" : "transparent"};border:${isKey ? "1px solid rgba(255,255,255,.1)" : "none"};cursor:pointer`;
+      b.style.cssText = `height:54px;border-radius:14px;font-size:${isKey ? "20px" : "13px"};font-weight:600;color:${isKey ? "#14201A" : "#526158"};background:${isKey ? "#F1F5F2" : "transparent"};border:none;cursor:pointer;font-family:inherit`;
       b.addEventListener("click", () => press(k));
       pad.appendChild(b);
     });

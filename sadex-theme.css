@@ -1,0 +1,299 @@
+/* SADEX Express Logistics light theme: Forest Green, white, Soft Gold.
+   Loaded after each page's own <style> so these rules win.
+   Works with tailwind-theme.js, which remaps the Tailwind colour classes. */
+:root {
+  --sx-forest: #1E5631;
+  --sx-forest-dark: #174427;
+  --sx-forest-tint: #E8F0EB;
+  --sx-gold: #C9A54A;
+  --sx-gold-text: #7A5A0E;
+  --sx-gold-tint: #FBF3DF;
+  --sx-gold-line: #ECD9A6;
+  --sx-red-text: #9B2C2C;
+  --sx-red-tint: #FDECEC;
+  --sx-ink: #14201A;
+  --sx-muted: #526158;
+  --sx-line: #E2E9E5;
+  --sx-paper: #F4F7F5;
+  --sx-card: #FFFFFF;
+  color-scheme: light;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  background: var(--sx-paper) !important;
+  color: var(--sx-ink) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Remove the dark glass effects */
+.orb, .orb-gold, .orb-emerald, .orb-forest { display: none !important; }
+.sheen-card::after { display: none !important; }
+.ios-blur {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: var(--sx-line) !important;
+}
+.ios-card {
+  background: var(--sx-card) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--sx-line) !important;
+  box-shadow: 0 1px 2px rgba(20, 32, 26, 0.05) !important;
+}
+.ios-card:hover { border-color: #CFDCD4 !important; }
+.ios-card-fragile { background: var(--sx-card) !important; border-color: #F2C4C4 !important; }
+.ios-card-selected {
+  border-color: var(--sx-forest) !important;
+  background: var(--sx-forest-tint) !important;
+  box-shadow: 0 0 0 1px var(--sx-forest) !important;
+}
+.badge-cod-liquid {
+  background: var(--sx-gold-tint) !important;
+  color: var(--sx-gold-text) !important;
+  text-shadow: none !important;
+  border: 1px solid var(--sx-gold-line) !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+.eta-badge-glow, .fare-badge-glow {
+  background: var(--sx-forest-tint) !important;
+  border: 1px solid #CFDCD4 !important;
+  box-shadow: none !important;
+  color: var(--sx-forest) !important;
+}
+.fare-glass-panel {
+  background: var(--sx-card) !important;
+  backdrop-filter: none !important;
+  border: 1px solid var(--sx-line) !important;
+  box-shadow: none !important;
+}
+.ios-card-header-btn:hover { background: #F7FAF8 !important; }
+input, select, textarea {
+  background-color: #FFFFFF !important;
+  color: var(--sx-ink) !important;
+  border-color: #CFDCD4 !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--sx-forest) !important;
+  box-shadow: 0 0 0 3px rgba(30, 86, 49, 0.15) !important;
+  outline: none !important;
+}
+:focus-visible { outline: 2px solid var(--sx-forest); outline-offset: 2px; }
+
+/* Solid coloured buttons keep white text (Tailwind's "white" is remapped to ink) */
+.bg-emerald-600.text-white, .bg-emerald-500.text-white, .bg-sky-600.text-white, .bg-sky-500.text-white,
+.bg-rose-500.text-white, .bg-rose-600.text-white, .from-emerald-600.text-white, .from-sky-600.text-white,
+.bg-amber-500, .bg-amber-400, .bg-amber-500\/90, .from-amber-500 {
+  color: #FFFFFF !important;
+}
+.from-amber-500 {
+  background-image: none !important;
+  background-color: var(--sx-forest) !important;
+  border-color: var(--sx-forest) !important;
+  box-shadow: none !important;
+}
+.from-amber-500:hover { background-color: var(--sx-forest-dark) !important; }
+
+/* Readable text: the old design used 8-10px labels, too small outdoors */
+.text-\[8px\], .text-\[8\.5px\], .text-\[9px\], .text-\[9\.5px\] { font-size: 11px !important; }
+.text-\[10px\] { font-size: 11.5px !important; }
+.text-\[11px\] { font-size: 12px !important; }
+.font-black { font-weight: 700 !important; }
+.tracking-wider, .tracking-widest { letter-spacing: 0.02em !important; }
+.animate-pulse { animation: none !important; }
+
+/* Full-screen modals used a near-black green backdrop */
+.bg-\[\#061810\]\/95, .bg-\[\#061810\]\/90, .bg-\[\#061810\] { background-color: rgba(244, 247, 245, 0.97) !important; }
+
+/* CEO stat tiles: drop the coloured top stripe, keep numbers readable */
+.border-t-2[class*="border-t-"] { border-top-width: 1px !important; }
+#statCodCollected { font-size: 18px !important; }
+.leaflet-container { background: #EEF3F0 !important; }
+
+/* Toasts */
+#toastHUD > div, #toastHUD.toast-animate-in > div {
+  background: var(--sx-ink) !important;
+  color: #FFFFFF !important;
+}
+
+/* Map popups (CEO console) */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: #FFFFFF !important;
+  color: var(--sx-ink) !important;
+  border: 1px solid var(--sx-line) !important;
+}
+
+/* ---------- New rider run summary and stop cards ---------- */
+.sx-summary {
+  background: var(--sx-forest);
+  color: #FFFFFF;
+  border-radius: 18px;
+  padding: 14px 16px 16px;
+}
+.sx-summary-row { display: flex; gap: 8px; }
+.sx-stat {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+.sx-stat-label { font-size: 12px; color: #CFE3D6; }
+.sx-stat-value { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sx-stat-value.is-cash { color: #E8C873; }
+.sx-progress { height: 6px; background: rgba(255, 255, 255, 0.2); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+.sx-progress > span { display: block; height: 100%; background: var(--sx-gold); border-radius: 3px; transition: width 0.4s ease; }
+.sx-route-btn {
+  margin-top: 12px;
+  width: 100%;
+  min-height: 48px;
+  border-radius: 12px;
+  background: var(--sx-gold);
+  color: #1F1606;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+}
+.sx-route-btn:active { transform: scale(0.98); }
+
+.sx-list { background: var(--sx-card); border: 1px solid var(--sx-line); border-radius: 18px; overflow: hidden; }
+.sx-stop { border-bottom: 1px solid var(--sx-line); }
+.sx-stop:last-child { border-bottom: none; }
+.sx-stop.is-next { background: #F6FAF7; }
+.sx-stop-head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+}
+.sx-num {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--sx-forest-tint);
+  color: var(--sx-forest);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sx-stop.is-next .sx-num { background: var(--sx-forest); color: #FFFFFF; }
+.sx-body { flex: 1; min-width: 0; }
+.sx-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.sx-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sx-eta { font-size: 13px; color: var(--sx-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sx-stop.is-next .sx-eta { color: var(--sx-forest); font-weight: 600; }
+.sx-area { font-size: 13px; color: var(--sx-muted); margin: 2px 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sx-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.sx-tag { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 7px; }
+.sx-tag.cash { background: var(--sx-gold-tint); color: var(--sx-gold-text); }
+.sx-tag.paid { background: var(--sx-forest-tint); color: var(--sx-forest); }
+.sx-tag.fragile { background: var(--sx-red-tint); color: var(--sx-red-text); }
+.sx-tag.transit { background: #E6F1FB; color: #185FA5; }
+.sx-chev { flex: none; color: var(--sx-muted); margin-top: 6px; transition: transform 0.2s ease; }
+.sx-stop.is-open .sx-chev { transform: rotate(180deg); }
+
+.sx-detail { padding: 0 16px 16px 58px; display: grid; gap: 10px; }
+.sx-box { border: 1px solid var(--sx-line); border-radius: 12px; padding: 12px; background: #FFFFFF; }
+.sx-box-label { font-size: 12px; color: var(--sx-muted); }
+.sx-box-value { font-size: 15px; font-weight: 600; margin-top: 2px; overflow-wrap: anywhere; }
+.sx-box-sub { font-size: 13px; color: var(--sx-gold-text); margin-top: 4px; }
+.sx-box-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; }
+.sx-phone { font-size: 14px; color: var(--sx-forest); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sx-mini {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sx-forest);
+  background: var(--sx-forest-tint);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.sx-cash {
+  background: var(--sx-gold-tint);
+  border: 1px solid var(--sx-gold-line);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sx-cash-label { font-size: 12px; color: var(--sx-gold-text); }
+.sx-cash-value { font-size: 24px; font-weight: 700; color: #5E4309; font-variant-numeric: tabular-nums; }
+.sx-fragile-note {
+  background: var(--sx-red-tint);
+  color: var(--sx-red-text);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.sx-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.sx-btn {
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid #CFDCD4;
+  background: #FFFFFF;
+  color: var(--sx-forest);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.sx-btn:active, .sx-deliver:active { transform: scale(0.98); }
+.sx-deliver {
+  min-height: 54px;
+  border-radius: 12px;
+  border: none;
+  background: var(--sx-forest);
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  width: 100%;
+}
+.sx-deliver[disabled] { opacity: 0.7; cursor: wait; }
+.sx-empty { padding: 40px 20px; text-align: center; }
+.sx-empty-icon {
+  width: 52px; height: 52px; border-radius: 16px; margin: 0 auto 12px;
+  background: var(--sx-forest-tint); color: var(--sx-forest);
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.sx-empty h3 { font-size: 16px; font-weight: 700; margin: 0; }
+.sx-empty p { font-size: 13px; color: var(--sx-muted); margin: 4px 0 0; }
+
+@media (max-width: 380px) {
+  .sx-detail { padding-left: 16px; }
+  .sx-btn { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

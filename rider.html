@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -7,10 +7,12 @@
   <link rel="apple-touch-icon" href="/IMG_7852.jpeg" />
   <link rel="icon" type="image/jpeg" href="/IMG_7852.jpeg" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="SADEX" />
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#061810" />
+  <meta name="theme-color" content="#1E5631" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <script>
@@ -37,6 +39,7 @@
       }
     }
   </script>
+  <script src="/tailwind-theme.js"></script>
   <style>
     * {
       -webkit-tap-highlight-color: transparent;
@@ -120,6 +123,7 @@
       animation: toastOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   </style>
+  <link rel="stylesheet" href="/sadex-theme.css" />
 </head>
 <body class="min-h-screen pb-24 selection:bg-amber-500 selection:text-black antialiased">
 
@@ -138,14 +142,9 @@
         <img src="/IMG_7852.jpeg" alt="SADEX" class="w-9 h-9 rounded-2xl border border-amber-500/40 object-cover shadow-inner" />
         <div>
           <div class="flex items-center gap-1.5">
-            <h1 class="font-extrabold text-sm tracking-tight text-white">
-              SADEX <span class="text-amber-400 font-black">RIDER</span>
-            </h1>
-            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              ABUJA FLEET
-            </span>
+            <h1 class="font-bold text-base tracking-tight text-white">SADEX Express</h1>
           </div>
-          <p class="text-[10px] text-slate-400 font-medium">Active Multi-Stop Delivery Queue</p>
+          <p class="text-xs text-slate-400 font-medium">Rider · today's run</p>
         </div>
       </div>
       
@@ -177,62 +176,30 @@
 
   <main class="max-w-md mx-auto p-4 space-y-4">
 
-    <!-- Master Multi-Stop Route Action -->
-    <div id="masterRouteCard" class="ios-card rounded-2xl p-4 border border-amber-500/30 bg-gradient-to-br from-amber-500/15 via-slate-900 to-slate-900 shadow-xl space-y-3">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
-            <i class="fa-solid fa-location-crosshairs"></i>
-          </div>
-          <div>
-            <h2 class="text-xs font-bold text-white tracking-tight">Abuja Master Route</h2>
-            <p class="text-[10px] text-slate-400">Routes all stops from your live GPS location</p>
-          </div>
-        </div>
-        <span id="activeCountBadge" class="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950">
-          0 Stops
-        </span>
-      </div>
+    <!-- Run summary: progress, cash to collect, start route -->
+    <div id="runSummary"></div>
 
-      <button id="masterRouteBtn" onclick="launchMasterRoute()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] text-slate-950 font-black py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 transition">
-        <i class="fa-solid fa-route text-sm"></i>
-        <span>Launch Full Multi-Stop Google Route</span>
-      </button>
-    </div>
-
-    <!-- Active Stops Header with Accordion Controls -->
     <div class="flex items-center justify-between px-1">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-        <h2 class="text-xs font-black uppercase tracking-wider text-slate-300">Deliveries To Complete</h2>
-        <span class="text-[10px] text-slate-500 hidden sm:inline">(Tap card to expand)</span>
-      </div>
-      <div class="flex items-center gap-2.5">
-        <span id="queueCount" class="text-[10px] text-slate-400 font-bold">0 Remaining</span>
-        <span class="text-slate-600">•</span>
-        <button type="button" onclick="expandAllOrders()" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition cursor-pointer">
-          <i class="fa-solid fa-up-right-and-down-left-from-center text-[9px]"></i>
-          <span>Expand</span>
-        </button>
-        <button type="button" onclick="collapseAllOrders()" class="text-[10px] text-slate-400 hover:text-slate-200 font-bold flex items-center gap-1 transition cursor-pointer">
-          <i class="fa-solid fa-down-left-and-up-right-to-center text-[9px]"></i>
-          <span>Collapse</span>
-        </button>
+      <h2 class="text-sm font-semibold text-slate-400">Next stops</h2>
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="expandAllOrders()" class="text-sm text-emerald-400 font-semibold min-h-[44px]">Open all</button>
+        <button type="button" onclick="collapseAllOrders()" class="text-sm text-slate-400 font-semibold min-h-[44px]">Close all</button>
       </div>
     </div>
 
     <!-- Active Stops Card Container -->
-    <div id="riderOrdersContainer" class="space-y-3.5">
+    <div id="riderOrdersContainer">
       <div class="ios-card rounded-2xl py-14 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-3">
         <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
           <i class="fa-solid fa-circle-notch fa-spin text-amber-400 text-lg"></i>
         </div>
-        <span class="font-medium tracking-wide">Loading active dispatch stops...</span>
+        <span class="font-medium">Loading today's stops…</span>
       </div>
     </div>
 
   </main>
 
+  <script src="/sadex-ui.js"></script>
   <script src="/auth-client.js"></script>
   <script>
     const DATABASE_ID = "3c1c21a6f4768049a840d9ed8972b630";
@@ -895,12 +862,12 @@
     }
 
     function updateHeaderCounts() {
-      const count = activeOrders.length;
-      const activeCountBadge = document.getElementById("activeCountBadge");
-      const queueCount = document.getElementById("queueCount");
-
-      if (activeCountBadge) activeCountBadge.innerText = `${count} Stop${count === 1 ? '' : 's'}`;
-      if (queueCount) queueCount.innerText = `${count} Remaining`;
+      const el = document.getElementById("runSummary");
+      if (!el) return;
+      const left = activeOrders.length;
+      const delivered = SadexUI.deliveredToday();
+      const cash = activeOrders.reduce((sum, o) => sum + (Number(o.codAmount) || 0), 0);
+      el.innerHTML = SadexUI.runSummary({ delivered, total: delivered + left, cashToCollect: cash, stops: left });
     }
 
     async function buildAndOpenRoute(originCoords = null) {
@@ -1035,6 +1002,7 @@
 
         // Optimistically remove from active list & cache
         activeOrders = activeOrders.filter(o => o.id !== pageId);
+        SadexUI.countDelivered();
         try {
           localStorage.setItem("sadex_cached_manifest", JSON.stringify(activeOrders));
         } catch (e) {}
@@ -1072,6 +1040,7 @@
         
         showToast(`Stop marked Delivered!`);
         activeOrders = activeOrders.filter(o => o.id !== pageId);
+        SadexUI.countDelivered();
         try {
           localStorage.setItem("sadex_cached_manifest", JSON.stringify(activeOrders));
         } catch (e) {}
@@ -1138,173 +1107,31 @@
 
     function renderRiderOrders() {
       const container = document.getElementById("riderOrdersContainer");
+      updateHeaderCounts();
 
       if (activeOrders.length === 0) {
-        container.innerHTML = `
-          <div class="ios-card rounded-2xl py-14 px-4 text-center text-slate-400 text-xs">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-3 text-emerald-400">
-              <i class="fa-solid fa-circle-check text-2xl"></i>
-            </div>
-            <p class="font-bold text-sm text-slate-200">All Abuja Deliveries Completed!</p>
-            <p class="text-[11px] text-slate-500 mt-1">
-              No pending stops in queue. Tap Sync if new packages are logged.
-            </p>
-          </div>
-        `;
+        container.innerHTML = SadexUI.emptyState();
         return;
       }
 
-      container.innerHTML = activeOrders.map((order, idx) => {
-        const isFragile = (order.category || "").toLowerCase().includes("fragile");
-        const isUpdating = updatingStatusIds.has(order.id);
-        const hasCod = order.codAmount && order.codAmount > 0;
-        const isExpanded = expandedOrderIds.has(order.id);
-
-        const codBadge = hasCod ? `
-          <span class="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 flex items-center gap-1 shadow-sm animate-pulse">
-            <i class="fa-solid fa-money-bill-wave text-[9px] text-emerald-400"></i> COLLECT ₦${Number(order.codAmount).toLocaleString()}
-          </span>
-        ` : `
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-white/10 flex items-center gap-1">
-            <i class="fa-regular fa-credit-card text-[9px] text-slate-400"></i> Prepaid
-          </span>
-        `;
-
-        const eta = getEstimatedTimeOfArrival(idx);
-        const etaBadge = `
-          <span class="eta-badge-glow text-[10px] font-black px-2.5 py-0.5 rounded-md text-emerald-300 flex items-center gap-1 shadow-sm" title="Estimated arrival, based on distance between stops">
-            <i class="fa-regular fa-clock text-[9px] text-emerald-400 animate-pulse"></i>
-            <span>ETA: ${eta.badgeText}</span>
-            <span class="text-[8.5px] text-emerald-400/80 font-semibold">(+30m)</span>
-          </span>
-        `;
-
+      const cards = activeOrders.map((order, idx) => {
         const { inTransitLink } = buildWhatsAppTemplates(order);
-        const alertLink = inTransitLink;
-        const singleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`;
-        const displayName = order.merchant || "Standard Delivery";
-
-        const feeBadge = (order.deliveryFee && order.deliveryFee > 0) ? `
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1">
-            <i class="fa-solid fa-receipt text-[9px] text-amber-400"></i> ₦${Number(order.deliveryFee).toLocaleString()}
-          </span>
-        ` : '';
-
-        return `
-          <div class="ios-card animate-card-entry ${isFragile ? 'ios-card-fragile' : ''} rounded-2xl transition overflow-hidden">
-            
-            <!-- Minimized Card Header (Always Visible & Clickable) -->
-            <div 
-              onclick="toggleOrderExpand('${order.id}')"
-              class="ios-card-header-btn p-4 cursor-pointer select-none flex items-center justify-between gap-3 border-b ${isExpanded ? 'border-white/[0.08]' : 'border-transparent'}"
-            >
-              <div class="space-y-1.5 min-w-0 flex-1">
-                <!-- Badges Row -->
-                <div class="flex items-center flex-wrap gap-1.5">
-                  <span class="text-[10px] font-black px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 tracking-wider">
-                    STOP #${idx + 1}
-                  </span>
-                  
-                  ${isFragile ? `
-                    <span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center gap-1 tracking-wider">
-                      <i class="fa-solid fa-wine-glass text-[9px]"></i> FRAGILE
-                    </span>
-                  ` : `
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-white/10 flex items-center gap-1">
-                      <i class="fa-solid fa-box text-[9px] text-slate-400"></i> STANDARD
-                    </span>
-                  `}
-
-                  ${feeBadge}
-                  ${codBadge}
-                  ${etaBadge}
-                </div>
-
-                <div class="flex items-center justify-between gap-2 pt-0.5">
-                  <h3 class="font-black text-white text-sm tracking-tight truncate">${displayName}</h3>
-                </div>
-
-                <!-- Brief Address Preview when minimized -->
-                <p class="text-xs text-slate-300 truncate font-medium flex items-center gap-1.5 pt-0.5">
-                  <i class="fa-solid fa-location-dot text-amber-400 text-[10px] shrink-0"></i>
-                  <span class="truncate">${order.address}</span>
-                </p>
-              </div>
-
-              <!-- Chevron Expansion Indicator -->
-              <div class="flex items-center gap-2 shrink-0">
-                <div class="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center text-slate-300 hover:text-amber-400 border border-white/10 transition">
-                  <i class="fa-solid fa-chevron-down text-xs chevron-icon ${isExpanded ? 'is-expanded' : ''}"></i>
-                </div>
-              </div>
-            </div>
-
-            <!-- Maximized Details (Collapsible Area) -->
-            ${isExpanded ? `
-              <div class="p-4 pt-3.5 space-y-3.5 bg-black/15 animate-fade-in border-t border-white/[0.04]">
-                
-                <!-- Quick Contact Bar -->
-                <div class="flex items-center justify-between gap-2 bg-black/25 p-2.5 rounded-xl border border-white/[0.05]">
-                  <div class="flex items-center gap-2 min-w-0">
-                    <i class="fa-solid fa-phone text-amber-400 text-xs"></i>
-                    <span class="text-xs font-bold text-slate-200 truncate">+${order.phone}</span>
-                  </div>
-                  <div class="flex items-center gap-1 shrink-0">
-                    <a href="tel:+${order.phone}" class="text-[11px] font-bold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2.5 py-1 rounded-lg border border-white/10 flex items-center gap-1 transition">
-                      <i class="fa-solid fa-phone text-[10px] text-amber-400"></i> Call
-                    </a>
-                    <button onclick="event.stopPropagation(); copyToClipboard('${order.phone}', 'Phone Number')" title="Copy Phone" class="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-slate-400 hover:text-white text-xs transition border border-white/10">
-                      <i class="fa-regular fa-copy"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Full Delivery Address & Landmark Block -->
-                <div class="bg-black/30 p-3 rounded-xl border border-white/[0.06] space-y-1.5">
-                  <div class="flex items-start justify-between gap-2">
-                    <div class="flex items-start gap-2 min-w-0">
-                      <i class="fa-solid fa-location-dot text-amber-400 text-xs mt-0.5 shrink-0"></i>
-                      <p class="text-xs text-slate-200 font-semibold leading-relaxed">
-                        ${order.address}
-                      </p>
-                    </div>
-                    <button onclick="event.stopPropagation(); copyToClipboard('${order.address.replace(/'/g, "\\'")}', 'Address')" class="shrink-0 text-[10px] font-semibold text-slate-400 hover:text-slate-200 px-2 py-0.5 rounded bg-white/[0.05] border border-white/10 transition">
-                      <i class="fa-regular fa-copy"></i> Copy
-                    </button>
-                  </div>
-
-                  ${order.landmark ? `
-                    <div class="flex items-center gap-1.5 text-[11px] text-amber-300/90 pl-5 font-medium">
-                      <i class="fa-solid fa-signs-post text-[10px] text-amber-400"></i>
-                      <span>Landmark: ${order.landmark}</span>
-                    </div>
-                  ` : ''}
-                </div>
-
-                <!-- Action Controls: Navigate, WhatsApp Alert, Mark Delivered -->
-                <div class="grid grid-cols-3 gap-2 pt-0.5">
-                  <a href="${singleMapsLink}" target="_blank" onclick="event.stopPropagation()" class="text-center text-xs font-black py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition shadow-sm">
-                    <i class="fa-solid fa-location-arrow text-xs"></i>
-                    <span>Navigate</span>
-                  </a>
-
-                  <a href="${alertLink}" target="_blank" onclick="event.stopPropagation()" class="text-center text-xs font-bold py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 text-sky-300 border border-sky-500/20 flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-brands fa-whatsapp text-sky-400 text-sm"></i>
-                    <span>WhatsApp</span>
-                  </a>
-
-                  <button onclick="event.stopPropagation(); markAsDelivered('${order.id}')" ${isUpdating ? 'disabled' : ''} class="text-center text-xs font-black py-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 active:scale-95 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1.5 transition">
-                    ${isUpdating ? '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>' : '<i class="fa-solid fa-check text-xs"></i>'}
-                    <span>Delivered</span>
-                  </button>
-                </div>
-
-              </div>
-            ` : ''}
-
-          </div>
-        `;
+        const id = SadexUI.jsArg(order.id);
+        return SadexUI.stopCard(order, {
+          idx,
+          expanded: expandedOrderIds.has(order.id),
+          updating: updatingStatusIds.has(order.id),
+          etaText: getEstimatedTimeOfArrival(idx).badgeText,
+          area: order.address,
+          mapsLink: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatAbujaAddress(order.address))}&travelmode=driving`,
+          chatLink: inTransitLink,
+          onToggle: `toggleOrderExpand('${id}')`,
+          onDeliver: `markAsDelivered('${id}')`,
+          onCopyPhone: `copyToClipboard('${SadexUI.jsArg(order.phone)}', 'Phone number')`,
+          onCopyAddress: `copyToClipboard('${SadexUI.jsArg(order.address)}', 'Address')`
+        });
       }).join("");
+      container.innerHTML = SadexUI.stopList(cards);
     }
 
     // Initial startup (after rider login): cache restore, network status, GPS beacon & live fetch
