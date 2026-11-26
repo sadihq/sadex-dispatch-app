@@ -1,4 +1,6 @@
 // In-memory live rider tracking state for SADEX Express Fleet
+import { requireRole, parseBody } from "./_auth.js";
+
 let latestTracking = {
   riderId: "SADEX 01",
   riderName: "SADEX Unit 01 (Abuja)",
@@ -13,23 +15,18 @@ let latestTracking = {
 };
 
 export default async function trackHandler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
   if (req.method === "POST") {
+    // Riders (and the CEO testing from their phone) can send positions.
+    if (!requireRole(req, res, "rider")) return;
     try {
-      const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+      const body = parseBody(req);
       const { lat, lng, speed, heading, accuracy, riderId, riderName, status } = body;
 
       const parsedLat = parseFloat(lat);
       const parsedLng = parseFloat(lng);
 
-      if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+      const inRange = parsedLat >= -90 && parsedLat <= 90 && parsedLng >= -180 && parsedLng <= 180;
+      if (!isNaN(parsedLat) && !isNaN(parsedLng) && inRange) {
         const parsedSpeed = typeof speed === "number" ? speed : parseFloat(speed);
         const speedKmh = !isNaN(parsedSpeed) && parsedSpeed >= 0
           ? Math.round(parsedSpeed * 3.6)
@@ -63,10 +60,15 @@ export default async function trackHandler(req, res) {
 
       return res.status(400).json({ success: false, error: "Valid latitude and longitude numbers are required" });
     } catch (err) {
-      return res.status(500).json({ success: false, error: err.message });
+      return res.status(500).json({ success: false, error: "Could not save location" });
     }
   }
 
-  // GET request returns the latest live telemetry
+  if (req.method !== "GET") {
+    return res.status(405).json({ success: false, error: "Use GET or POST" });
+  }
+
+  // Only the CEO console can see where the rider is.
+  if (!requireRole(req, res, "ceo")) return;
   return res.status(200).json({ success: true, data: latestTracking });
 }
